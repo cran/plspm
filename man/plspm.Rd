@@ -1,0 +1,128 @@
+\name{plspm}
+\alias{plspm}
+\alias{plspm.default}
+\title{Partial Least Squares Path Modeling}
+\description{
+  Estimate path models with latent variables by partial least squares approach
+}
+\usage{
+  plspm(x, inner.mat, sets, modes = NULL, scheme = "factor",
+  scaled = TRUE, boot.val = FALSE)
+  \method{plspm}{default}(x, inner.mat, sets, modes = NULL,
+  scheme = "factor", scaled = TRUE, boot.val = FALSE)
+}
+\arguments{
+  \item{x}{A numeric matrix or data frame containing the manifest variables.}
+  \item{inner.mat}{A square (lower triangular) boolean matrix indicating the path relationships betwenn latent variables.}
+  \item{sets}{List of vectors with column indices from x indicating which manifest variables correspond to the latent variables.}
+  \item{modes}{A character vector indicating the type of measurement for each latent variable.
+               \code{"A"} for reflective measurement or \code{"B"} for formative measurement (\code{NULL} by default).}
+  \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"factor"}, \code{"centroid"} and \code{"path"}.}
+  \item{scaled}{A logical value indicating whether scaling data is performed (\code{TRUE} by default).}
+  \item{boot.val}{A logical value indicating whether bootstrap validation is performed (\code{FALSE} by default) }
+}
+\details{
+  The function \code{plspm} estimates a path model with latent variables by partial least squares approach. \cr
+  
+  The argument \code{inner.mat} is a matrix of zeros and ones that indicates the structural relationships between latent variables. This must be a lower triangular matrix. \code{inner.mat} will contain a 1 when column \code{j} affects row \code{i}, 0 otherwise. \cr
+
+  The argument \code{sets} is a list of vectors of indices indicating the sets of manifest variables associated to the latent variables. The length of \code{sets} must be equal to the number of rows of \code{inner.mat}. \cr
+
+  The argument \code{modes} is a character vector indicating the type of measurement for each latent variable. A value of \code{"A"} is used when a latent variable has reflective manifest variables, and a value of \code{"B"} is used when the latent variable has formative manifest variables. The length of \code{modes} must be equal to the number of rows of \code{inner.mat} (i.e. equal to the length of \code{sets}). \cr
+
+  The argument \code{scaled} is \code{TRUE} by default. This means that data in \code{x} is scaled to standardized values (mean=0, variance=1). Unless the data has the same scale for all variables, it is strongly recommended to keep this argument unchanged. \cr
+
+  When bootstrap validation is performed, the number of re-samples is 200. 
+}
+\value{
+  An object of class \code{"plspm"}, basically a list including the following elements:
+  \item{unidim}{Results for checking the unidimensionality of blocks (These results are only meaningful for reflective blocks).}
+  \item{outer.mod}{Results of the outer (measurement) model. Includes: outer weights, standardized loadings, communalities, and redundancies.}
+  \item{inner.mod}{Results of the inner (structural) model. Includes: path coefficients and R-squared for each endogenous latent variable.}
+  \item{latents}{Matrix of standardized latent variables (variance=1).}
+  \item{scores}{Matrix of re-scaled latent variables. If \code{scaled=FALSE} then \code{scores} are the standardized latent variables expressed in the same scale of the manifest variables. If \code{scaled=TRUE} then \code{scores} are equal to \code{latents}}
+  \item{out.weights}{Vector of outer weights.}
+  \item{loadings}{Vector of standardized loadings (i.e. correlations with LVs.)}
+  \item{path.coefs}{Matrix of path coefficients (this matrix has a similar form as \code{inner.mat}).}
+  \item{r.sqr}{Vector of R-squared coefficients.}
+  \item{outer.cor}{Correlations between the latent variables and the manifest variables (also called crossloadings).}
+  \item{inner.sum}{Summarized results by latent variable of the inner model. Includes: type of LV, type of measurement, number of indicators, R-squared, average communality, average redundancy, and average variance extracted}
+  \item{gof}{Table with indexes of Goodness-of-Fit. Includes: absolute GoF, relative GoF, outer model GoF, and inner model GoF.}
+  \item{effects}{Path effects of the structural relationships. Includes: direct, indirect, and total effects.} 
+  \item{boot}{List of bootstrapping results; only available when argument \code{boot.val=TRUE}.}
+}
+\references{
+  Tenenhaus, M., Esposito Vinzi, V., Chatelin Y.M., and Lauro, C. (2005) PLS path modeling. \emph{Computational Statistics & Data Analysis} \bold{48}, pp. 159-205. 
+
+  Tenenhaus, M., and Pages, J. (2001) Multiple factor analysis combined with PLS path modelling. Application to the analysis of relationships between physicochemical variables, sensory profiles and hedonic judgements. \emph{Chemometrics and Intelligent Laboratory Systems}, \bold{58}, pp. 261-273.
+
+  Tenenhaus, M., and Hanafi, M. A bridge between PLS path modeling and multi-block data analysis. \emph{Handbook on Partial Least Squares (PLS): Concepts, methods, and applications.} Springer: In press.
+
+  Lohmoller, J.-B. (1989) \emph{Latent variables path modelin with partial least squares.} Heidelberg: Physica-Verlag.
+
+  Wold, H. (1985) Partial Least Squares. In: Kotz, S., Johnson, N.L. (Eds.), \emph{Encyclopedia of Statistical Sciences}, Vol. 6. Wiley, New York, pp. 581-591.
+
+  Wold, H. (1982) Soft modeling: the basic design and some extensions. In: K.G. Joreskog & H. Wold (Eds.), \emph{Systems under indirect observations: Causality, structure, prediction}, Part 2, pp. 1-54. Amsterdam: Holland.
+}
+\author{Gaston Sanchez}
+\seealso{\code{\link{print.plspm}}, \code{\link{summary.plspm}}.}
+\examples{
+  \dontrun{
+  ## example of PLS-PM in ecological analysis
+  ## model with three LVs and formative indicators
+  data(arizona)
+  ari.mat <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
+  dimnames(ari.mat) <- list(c("ENV","SOIL","DIV"),c("ENV","SOIL","DIV"))
+  ari.sets <- list(c(1,2),c(3,4,5),c(6,7,8)) 
+  ari.mod <- c("B","B","B")  ## formative indicators
+  res1 <- plspm(arizona, inner.mat=ari.mat, sets=ari.sets, modes=ari.mod,
+  scheme="factor", scaled=TRUE, boot.val=FALSE)
+  res1
+  summary(res1)
+  
+  ## typical example of PLS-PM in customer satisfaction analysis
+  ## model with six LVs and reflective indicators
+  data(satisfaction)
+  IMAG <- c(0,0,0,0,0,0)
+  EXPE <- c(1,0,0,0,0,0)
+  QUAL <- c(1,1,0,0,0,0)
+  VAL  <- c(0,1,1,0,0,0)
+  SAT  <- c(1,1,1,1,0,0) 
+  LOY  <- c(1,0,0,0,1,0)
+  sat.mat <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
+  sat.sets <- list(1:5,6:10,11:15,16:19,20:23,24:27)
+  sat.mod <- rep("A",6)   ## reflective indicators
+  res2 <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="factor", 
+  scaled=FALSE, boot.val=FALSE)
+  summary(res2)
+  
+  ## example of PLS-PM in sensory analysis
+  ## estimate a path model for the orange juice data
+  data(orange)
+  senso.mat <- matrix(c(0,0,0,1,0,0,1,1,0),3,3,byrow=TRUE)
+  dimnames(senso.mat) <- list(c("PHYCHEM","SENSORY","HEDONIC"),
+                              c("PHYCHEM","SENSORY","HEDONIC"))
+  senso.sets <- list(1:9,10:16,17:112)
+  senso.mod <- rep("A",3)
+  res3 <- plspm(orange, senso.mat, senso.sets, senso.mod, 
+                scheme="centroid", scaled=TRUE, boot.val=FALSE)
+
+  ## example of PLS-PM in multi-block data analysis
+  ## estimate a path model for the wine data set 
+  ## requires package FactoMineR 
+  library(FactoMineR)
+  data(wine)
+  SMELL <- c(0,0,0,0)
+  VIEW <- c(1,0,0,0)
+  SHAKE <- c(1,1,0,0)
+  TASTE <- c(1,1,1,0)
+  wine.mat <- rbind(SMELL,VIEW,SHAKE,TASTE)
+  wine.sets <- list(3:7,8:10,11:20,21:29)
+  wine.mods <- rep("A",4)
+  scheme <- "centroid"
+  scaled <- FALSE
+  boot.val <- FALSE
+  res4 <- plspm(wine, wine.mat, wine.sets, wine.mods, scheme="centroid", 
+                scaled=TRUE, boot.val=FALSE)
+  }
+}
