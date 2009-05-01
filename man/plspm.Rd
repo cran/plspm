@@ -1,15 +1,15 @@
 \name{plspm}
 \alias{plspm}
 \alias{plspm.default}
-\title{Partial Least Squares Path Modeling}
+\title{PLS-PM: Partial Least Squares Path Modeling}
 \description{
   Estimate path models with latent variables by partial least squares approach
 }
 \usage{
   plspm(x, inner.mat, sets, modes = NULL, scheme = "factor",
-  scaled = TRUE, boot.val = FALSE)
+  scaled = TRUE, boot.val = FALSE, plsr = FALSE)
   \method{plspm}{default}(x, inner.mat, sets, modes = NULL,
-  scheme = "factor", scaled = TRUE, boot.val = FALSE)
+  scheme = "factor", scaled = TRUE, boot.val = FALSE, plsr = FALSE)
 }
 \arguments{
   \item{x}{A numeric matrix or data frame containing the manifest variables.}
@@ -20,6 +20,7 @@
   \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"factor"}, \code{"centroid"} and \code{"path"}.}
   \item{scaled}{A logical value indicating whether scaling data is performed (\code{TRUE} by default).}
   \item{boot.val}{A logical value indicating whether bootstrap validation is performed (\code{FALSE} by default) }
+  \item{plsr}{A logical value indicating whether pls regression is applied (\code{FALSE} by default) }
 }
 \details{
   The function \code{plspm} estimates a path model with latent variables by partial least squares approach. \cr
@@ -33,9 +34,11 @@
   The argument \code{scaled} is \code{TRUE} by default. This means that data in \code{x} is scaled to standardized values (mean=0, variance=1). Unless the data has the same scale for all variables, it is strongly recommended to keep this argument unchanged. \cr
 
   When bootstrap validation is performed, the number of re-samples is 200. 
+
+  The argument \code{plsr} gives the option to calculate the inner model relationships by means of pls regression.
 }
 \value{
-  An object of class \code{"plspm"}, basically a list including the following elements:
+  An object of class \code{"plspm"}, basically a list with the following elements:
   \item{unidim}{Results for checking the unidimensionality of blocks (These results are only meaningful for reflective blocks).}
   \item{outer.mod}{Results of the outer (measurement) model. Includes: outer weights, standardized loadings, communalities, and redundancies.}
   \item{inner.mod}{Results of the inner (structural) model. Includes: path coefficients and R-squared for each endogenous latent variable.}
@@ -52,7 +55,7 @@
   \item{boot}{List of bootstrapping results; only available when argument \code{boot.val=TRUE}.}
 }
 \references{
-  Tenenhaus, M., Esposito Vinzi, V., Chatelin Y.M., and Lauro, C. (2005) PLS path modeling. \emph{Computational Statistics & Data Analysis} \bold{48}, pp. 159-205. 
+  Tenenhaus, M., Esposito Vinzi, V., Chatelin Y.M., and Lauro, C. (2005) PLS path modeling. \emph{Computational Statistics & Data Analysis}, \bold{48}, pp. 159-205. 
 
   Tenenhaus, M., and Pages, J. (2001) Multiple factor analysis combined with PLS path modelling. Application to the analysis of relationships between physicochemical variables, sensory profiles and hedonic judgements. \emph{Chemometrics and Intelligent Laboratory Systems}, \bold{58}, pp. 261-273.
 
@@ -64,7 +67,9 @@
 
   Wold, H. (1982) Soft modeling: the basic design and some extensions. In: K.G. Joreskog & H. Wold (Eds.), \emph{Systems under indirect observations: Causality, structure, prediction}, Part 2, pp. 1-54. Amsterdam: Holland.
 }
-\author{Gaston Sanchez}
+\author{
+  Gaston Sanchez \url{http://www.docstoc.com/profile/gasigiri}
+}
 \seealso{\code{\link{print.plspm}}, \code{\link{summary.plspm}}.}
 \examples{
   \dontrun{
@@ -76,7 +81,7 @@
   ari.sets <- list(c(1,2),c(3,4,5),c(6,7,8)) 
   ari.mod <- c("B","B","B")  ## formative indicators
   res1 <- plspm(arizona, inner.mat=ari.mat, sets=ari.sets, modes=ari.mod,
-  scheme="factor", scaled=TRUE, boot.val=FALSE)
+  scheme="factor", scaled=TRUE, plsr=TRUE)
   res1
   summary(res1)
   
@@ -93,7 +98,7 @@
   sat.sets <- list(1:5,6:10,11:15,16:19,20:23,24:27)
   sat.mod <- rep("A",6)   ## reflective indicators
   res2 <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="factor", 
-  scaled=FALSE, boot.val=FALSE)
+                scaled=FALSE)
   summary(res2)
   
   ## example of PLS-PM in sensory analysis
@@ -122,7 +127,6 @@
   scheme <- "centroid"
   scaled <- FALSE
   boot.val <- FALSE
-  res4 <- plspm(wine, wine.mat, wine.sets, wine.mods, scheme="centroid", 
-                scaled=TRUE, boot.val=FALSE)
+  res4 <- plspm(wine, wine.mat, wine.sets, wine.mods, scheme="centroid")                
   }
 }

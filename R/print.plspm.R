@@ -8,14 +8,9 @@ function(x, ...)
        "path coefficients", "R-squared", "outer correlations", "summary inner model", 
        "goodnes-of-fit", "total effects")
     if (length(x)==15) {
-       Name <- c("$unidim", "$outer.mod", "$inner.mod", "$latents", "$scores", "$out.weights",  
-                 "$loadings", "$path.coefs", "$r.sqr", "$outer.cor", "$inner.sum", "$gof",
-                 "$effects", "$boot", "$boot$weights", "$boot$loadings", 
-                 "$boot$paths", "$boot$efects", "$boot$rsq")
-       Description <- c("unidimensionality", "outer model", "inner model", "scaled LVs (variance=1)", 
-              "re-scaled LVs for scaled=FALSE", "outer weights", "measurement loadings",  
-              "path coefficients", "R-squared", "outer correlations", "summary inner model", 
-              "goodness-of-fit", "total effects", "bootstrap results", "bootstrap weights", 
+       Name <- c(Name, "$boot", "$boot$weights", "$boot$loadings", "$boot$paths",
+                 "$boot$efects", "$boot$rsq")
+       Description <- c(Description, "bootstrap results", "bootstrap weights", 
               "bootstrap loadings", "bootstrap path.coefs", "bootstrap total effects", "bootstrap R2")
     }
     res1 <- cbind(Name, Description)

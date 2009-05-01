@@ -39,4 +39,4 @@
   data(arizona)
   arizona
 }
-
+\keyword{datasets}

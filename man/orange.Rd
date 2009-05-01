@@ -47,4 +47,4 @@
   data(orange)
   orange
 }
-
+\keyword{datasets}

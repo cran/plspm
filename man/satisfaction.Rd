@@ -23,4 +23,4 @@
   data(satisfaction)
   satisfaction
 }
-
+\keyword{datasets}
