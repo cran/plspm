@@ -1,6 +1,5 @@
 \name{plspm}
 \alias{plspm}
-\alias{plspm.default}
 \title{PLS-PM: Partial Least Squares Path Modeling}
 \description{
   Estimate path models with latent variables by partial least squares approach
@@ -8,8 +7,6 @@
 \usage{
   plspm(x, inner.mat, sets, modes = NULL, scheme = "factor",
   scaled = TRUE, boot.val = FALSE, plsr = FALSE)
-  \method{plspm}{default}(x, inner.mat, sets, modes = NULL,
-  scheme = "factor", scaled = TRUE, boot.val = FALSE, plsr = FALSE)
 }
 \arguments{
   \item{x}{A numeric matrix or data frame containing the manifest variables.}

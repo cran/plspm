@@ -7,7 +7,7 @@
 }
 \usage{satisfaction}
 \format{
-  A data frame with 250 observations and 27 variables. The variables refer to six latent concepts: 1) \code{IMAG}=Image, 2) \code{EXPE}=Expectations, 3) \code{QUAL}=Quality, 4) \code{VAL}=Value, 5) \code{SAT}=Satisfaction, and 6) \code{LOY}=Loyalty.
+  A data frame with 250 observations and 28 variables. Variables from 1 to 27 refer to six latent concepts: 1) \code{IMAG}=Image, 2) \code{EXPE}=Expectations, 3) \code{QUAL}=Quality, 4) \code{VAL}=Value, 5) \code{SAT}=Satisfaction, and 6) \code{LOY}=Loyalty. The last variable is a categorical variable indicating the gender of the individual.
 
     \code{IMAG}: Includes variables such as reputation, trustworthiness, seriousness, solidness, and caring about customer's needs. \cr
     \code{EXPE}: Includes variables such as products and services provided, customer service, providing solutions, and expectations for the overall quality. \cr

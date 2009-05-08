@@ -1,13 +1,11 @@
 \name{plsreg1}
 \alias{plsreg1}
-\alias{plsreg1.default}
 \title{PLS-R1: Partial Least Squares Regression 1}
 \description{
   Calculates partial least squares regression for the univariate case (i.e. one response variable)
 }
 \usage{
   plsreg1(x, y, nc = 2, cv = FALSE)
-  \method{plsreg1}{default}(x, y, nc = 2, cv = FALSE)
 }
 \arguments{
   \item{x}{A numeric matrix or data frame with the predictor variables (which may contain missing data).}

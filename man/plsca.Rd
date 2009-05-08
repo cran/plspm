@@ -1,13 +1,11 @@
 \name{plsca}
 \alias{plsca}
-\alias{plsca.default}
 \title{PLS-CA: Partial Least Squares Canonical Analysis}
 \description{
   Performs partial least squares canonical analysis for two blocks of data. Compared to PLSR2, the blocks of variables in PLS-CA play a symmetric role (i.e. there is neither predictors nor predictands)
 }
 \usage{
   plsca(X, Y, nc = NULL, scaled = TRUE)
-  \method{plsca}{default}(X, Y, nc = NULL, scaled = TRUE)
 }
 \arguments{
   \item{X}{A numeric matrix or data frame (X-block).}

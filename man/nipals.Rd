@@ -1,13 +1,11 @@
 \name{nipals}
 \alias{nipals}
-\alias{nipals.default}
 \title{NIPALS: Non-linear Iterative Partial Least Squares}
 \description{
   Principal Component Analysis with NIPALS algorithm
 }
 \usage{
   nipals(x, nc = 2, scaled = TRUE)
-  \method{nipals}{default}(x, nc = 2, scaled = TRUE)
 }
 \arguments{
   \item{x}{A numeric matrix or data frame.}

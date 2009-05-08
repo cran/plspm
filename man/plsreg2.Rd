@@ -1,13 +1,11 @@
 \name{plsreg2}
 \alias{plsreg2}
-\alias{plsreg2.default}
 \title{PLS-R2: Partial Least Squares Regression 2}
 \description{
   Calculates partial least squares regression for the multivariate case (i.e. more than one response variable)
 }
 \usage{
   plsreg2(X, Y, nc = 2)
-  \method{plsreg2}{default}(X, Y, nc = 2)
 }
 \arguments{
   \item{X}{A numeric matrix or data frame containing the predictor variables.}
