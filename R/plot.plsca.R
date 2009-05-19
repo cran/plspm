@@ -65,7 +65,6 @@ function(x, ...)
     abline(h=0, v=0, col="grey")
     abline(coef(z2),col="green")
     text(x$x.scores[,2], x$y.scores[,2], labels=abbreviate(rownames(x$x.scores)), col="green4", pos=2, 
-         offset=.2, cex=.7)
-   
+         offset=.2, cex=.7)  
 }
 

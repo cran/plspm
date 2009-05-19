@@ -5,7 +5,7 @@
   Estimate path models with latent variables by partial least squares approach
 }
 \usage{
-  plspm(x, inner.mat, sets, modes = NULL, scheme = "factor",
+  plspm(x, inner.mat, sets, modes = NULL, scheme = "centroid",
   scaled = TRUE, boot.val = FALSE, plsr = FALSE)
 }
 \arguments{
@@ -14,7 +14,7 @@
   \item{sets}{List of vectors with column indices from x indicating which manifest variables correspond to the latent variables.}
   \item{modes}{A character vector indicating the type of measurement for each latent variable.
                \code{"A"} for reflective measurement or \code{"B"} for formative measurement (\code{NULL} by default).}
-  \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"factor"}, \code{"centroid"} and \code{"path"}.}
+  \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"centroid"}, \code{"factor"} and \code{"path"}.}
   \item{scaled}{A logical value indicating whether scaling data is performed (\code{TRUE} by default).}
   \item{boot.val}{A logical value indicating whether bootstrap validation is performed (\code{FALSE} by default) }
   \item{plsr}{A logical value indicating whether pls regression is applied (\code{FALSE} by default) }
@@ -94,7 +94,7 @@
   sat.mat <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
   sat.sets <- list(1:5,6:10,11:15,16:19,20:23,24:27)
   sat.mod <- rep("A",6)   ## reflective indicators
-  res2 <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="factor", 
+  res2 <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="centroid", 
                 scaled=FALSE)
   summary(res2)
   

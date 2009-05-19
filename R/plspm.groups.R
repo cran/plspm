@@ -7,159 +7,6 @@ function(x, pls, g, method="bootstrap", reps=NULL)
     # g: a factor with 2 levels indicating the groups to be compared
     # method: the method to be used: "bootstrap", or "permutation"
     # reps: number of bootstrap resamples or number of permutations
-
-    # ======================== Internal functions ========================
-    plsr1 <- function(x, y, nc=2, scaled=TRUE)
-    {
-        # ============ checking arguments ============
-        X <- as.matrix(x)
-        Y <- as.matrix(y)
-        n <- nrow(X)
-        p <- ncol(X)
-        # ============ setting inputs ==============
-        if (scaled) Xx<-scale(X) else Xx<-scale(X,scale=F)
-        if (scaled) Yy<-scale(Y) else Yy<-scale(Y,scale=F)
-        X.old <- Xx
-        Y.old <- Yy
-        Th <- matrix(NA, n, nc)# matrix of X-scores
-        Ph <- matrix(NA, p, nc)# matrix of X-loadings
-        Wh <- matrix(NA, p, nc)# matrix of raw-weights
-        Uh <- matrix(NA, n, nc)# matrix of Y-scores
-        ch <- rep(NA, nc)# vector of y-loadings
-        # ============ pls regression algorithm ==============
-        for (h in 1:nc)
-        {
-            w.old <- t(X.old) %*% Y.old / sum(Y.old^2)
-            w.new <- w.old / sqrt(sum(w.old^2)) # normalization
-            t.new <- X.old %*% w.new
-            p.new <- t(X.old) %*% t.new / sum(t.new^2) 
-            c.new <- t(Y.old) %*% t.new / sum(t.new^2)
-            u.new <- Y.old / as.vector(c.new)
-            Y.old <- Y.old - t.new%*%c.new# deflate y.old
-            X.old <- X.old - (t.new %*% t(p.new))# deflate X.old
-            Th[,h] <- round(t.new, 4)
-            Ph[,h] <- round(p.new, 4)
-            Wh[,h] <- round(w.new, 4)
-            Uh[,h] <- round(u.new, 4)
-            ch[h] <- round(c.new, 4)        
-        }
-        Ws <- round(Wh %*% solve(t(Ph)%*%Wh), 4)# modified weights
-        Bs <- round(as.vector(Ws %*% ch), 4) # std beta coeffs    
-        Br <- round(Bs * (rep(sd(Y),p)/apply(X,2,sd)), 4)   # beta coeffs
-        cte <- as.vector(round(mean(y) - Br%*%apply(X,2,mean), 4))# intercept
-        y.hat <- round(X%*%Br+cte, 4)# y predicted
-        resid <- round(as.vector(Y - y.hat), 4)# residuals
-        R2 <- round(as.vector(cor(Th, Yy))^2, 4)  # R2 coefficients    
-        names(Br) <- colnames(X)
-        names(resid) <- rownames(Y)
-        names(y.hat) <- rownames(Y)
-        names(R2) <- paste(rep("t",nc),1:nc,sep="")
-        res <- list(coeffs=Br, cte=cte, R2=R2[1:nc], resid=resid, y.pred=y.hat)    
-        return(res)
-    }
-    #------------------------------
-    pls.weights <- function(X, IDM, sets, scheme, blocklist)
-    {
-        lvs <- nrow(IDM)
-        mvs <- ncol(X)
-        lvs.names <- rownames(IDM)
-        mvs.names <- colnames(X)
-        # initialize arbitrary outer weights (value of '1' for all weights)
-        out.ws <- sets
-        for (k in 1:length(sets))
-            out.ws[[k]] <- rep(1,length(sets[[k]]))    
-        # outer design matrix 'ODM' and matrix of outer weights 'W'
-        ODM <- matrix(0, mvs, lvs)
-        for (k in 1:lvs)
-            ODM[which(blocklist==k),k] <- rep(1,blocks[k])
-        dimnames(ODM) <- list(mvs.names, lvs.names)
-        W <- ODM %*% diag(1/sd(X %*% ODM),lvs,lvs)
-        w.old <- rowSums(W)    
-        w.dif <- 1
-        itermax <- 1
-        repeat 
-        {            
-            Y <- X %*% W  # external estimation of LVs 'Y'
-            # matrix of inner weights 'e' 
-            E <- switch(scheme, 
-                   "centroid" = sign(cor(Y) * (IDM + t(IDM))),
-                   "factor" = cor(Y) * (IDM + t(IDM)))
-            if (is.null(E)) {   # path weighting scheme
-                E <- IDM
-                for (k in 1:lvs) {
-                    if (length(which(IDM[k,]==1)) > 0)
-                        E[which(IDM[k,]==1),k] <- lm(Y[,k]~Y[,which(IDM[k,]==1)]-1)$coef
-                    if (length(which(IDM[,k]==1)) > 0)
-                        E[which(IDM[,k]==1),k] <- cor(Y[,k], Y[,which(IDM[,k]==1)])
-                } 
-            }            
-            Z <- Y %*% E  # internal estimation of LVs 'Z'
-            Z <- scale(Z)
-            # computing outer weights 'w'
-            for (k in 1:lvs)
-            {
-                X.blok = X[,which(blocklist==k)] 
-                if (modes[k]=="A")# reflective way
-                    ODM[which(blocklist==k),k] = solve(t(Z[,k])%*%Z[,k])%*%Z[,k] %*% X.blok
-                if (modes[k]=="B")# formative way
-                    ODM[which(blocklist==k),k] = solve.qr(qr(X.blok),Z[,k])
-            }
-            W <- ODM %*% diag(1/sd(X %*% ODM),lvs,lvs)
-            w.new = rowSums(W)                
-            w.dif <- sum((w.old - w.new)^2)  # difference of out.weights 
-            w.old <- w.new
-            if (sum(w.dif^2)<1e-07 || itermax==300) break
-            itermax <- itermax + 1
-        } # end repeat       
-        res.ws <- list(w.new, W)
-        if (itermax==300) res.ws=NULL
-        return(res.ws)
-    } # end function pls.weights
-    #------------------------------
-    pls.paths <- function(IDM, Y.lvs, plsr)
-    {
-        lvs.names <- colnames(IDM)
-        endo = rowSums(IDM)
-        endo[endo!=0] <- 1  # vector indicating endogenous LVs
-        innmod <- as.list(1:sum(endo))
-        Path <- IDM
-        residuals <- as.list(1:sum(endo))
-        R2 <- rep(0,nrow(IDM))
-        aux1 <- 1
-        for (aux in 1:nrow(IDM)) 
-        {
-            if (endo[aux] == 1) # endogenous LV
-            {
-                c <- which(IDM[aux,1:aux]==1)   
-                if (length(c)>1 & plsr) {               
-                    path.lm <- plsr1(Y.lvs[,c], Y.lvs[,aux])
-                    Path[aux,c] <- path.lm$coeffs
-                    residuals[[aux1]] <- path.lm$resid
-                    R2[aux] <- path.lm$R2[1]
-                    inn.val <- round(c(path.lm$R2[1], path.lm$cte, path.lm$coeffs), 3)
-                    inn.lab <- c("R2", "Intercept", paste(rep("path_",length(c)),names(c),sep=""))
-                    innmod[[aux1]] <- data.frame(concept=inn.lab, value=inn.val)
-                    aux1 <- aux1 + 1   
-                }
-                if (length(c)==1 | !plsr) {
-                    path.lm <- summary(lm(Y.lvs[,aux] ~ Y.lvs[,c]))
-                    Path[aux,c] <- round(path.lm$coef[-1,1], 4)
-                    residuals[[aux1]] <- path.lm$residuals  
-                    R2[aux] <- round(path.lm$r.squared, 3)
-                    inn.val <- round(c(path.lm$r.squared, path.lm$coef[,1]), 3)
-                    inn.lab <- c("R2", "Intercept", paste(rep("path_",length(c)),names(c),sep=""))
-                    innmod[[aux1]] <- data.frame(concept=inn.lab, value=inn.val)
-                    aux1 <- aux1 + 1   
-                }
-            }
-        }
-        names(innmod) <- lvs.names[endo!=0]  
-        names(R2) <- lvs.names
-        res.paths <- list(innmod, Path, R2)
-        return(res.paths)
-    } # end function 'pls.paths'
-    # -------------------------------------------------------------------- 
-
     # ==================== Checking function arguments ===================
     if (!is.matrix(x) && !is.data.frame(x))
         stop("Invalid object 'x'. Must be a numeric matrix or data frame.")
@@ -209,14 +56,14 @@ function(x, pls, g, method="bootstrap", reps=NULL)
     for (k in 1:lvs)
     {        
         DM[,which(blocklist==k)] <- as.matrix(x[,sets[[k]]])
-        mvs.names[which(blocklist==k)] <- colnames(x[,sets[[k]]])
+        mvs.names[which(blocklist==k)] <- colnames(x)[sets[[k]]]
     }
     dimnames(DM) <- list(rownames(x), mvs.names)
     # apply the selected scaling
     if(scaled) X=scale(DM) else X=scale(DM, scale=FALSE)
 
     # ====================== Global model estimation =====================
-    out.ws <- pls.weights(X, IDM, sets, scheme, blocklist)
+    out.ws <- pls.weights(X, IDM, sets, modes, scheme, blocklist)
     if (is.null(out.ws)) stop("The pls algorithm is non convergent") 
     cor.XY <- cor(X, X%*%out.ws[[2]])
     w.sig <- rep(NA,lvs)

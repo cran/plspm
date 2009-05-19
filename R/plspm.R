@@ -1,5 +1,5 @@
 `plspm` <-
-function(x, inner.mat, sets, modes=NULL, scheme="factor", 
+function(x, inner.mat, sets, modes=NULL, scheme="centroid", 
                           scaled=TRUE, boot.val=FALSE, plsr=FALSE)
 {
     # =========================== ARGUMENTS ==============================
@@ -8,219 +8,11 @@ function(x, inner.mat, sets, modes=NULL, scheme="factor",
     # sets: a list of vectors of indices indicating the manifest variables for each block
     # modes: a character vector indicating the type of measurement for each latent variable 
     #"A" for reflective measurement, "B" for formative measurement
-    # scheme: the inner weighting scheme to be used: "factor", "centroid", or "path"
+    # scheme: the inner weighting scheme to be used: "cenrtoid", "factor", or "path"
     # scaled: a logical value indicating whether scale data is donde
     # boot.val:a logical value indicating whether bootstrap validation is done  
     # plsr: a logical value for calculating path coeffs by pls-regression
     
-    # ======================== Internal functions ========================
-    plsr1 <- function(x, y, nc=2, scaled=TRUE)
-    {
-        # ============ checking arguments ============
-        X <- as.matrix(x)
-        Y <- as.matrix(y)
-        n <- nrow(X)
-        p <- ncol(X)
-        # ============ setting inputs ==============
-        if (scaled) Xx<-scale(X) else Xx<-scale(X,scale=F)
-        if (scaled) Yy<-scale(Y) else Yy<-scale(Y,scale=F)
-        X.old <- Xx
-        Y.old <- Yy
-        Th <- matrix(NA, n, nc)# matrix of X-scores
-        Ph <- matrix(NA, p, nc)# matrix of X-loadings
-        Wh <- matrix(NA, p, nc)# matrix of raw-weights
-        Uh <- matrix(NA, n, nc)# matrix of Y-scores
-        ch <- rep(NA, nc)# vector of y-loadings
-        # ============ pls regression algorithm ==============
-        for (h in 1:nc)
-        {
-            w.old <- t(X.old) %*% Y.old / sum(Y.old^2)
-            w.new <- w.old / sqrt(sum(w.old^2)) # normalization
-            t.new <- X.old %*% w.new
-            p.new <- t(X.old) %*% t.new / sum(t.new^2) 
-            c.new <- t(Y.old) %*% t.new / sum(t.new^2)
-            u.new <- Y.old / as.vector(c.new)
-            Y.old <- Y.old - t.new%*%c.new# deflate y.old
-            X.old <- X.old - (t.new %*% t(p.new))# deflate X.old
-            Th[,h] <- round(t.new, 4)
-            Ph[,h] <- round(p.new, 4)
-            Wh[,h] <- round(w.new, 4)
-            Uh[,h] <- round(u.new, 4)
-            ch[h] <- round(c.new, 4)        
-        }
-        Ws <- round(Wh %*% solve(t(Ph)%*%Wh), 4)# modified weights
-        Bs <- round(as.vector(Ws %*% ch), 4) # std beta coeffs    
-        Br <- round(Bs * (rep(sd(Y),p)/apply(X,2,sd)), 4)   # beta coeffs
-        cte <- as.vector(round(mean(y) - Br%*%apply(X,2,mean), 4))# intercept
-        y.hat <- round(X%*%Br+cte, 4)# y predicted
-        resid <- round(as.vector(Y - y.hat), 4)# residuals
-        R2 <- round(as.vector(cor(Th, Yy))^2, 4)  # R2 coefficients    
-        names(Br) <- colnames(X)
-        names(resid) <- rownames(Y)
-        names(y.hat) <- rownames(Y)
-        names(R2) <- paste(rep("t",nc),1:nc,sep="")
-        res <- list(coeffs=Br, cte=cte, R2=R2[1:nc], resid=resid, y.pred=y.hat)    
-        return(res)
-    }
-    #------------------------------
-    pls.weights <- function(X, IDM, sets, scheme, blocklist)
-    {
-        lvs <- nrow(IDM)
-        mvs <- ncol(X)
-        lvs.names <- rownames(IDM)
-        mvs.names <- colnames(X)
-        # initialize arbitrary outer weights (value of '1' for all weights)
-        out.ws <- sets
-        for (k in 1:lvs)
-            out.ws[[k]] <- rep(1,length(sets[[k]]))    
-        # outer design matrix 'ODM' and matrix of outer weights 'W'
-        ODM <- matrix(0, mvs, lvs)
-        for (k in 1:lvs)
-            ODM[which(blocklist==k),k] <- rep(1,blocks[k])
-        dimnames(ODM) <- list(mvs.names, lvs.names)
-        W <- ODM %*% diag(1/sd(X %*% ODM),lvs,lvs)
-        w.old <- rowSums(W)    
-        w.dif <- 1
-        itermax <- 1
-        repeat 
-        {            
-            Y <- X %*% W  # external estimation of LVs 'Y'
-            # matrix of inner weights 'e' 
-            E <- switch(scheme, 
-                   "centroid" = sign(cor(Y) * (IDM + t(IDM))),
-                   "factor" = cor(Y) * (IDM + t(IDM)))
-            if (is.null(E)) {   # path weighting scheme
-                E <- IDM
-                for (k in 1:lvs) {
-                    if (length(which(IDM[k,]==1)) > 0)
-                        E[which(IDM[k,]==1),k] <- lm(Y[,k]~Y[,which(IDM[k,]==1)]-1)$coef
-                    if (length(which(IDM[,k]==1)) > 0)
-                        E[which(IDM[,k]==1),k] <- cor(Y[,k], Y[,which(IDM[,k]==1)])
-                } 
-            }            
-            Z <- Y %*% E  # internal estimation of LVs 'Z'
-            Z <- scale(Z)
-            # computing outer weights 'w'
-            for (k in 1:lvs)
-            {
-                X.blok = X[,which(blocklist==k)] 
-                if (modes[k]=="A")# reflective way
-                    ODM[which(blocklist==k),k] = cov(Z[,k], X.blok)
-                if (modes[k]=="B")# formative way
-                    ODM[which(blocklist==k),k] = solve.qr(qr(X.blok),Z[,k])
-            }
-            W <- ODM %*% diag(1/sd(X %*% ODM),lvs,lvs)
-            w.new = rowSums(W)                
-            w.dif <- sum((w.old - w.new)^2)  # difference of out.weights 
-            w.old <- w.new
-            if (sum(w.dif^2)<1e-07 || itermax==300) break
-            itermax <- itermax + 1
-        } # end repeat       
-        res.ws <- list(w.new, W)
-        if (itermax==300) res.ws=NULL
-        return(res.ws)
-    } # end function pls.weights
-    #------------------------------
-    pls.paths <- function(IDM, Y.lvs, plsr)
-    {
-        lvs.names <- colnames(IDM)
-        endo = rowSums(IDM)
-        endo[endo!=0] <- 1  # vector indicating endogenous LVs
-        innmod <- as.list(1:sum(endo))
-        Path <- IDM
-        residuals <- as.list(1:sum(endo))
-        R2 <- rep(0,nrow(IDM))
-        aux1 <- 1
-        for (aux in 1:nrow(IDM)) 
-        {
-            if (endo[aux] == 1) # endogenous LV
-            {
-                c <- which(IDM[aux,1:aux]==1)   
-                if (length(c)>1 & plsr) {               
-                    path.lm <- plsr1(Y.lvs[,c], Y.lvs[,aux])
-                    Path[aux,c] <- path.lm$coeffs
-                    residuals[[aux1]] <- path.lm$resid
-                    R2[aux] <- path.lm$R2[1]
-                    inn.val <- round(c(path.lm$R2[1], path.lm$cte, path.lm$coeffs), 3)
-                    inn.lab <- c("R2", "Intercept", paste(rep("path_",length(c)),names(c),sep=""))
-                    innmod[[aux1]] <- data.frame(concept=inn.lab, value=inn.val)
-                    aux1 <- aux1 + 1   
-                }
-                if (length(c)==1 | !plsr) {
-                    path.lm <- summary(lm(Y.lvs[,aux] ~ Y.lvs[,c]))
-                    Path[aux,c] <- round(path.lm$coef[-1,1], 4)
-                    residuals[[aux1]] <- path.lm$residuals  
-                    R2[aux] <- round(path.lm$r.squared, 3)
-                    inn.val <- round(c(path.lm$r.squared, path.lm$coef[,1]), 3)
-                    inn.lab <- c("R2", "Intercept", paste(rep("path_",length(c)),names(c),sep=""))
-                    innmod[[aux1]] <- data.frame(concept=inn.lab, value=inn.val)
-                    aux1 <- aux1 + 1   
-                }
-            }
-        }
-        names(innmod) <- lvs.names[endo!=0]  
-        names(R2) <- lvs.names
-        res.paths <- list(innmod, Path, R2)
-        return(res.paths)
-    } # end function 'pls.paths'
-    #------------------------------
-    pls.loads <- function(X, Y.lvs, blocklist, modes)
-    {
-        lvs <- length(modes)
-        mvs <- ncol(X)
-        loads <- rep(NA, mvs)
-        comu <- rep(NA, mvs)
-        for (k in 1:lvs)
-        {
-            X.blok <- X[,which(blocklist==k)] 
-            loads[which(blocklist==k)] <- cor(X.blok, Y.lvs[,k])
-            comu[which(blocklist==k)] <- cor(X.blok, Y.lvs[,k])^2
-        }
-        names(loads) <- colnames(X)  
-        names(comu) <- colnames(X)
-        res.loads <- list(loads, comu)
-        return(res.loads)
-    } # end function 'pls.loads'
-    #------------------------------
-    pls.efects <- function(Path)
-    {
-        lvs <- nrow(IDM)
-        lvs.names <- rownames(IDM)
-        path.efects <- as.list(1:(lvs-1))
-        path.efects[[1]] <- Path
-        if (lvs == 2)
-        {
-            ind.paths <- matrix(c(0,0,0,0),2,2)
-            total.paths <- Path
-        }
-        if (lvs > 2)
-        {
-            for (k in 2:(lvs-1))
-                path.efects[[k]] <- round(path.efects[[k-1]] %*% Path, 4)
-            ind.paths <- matrix(0, lvs, lvs)
-            for (k in 2:length(path.efects))
-                ind.paths <- ind.paths + path.efects[[k]]
-            total.paths <- Path + ind.paths
-        }
-        efs.labs <- NULL
-        dir.efs <- NULL
-        ind.efs <- NULL
-        tot.efs <- NULL
-        for (j in 1:lvs)
-            for (i in j:lvs)
-                 if (total.paths[i,j]!=0) 
-                 {
-                     efs.labs <- c(efs.labs, paste(lvs.names[j],"->",lvs.names[i],sep=""))
-                     dir.efs <- c(dir.efs, Path[i,j])# direct effects
-                     ind.efs <- c(ind.efs, ind.paths[i,j])# indirect effects
-                     tot.efs <- c(tot.efs, total.paths[i,j])# total effects
-                 }
-        Effects <- data.frame(relationships=efs.labs, dir.effects=dir.efs, 
-                              ind.effects=ind.efs, tot.effects=tot.efs)
-        return(Effects)
-    }        
-    # -------------------------------------------------------------------- 
-
     # ==================== Checking function arguments ===================
     if (!is.matrix(x) && !is.data.frame(x))
         stop("Invalid object 'x'. Must be a numeric matrix or data frame.")
@@ -260,13 +52,13 @@ function(x, inner.mat, sets, modes=NULL, scheme="factor",
     }
     for (i in 1:length(modes))
         if (modes[i]!="A" && modes[i]!="B") modes[i]<-"A"
-    if (!is.na(pmatch(scheme, "factor"))) 
-        scheme <- "factor"
-    SCHEMES <- c("factor", "centroid", "path")
+    if (!is.na(pmatch(scheme, "centroid"))) 
+        scheme <- "centroid"
+    SCHEMES <- c("centroid", "factor", "path")
     scheme <- pmatch(scheme, SCHEMES)
     if (is.na(scheme)) {
-        warning("Invalid argument 'scheme'. Default 'scheme=factor' is used.")   
-        scheme <- "factor"
+        warning("Invalid argument 'scheme'. Default 'scheme=centroid' is used.")   
+        scheme <- "centroid"
     }
     if (!is.logical(scaled)) {
         warning("Invalid argument 'scaled'. Default 'scaled=TRUE' is used.")
@@ -297,13 +89,13 @@ function(x, inner.mat, sets, modes=NULL, scheme="factor",
     for (k in 1:lvs)
     {        
         DM[,which(blocklist==k)] <- as.matrix(x[,sets[[k]]])
-        mvs.names[which(blocklist==k)] <- colnames(x[,sets[[k]]])
+        mvs.names[which(blocklist==k)] <- colnames(x)[sets[[k]]]
     }
     dimnames(DM) <- list(rownames(x), mvs.names)
     # apply the selected scaling
     if(scaled) X=scale(DM) else X=scale(DM, scale=FALSE)
     # ==================== Stage 1: Iterative procedure ==================
-    out.ws <- pls.weights(X, IDM, sets, scheme, blocklist)
+    out.ws <- pls.weights(X, IDM, sets, modes, scheme, blocklist)
     if (is.null(out.ws)) stop("The pls algorithm is non convergent") 
     out.weights <- round(out.ws[[1]], 4)
     cor.XY <- cor(X, X%*%out.ws[[2]])
@@ -476,7 +268,7 @@ function(x, inner.mat, sets, modes=NULL, scheme="factor",
             {
                 boot.obs <- sample(1:nrow(X), nrow(X), replace=TRUE)
                 X.boot <- X[boot.obs,]
-                w.boot <- pls.weights(X.boot, IDM, sets, scheme, blocklist)
+                w.boot <- pls.weights(X.boot, IDM, sets, modes, scheme, blocklist)
                 if (is.null(w.boot)) stop("Bootstrapping failed") 
                 WEIGS[i,] <- w.boot[[1]]
                 Y.boot <- X.boot %*% w.boot[[2]]
@@ -501,8 +293,12 @@ function(x, inner.mat, sets, modes=NULL, scheme="factor",
             # Loadings
             colnames(LOADS) <- mvs.names
             t.lb <- matrix(NA, mvs, 2)
-            for (j in 1:ncol(LOADS))
-                t.lb[j,] <- round(unlist(t.test(LOADS[,j],mu=loads[j])[c(1,3)]), 4)
+            for (j in 1:ncol(LOADS)) {
+                if (loads[j]!=1)
+                    t.lb[j,] <- round(unlist(t.test(LOADS[,j],mu=loads[j])[c(1,3)]), 4)
+                else
+                    t.lb[j,] <- c(0,1)
+            }
             LB <- data.frame(Original=loads, Mean.Boot=round(apply(LOADS,2,mean), 4), 
                         Std.Err=round(apply(LOADS,2,sd),4), t.statis=t.lb[,1], p.value=t.lb[,2],
                         perc.025=round(apply(LOADS,2,mean) - qt(.975,nrow(X))*apply(LOADS,2,sd), 4), 
