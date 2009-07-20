@@ -1,9 +1,8 @@
 `pls.efects` <-
 function(Path)
 {
-    IDM <- Path
-    lvs <- nrow(IDM)
-    lvs.names <- rownames(IDM)
+    lvs <- nrow(Path)
+    lvs.names <- rownames(Path)
     path.efects <- as.list(1:(lvs-1))
     path.efects[[1]] <- Path
     if (lvs == 2)

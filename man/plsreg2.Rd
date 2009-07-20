@@ -50,7 +50,7 @@
   Valencia, J.L., Diaz-Llanos, F.J. (2004) \emph{Metodos de Prediccion en Situaciones Limite}. Editorial La Muralla, S.A. Madrid.
 }
 \author{Gaston Sanchez}
-\seealso{\code{\link{print.plsreg2}}, \code{\link{plot.plsreg2}}, \code{\link{plsreg1}}.}
+\seealso{\code{\link{print.plsreg2}},  \code{\link{plot.plsreg2}},  \code{\link{plsreg1}}.}
 \examples{
   \dontrun{
   ## example of PLSR2 with the vehicles dataset

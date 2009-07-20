@@ -14,4 +14,4 @@
 \details{
   The function \code{print.plsreg2} displays the elements of a list containing all the results. 
 }
-\seealso{\code{\link{plsreg2}},\code{\link{plot.plsreg2}}}
+\seealso{\code{\link{plsreg2}}, \code{\link{plot.plsreg2}}}

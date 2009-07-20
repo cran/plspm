@@ -1,23 +1,14 @@
 `plspm.groups` <-
-function(x, pls, g, method="bootstrap", reps=NULL)
+function(pls, g, method="bootstrap", reps=NULL)
 {
     # =========================== ARGUMENTS ==============================
-    # x: a numeric matrix or data.frame containing the manifest variables
     # pls: an object of class "plspm"
     # g: a factor with 2 levels indicating the groups to be compared
     # method: the method to be used: "bootstrap", or "permutation"
     # reps: number of bootstrap resamples or number of permutations
     # ==================== Checking function arguments ===================
-    if (!is.matrix(x) && !is.data.frame(x))
-        stop("Invalid object 'x'. Must be a numeric matrix or data frame.")
-    if (is.null(rownames(x))) 
-        rownames(x) <- 1:nrow(x)
-    if (is.null(colnames(x))) 
-        colnames(x) <- paste("MV", 1:ncol(x), sep="")
     if (class(pls)!="plspm") 
         stop("argument 'pls' must be an object of class 'plspm'")
-    if (nrow(x)!=pls$model[[6]])
-        stop("arguments 'x' and 'pls' are incompatible")
     if (!is.factor(g)) stop("argument 'g' must be a factor")
     ng <- nlevels(g)
     if (ng > 2) stop("argument 'g' must contain only 2 levels") 
@@ -26,52 +17,39 @@ function(x, pls, g, method="bootstrap", reps=NULL)
     METHODS <- c("bootstrap", "permutation")
     method <- pmatch(method, METHODS)
     if (is.na(method)) {
-        warning("Invalid argument 'method'. Default 'method=bootstrp' is used.")   
+        warning("Invalid argument 'method'. Default 'method=bootstrap' is used.")   
         method <- "bootstrap"
     }
     if (is.null(reps) | length(reps)>1) reps<-100
     if (!is.numeric(reps) | floor(reps)<=0) reps<-100
     # ========================== INPUTS SETTING ==========================
-
-    IDM <- pls$model[[1]]
-    sets <- pls$model[[8]]
-    scheme <- switch(pls$model[[3]], "1"="factor", "2"="centroid", "3"="path")
-    plsr <- pls$model[[9]]
+    IDM <- pls$model[[1]]# Inner Design Matrix
+    blocks <- pls$model[[2]]# cardinality of blocks
+    scheme <- pls$model[[3]]# inner weighting scheme
+    modes <- pls$model[[4]]# measurement modes
+    scaled <- pls$model[[5]]# type of scaling
+    plsr <- pls$model[[7]]# pls-regression
+    DM <- pls$data
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
-    mvs <- sum(unlist(lapply(sets, length)))
-    blocks <- pls$model[[2]]
-    blocklist <- sets
-    for (k in 1:length(sets))
-         blocklist[[k]] <- rep(k,blocks[k])
+    mvs <- sum(blocks)
+    blocklist <- as.list(1:lvs)
+    for (j in 1:lvs)
+         blocklist[[j]] <- rep(j,blocks[j])
     blocklist <- unlist(blocklist)
-    Mode <- pls$model[[4]]
-    modes <- Mode
-    modes[Mode=="Reflective"] <- "A"
-    modes[Mode=="Formative"] <- "B"
-    scaled <- pls$model[[5]]
-    # building data matrix 'DM'
-    DM <- matrix(NA, nrow(x), mvs)
-    mvs.names <- rep(NA, mvs)
-    for (k in 1:lvs)
-    {        
-        DM[,which(blocklist==k)] <- as.matrix(x[,sets[[k]]])
-        mvs.names[which(blocklist==k)] <- colnames(x)[sets[[k]]]
-    }
-    dimnames(DM) <- list(rownames(x), mvs.names)
     # apply the selected scaling
     if(scaled) X=scale(DM) else X=scale(DM, scale=FALSE)
 
     # ====================== Global model estimation =====================
-    out.ws <- pls.weights(X, IDM, sets, modes, scheme, blocklist)
+    out.ws <- pls.weights(X, IDM, blocks, modes, scheme)
     if (is.null(out.ws)) stop("The pls algorithm is non convergent") 
     cor.XY <- cor(X, X%*%out.ws[[2]])
     w.sig <- rep(NA,lvs)
     for (k in 1:lvs) 
          w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-    if (scaled) 
+    if (scaled) {
         Y.lvs <- round(X %*% out.ws[[2]] %*% diag(w.sig,lvs,lvs), 4)
-    else   
+    } else   
         Y.lvs <- round(DM %*% out.ws[[2]] %*% diag(w.sig,lvs,lvs), 4)
     dimnames(Y.lvs) <- list(rownames(X), lvs.names)
     # Path coefficients
@@ -93,17 +71,18 @@ function(x, pls, g, method="bootstrap", reps=NULL)
     # ====================== Group1 model estimation =====================
     g1.lab <- levels(g)[1]
     group1 <- which(g==levels(g)[1])
-    wgs.g1 <- pls.weights(X[group1,], IDM, sets, scheme, blocklist)
+    if(scaled) X.g1=scale(DM[group1,]) else X.g1=scale(DM[group1,], scale=FALSE)
+    wgs.g1 <- pls.weights(X.g1, IDM, blocks, modes, scheme)
     if (is.null(wgs.g1)) stop("The algorithm is non convergent") 
-    cor.XY <- cor(X[group1,], X[group1,]%*%wgs.g1[[2]])
+    cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
     w.sig <- rep(NA,lvs)
     for (k in 1:lvs) 
          w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-    if (scaled) 
-        Y1.lvs <- round(X[group1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
-    else   
+    if (scaled) {
+        Y1.lvs <- round(X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
+    } else   
         Y1.lvs <- round(DM[group1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
-    dimnames(Y1.lvs) <- list(rownames(X[group1,]), lvs.names)
+    dimnames(Y1.lvs) <- list(rownames(X.g1), lvs.names)
     # Path coefficients 
     pathmod.g1 <- pls.paths(IDM, Y1.lvs, plsr)
     innmod.g1 <- pathmod.g1[[1]]
@@ -115,17 +94,18 @@ function(x, pls, g, method="bootstrap", reps=NULL)
     # ====================== Group2 model estimation =====================
     g2.lab <- levels(g)[2]
     group2 <- which(g==levels(g)[2])
-    wgs.g2 <- pls.weights(X[group2,], IDM, sets, scheme, blocklist)
+    if(scaled) X.g2=scale(DM[group2,]) else X.g2=scale(DM[group2,], scale=FALSE)
+    wgs.g2 <- pls.weights(X.g2, IDM, blocks, modes, scheme)
     if (is.null(wgs.g2)) stop("The algorithm is non convergent") 
-    cor.XY <- cor(X[group2,], X[group2,]%*%wgs.g2[[2]])
+    cor.XY <- cor(X[group2,], X.g2%*%wgs.g2[[2]])
     w.sig <- rep(NA,lvs)
     for (k in 1:lvs) 
          w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-    if (scaled) 
-        Y2.lvs <- round(X[group2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
-    else   
+    if (scaled) {
+        Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+    } else   
         Y2.lvs <- round(DM[group2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
-    dimnames(Y2.lvs) <- list(rownames(X[group2,]), lvs.names)
+    dimnames(Y2.lvs) <- list(rownames(X.g2), lvs.names)
     # Path coefficients 
     pathmod.g2 <- pls.paths(IDM, Y2.lvs, plsr)
     innmod.g2 <- pathmod.g2[[1]]
@@ -148,25 +128,27 @@ function(x, pls, g, method="bootstrap", reps=NULL)
         {
             samg1 <- sample(group1, ng1, replace=TRUE) 
             samg2 <- sample(group2, ng2, replace=TRUE)
-            wgs.g1 <- pls.weights(X[samg1,], IDM, sets, scheme, blocklist)
-            wgs.g2 <- pls.weights(X[samg2,], IDM, sets, scheme, blocklist)
+            if(scaled) X.g1=scale(DM[samg1,]) else X.g1=scale(DM[samg1,], scale=FALSE)
+            if(scaled) X.g2=scale(DM[samg2,]) else X.g2=scale(DM[samg2,], scale=FALSE)
+            wgs.g1 <- pls.weights(X.g1, IDM, blocks, modes, scheme)
+            wgs.g2 <- pls.weights(X.g2, IDM, blocks, modes, scheme)
             if (is.null(wgs.g1)) stop("Non convergence in bootstrap samples") 
             if (is.null(wgs.g2)) stop("Non convergence in bootstrap samples") 
-            cor.XY <- cor(X[samg1,], X[samg1,]%*%wgs.g1[[2]])
+            cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
             w.sig <- rep(NA,lvs)
             for (k in 1:lvs) 
                  w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-            if (scaled) 
-                Y1.lvs <- round(X[samg1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
-            else   
+            if (scaled) {
+                Y1.lvs <- round(X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
+            } else   
                 Y1.lvs <- round(DM[samg1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)        
-            cor.XY <- cor(X[samg2,], X[samg2,]%*%wgs.g2[[2]])
+            cor.XY <- cor(X.g2, X.g2%*%wgs.g2[[2]])
             w.sig <- rep(NA,lvs)
             for (k in 1:lvs) 
                  w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-            if (scaled) 
-                Y2.lvs <- round(X[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
-            else   
+            if (scaled) { 
+                Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+            } else   
                 Y2.lvs <- round(DM[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
             pathmod.g1 <- pls.paths(IDM, Y1.lvs, plsr)
             paths.g1 <- pathmod.g1[[2]]    
@@ -186,10 +168,13 @@ function(x, pls, g, method="bootstrap", reps=NULL)
         for (i in 1:sum(IDM))         
              t.stat[i] <- path.difs[i] / (sqrt(k1*SE1[i]+k2*SE2[i]) * k3)        
         p.val <- pt(t.stat, ng1+ng2-2, lower.tail=FALSE)
-        res <- round(cbind(path.global, path.g1, path.g2, dif.orig, 
-                      t.stat, df=rep(ng1+ng2-2,sum(IDM)), p.val), 4)
+        signi.path <- rep("no",length(p.val))
+        signi.path[p.val<0.05] <- "yes"
+        res.path <- round(cbind(path.global, path.g1, path.g2, dif.orig, 
+                        t.stat, df=rep(ng1+ng2-2,sum(IDM)), p.val), 4)
+        res <- data.frame(res.path, signi.path)
         colnames(res) <- c("global", paste(rep("group",2),levels(g),sep="."), 
-                             "diff.abs", "t.stat", "deg.fr", "p.value")
+                           "diff.abs", "t.stat", "deg.fr", "p.value", "sig.05") 
     } else
     {
         dif.perm <- matrix(0, nb, sum(IDM))
@@ -198,25 +183,27 @@ function(x, pls, g, method="bootstrap", reps=NULL)
             permu <- sample(1:(ng1+ng2), ng1+ng2)
             samg1 <- permu[1:ng1]
             samg2 <- permu[(ng1+1):(ng1+ng2)]
-            wgs.g1 <- pls.weights(X[samg1,], IDM, sets, scheme, blocklist)
-            wgs.g2 <- pls.weights(X[samg2,], IDM, sets, scheme, blocklist)
+            if(scaled) X.g1=scale(DM[samg1,]) else X.g1=scale(DM[samg1,], scale=FALSE)
+            if(scaled) X.g2=scale(DM[samg2,]) else X.g2=scale(DM[samg2,], scale=FALSE)
+            wgs.g1 <- pls.weights(X.g1, IDM, blocks, modes, scheme)
+            wgs.g2 <- pls.weights(X.g2, IDM, blocks, modes, scheme)
             if (is.null(wgs.g1)) stop("Non convergence in bootstrap samples") 
             if (is.null(wgs.g2)) stop("Non convergence in bootstrap samples") 
-            cor.XY <- cor(X[samg1,], X[samg1,]%*%wgs.g1[[2]])
+            cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
             w.sig <- rep(NA,lvs)
             for (k in 1:lvs) 
                  w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-            if (scaled) 
-                Y1.lvs <- round(X[samg1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
-            else   
+            if (scaled) {
+                Y1.lvs <- round(X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
+            } else   
                 Y1.lvs <- round(DM[samg1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)        
-            cor.XY <- cor(X[samg2,], X[samg2,]%*%wgs.g2[[2]])
+            cor.XY <- cor(X.g2, X.g2%*%wgs.g2[[2]])
             w.sig <- rep(NA,lvs)
             for (k in 1:lvs) 
                  w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-            if (scaled) 
-                Y2.lvs <- round(X[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
-            else   
+            if (scaled) {
+                Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+            } else   
                 Y2.lvs <- round(DM[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
             pathmod.g1 <- pls.paths(IDM, Y1.lvs, plsr)
             paths.g1 <- pathmod.g1[[2]]    
@@ -228,11 +215,14 @@ function(x, pls, g, method="bootstrap", reps=NULL)
         }   
         s.perm <- dif.orig 
         for (i in 1:sum(IDM))         
-            s.perm[i] <- length(which(dif.perm[,i]>dif.orig[i]))
+            s.perm[i] <- length(which(dif.orig[i]<dif.perm[,i])) + 1
         p.val <- (1/(nb+1))*s.perm 
-        res <- round(cbind(path.global, path.g1, path.g2, dif.orig, p.val), 4)
+        signi.path <- rep("no",length(p.val))
+        signi.path[p.val<0.05] <- "yes"
+        res.path <- round(cbind(path.global, path.g1, path.g2, dif.orig, p.val), 4)
+        res <- data.frame(res.path, signi.path)
         colnames(res) <- c("global", paste(rep("group",2),levels(g),sep="."), 
-                             "diff.abs", "p.value")  
+                             "diff.abs", "p.value", "sig.05") 
     }
     met <- switch(method, "1"="bootstrap", "2"="permutation")
     settings <- c(scaled=scaled, scheme=scheme, method=met)

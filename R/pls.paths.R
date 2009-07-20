@@ -26,9 +26,9 @@ function(IDM, Y.lvs, plsr)
             }
             if (length(c)==1 | !plsr) {
                 path.lm <- summary(lm(Y.lvs[,aux] ~ Y.lvs[,c]))
-                Path[aux,c] <- round(path.lm$coef[-1,1], 4)
+                Path[aux,c] <- path.lm$coef[-1,1]
                 residuals[[aux1]] <- path.lm$residuals  
-                R2[aux] <- round(path.lm$r.squared, 3)
+                R2[aux] <- path.lm$r.squared
                 inn.val <- round(c(path.lm$r.squared, path.lm$coef[,1]), 3)
                 inn.lab <- c("R2", "Intercept", paste(rep("path_",length(c)),names(c),sep=""))
                 innmod[[aux1]] <- data.frame(concept=inn.lab, value=inn.val)
@@ -40,5 +40,5 @@ function(IDM, Y.lvs, plsr)
     names(R2) <- lvs.names
     res.paths <- list(innmod, Path, R2)
     return(res.paths)
-} # end function 'pls.paths'
+}
 

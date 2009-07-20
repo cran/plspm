@@ -3,7 +3,7 @@
 \docType{data}
 \title{Arizona vegetation dataset}
 \description{
-  This data set gives the measurements of 16 vegetation communitites in the Santa Catalina Mountains, Arizona. The measurements were taken along different elevations from fir forest at high elevations, through pine forest, woodlands, and desert grassland.
+  This dataset gives the measurements of 16 vegetation communitites in the Santa Catalina Mountains, Arizona. The measurements were taken along different elevations from fir forest at high elevations, through pine forest, woodlands, and desert grassland.
 }
 \usage{arizona}
 \format{

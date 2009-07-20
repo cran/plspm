@@ -21,9 +21,9 @@ function(x, y, nc=2, cv=FALSE)
         colnames(Y) <- "Y"
     if (is.null(rownames(Y)))
         rownames(Y) <- 1:n
-    if (!is.numeric(nc) || length(nc)>1) nc<-2
-    nc <- as.integer(nc)
-    if (nc>min(n,p) || nc<2) nc<-2
+    if (mode(nc)!="numeric" || length(nc)!=1 || 
+        nc<=1 || (nc%%1)!=0 || nc>min(n,p))
+        nc <- min(n,p)   
     if (nc==n) nc<-n-1
     if (!is.logical(cv)) cv<-FALSE
     if (any(is.na(X))) na.miss<-TRUE else na.miss<-FALSE       
@@ -129,8 +129,7 @@ function(x, y, nc=2, cv=FALSE)
         Q2cv <- round(cbind(PRESS[1:h], RSS[1:h], Q2[1:h], rep(0.0975,h), Q2cum), 4)
         dimnames(Q2cv) <- list(1:h, c("PRESS","RSS","Q2","LimQ2","Q2cum"))
         cor.sco<-round(cor(cbind(Xx, y=Yy), Th), 4)
-    }
-    if (na.miss)
+    } else
     {
         mu.x <- attributes(Xx)$'scaled:center'
         sd.x <- attributes(Xx)$'scaled:scale'

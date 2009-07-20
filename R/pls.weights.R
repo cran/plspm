@@ -1,19 +1,22 @@
 `pls.weights` <-
-function(X, IDM, sets, modes, scheme, blocklist)
+function(X, IDM, blocks, modes, scheme)
 {
     lvs <- nrow(IDM)
     mvs <- ncol(X)
     lvs.names <- rownames(IDM)
     mvs.names <- colnames(X)
-    blocks <- unlist(lapply(sets, length))
+    blocklist <- as.list(1:lvs)
+    for (j in 1:lvs)
+         blocklist[[j]] <- rep(j,blocks[j])
+    blocklist <- unlist(blocklist)
     # initialize arbitrary outer weights (value of '1' for all weights)
-    out.ws <- sets
-    for (k in 1:lvs)
-        out.ws[[k]] <- rep(1,length(sets[[k]]))    
+    out.ws <- as.list(1:lvs)
+    for (j in 1:lvs)
+        out.ws[[j]] <- rep(1,blocks[j])
     # outer design matrix 'ODM' and matrix of outer weights 'W'
     ODM <- matrix(0, mvs, lvs)
-    for (k in 1:lvs)
-        ODM[which(blocklist==k),k] <- rep(1,blocks[k])
+    for (j in 1:lvs)
+        ODM[blocklist==j,j] <- rep(1,blocks[j])
     dimnames(ODM) <- list(mvs.names, lvs.names)
     W <- ODM %*% diag(1/sd(X %*% ODM),lvs,lvs)
     w.old <- rowSums(W)    
@@ -28,23 +31,23 @@ function(X, IDM, sets, modes, scheme, blocklist)
                "factor" = cor(Y) * (IDM + t(IDM)))
         if (is.null(E)) {   # path weighting scheme
             E <- IDM
-            for (k in 1:lvs) {
-                if (length(which(IDM[k,]==1)) > 0)
-                    E[which(IDM[k,]==1),k] <- lm(Y[,k]~Y[,which(IDM[k,]==1)]-1)$coef
-                if (length(which(IDM[,k]==1)) > 0)
-                    E[which(IDM[,k]==1),k] <- cor(Y[,k], Y[,which(IDM[,k]==1)])
+            for (j in 1:lvs) {
+                if (length(which(IDM[j,]==1)) > 0)
+                    E[which(IDM[j,]==1),j] <- lm(Y[,j]~Y[,which(IDM[j,]==1)]-1)$coef
+                if (length(which(IDM[,j]==1)) > 0)
+                    E[which(IDM[,j]==1),j] <- cor(Y[,j], Y[,which(IDM[,j]==1)])
             } 
         }            
         Z <- Y %*% E  # internal estimation of LVs 'Z'
         Z <- scale(Z)
         # computing outer weights 'w'
-        for (k in 1:lvs)
+        for (j in 1:lvs)
         {
-            X.blok = X[,which(blocklist==k)] 
-            if (modes[k]=="A")# reflective way
-                ODM[which(blocklist==k),k] = cov(Z[,k], X.blok)
-            if (modes[k]=="B")# formative way
-                ODM[which(blocklist==k),k] = solve.qr(qr(X.blok),Z[,k])
+            X.blok = X[,which(blocklist==j)] 
+            if (modes[j]=="A")# reflective way
+                ODM[which(blocklist==j),j] = cov(Z[,j], X.blok)
+            if (modes[j]=="B")# formative way
+                ODM[which(blocklist==j),j] = solve.qr(qr(X.blok),Z[,j])
         }
         W <- ODM %*% diag(1/sd(X %*% ODM),lvs,lvs)
         w.new = rowSums(W)                
@@ -56,5 +59,5 @@ function(X, IDM, sets, modes, scheme, blocklist)
     res.ws <- list(w.new, W)
     if (itermax==300) res.ws=NULL
     return(res.ws)
-} # end function pls.weights
+}
 

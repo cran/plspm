@@ -1,16 +1,17 @@
 `pls.loads` <-
-function(X, Y.lvs, blocklist, modes)
+function(X, Y.lvs, blocks)
 {
-    lvs <- length(modes)
+    lvs <- length(blocks)
     mvs <- ncol(X)
+    blocklist <- as.list(1:lvs)
+    for (j in 1:lvs)
+         blocklist[[j]] <- rep(j,blocks[j])
+    blocklist <- unlist(blocklist)
     loads <- rep(NA, mvs)
     comu <- rep(NA, mvs)
-    for (k in 1:lvs)
-    {
-        X.blok <- X[,which(blocklist==k)] 
-        loads[which(blocklist==k)] <- cor(X.blok, Y.lvs[,k])
-        comu[which(blocklist==k)] <- cor(X.blok, Y.lvs[,k])^2
-    }
+    for (j in 1:lvs)
+        loads[blocklist==j] <- cor(X[,blocklist==j], Y.lvs[,j])
+    comu <- loads^2
     names(loads) <- colnames(X)  
     names(comu) <- colnames(X)
     res.loads <- list(loads, comu)

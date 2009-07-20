@@ -10,9 +10,10 @@ function(X, Y, nc=2)
     p = ncol(X)
     q = ncol(Y)
     if (p<2 || q<2) stop("X and Y must have more than one column")
-    if (!is.numeric(nc) || length(nc)>1) nc<-2
-    nc <- as.integer(nc)
-    if (nc>=min(n,p) || nc<2) nc<-2
+    if (mode(nc)!="numeric" || length(nc)!=1 || 
+        nc<=1 || (nc%%1)!=0 || nc>min(n,p))
+        nc <- min(n,p)   
+    if (nc==n) nc<-n-1
     X.old <- scale(X)
     Y.old <- scale(Y)
     if (is.null(colnames(X)))

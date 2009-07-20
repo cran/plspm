@@ -14,4 +14,4 @@
 \details{
   The function \code{print.plspm.groups} displays a list with the results of the test. 
 }
-\seealso{\code{\link{plspm.groups}},\code{\link{plspm}}}
+\seealso{\code{\link{plspm.groups}}, \code{\link{plspm}}}

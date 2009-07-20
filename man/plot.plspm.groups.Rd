@@ -14,7 +14,7 @@
 \details{
   The function \code{plot.plspm.groups} displays a barplot with the path coefficients of the compared groups.
 }
-\seealso{\code{\link{plspm.groups}},\code{\link{plspm}}}
+\seealso{\code{\link{plspm.groups}},  \code{\link{plspm}}}
 \examples{
   \dontrun{
   ## example with customer satisfaction analysis
@@ -22,7 +22,7 @@
   data(satisfaction)
   IMAG <- c(0,0,0,0,0,0)
   EXPE <- c(1,0,0,0,0,0)
-  QUAL <- c(1,1,0,0,0,0)
+  QUAL <- c(0,1,0,0,0,0)
   VAL  <- c(0,1,1,0,0,0)
   SAT  <- c(1,1,1,1,0,0) 
   LOY  <- c(1,0,0,0,1,0)
@@ -32,7 +32,7 @@
   pls <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="factor", 
                 scaled=FALSE)
   ## permutation test with 100 permutations
-  res.group <- plspm.groups(satisfaction, pls, satisfaction$gender, 
+  res.group <- plspm.groups(pls, satisfaction$gender, 
                method="permutation", reps=100)
   res.group
   plot(res.group)

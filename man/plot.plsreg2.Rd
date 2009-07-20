@@ -19,7 +19,7 @@
   4) the plot of components (t1,u1) and the plot of components (t2,u2) \cr
 }
 \author{Gaston Sanchez}
-\seealso{\code{\link{plsreg2}},\code{\link{plsreg1}}}
+\seealso{\code{\link{plsreg2}},  \code{\link{plsreg1}}}
 \examples{
   \dontrun{
   ## example of plsreg2

@@ -11,7 +11,7 @@ function(x, y, nc=2, scaled=TRUE)
     if (scaled) Yy<-scale(Y) else Yy<-scale(Y,scale=F)
     X.old <- Xx
     Y.old <- Yy
-    Sh <- matrix(NA, n, nc)# matrix of X-scores
+    Th <- matrix(NA, n, nc)# matrix of X-scores
     Ph <- matrix(NA, p, nc)# matrix of X-loadings
     Wh <- matrix(NA, p, nc)# matrix of raw-weights
     Uh <- matrix(NA, n, nc)# matrix of Y-scores
@@ -27,7 +27,7 @@ function(x, y, nc=2, scaled=TRUE)
         u.new <- Y.old / as.vector(c.new)
         Y.old <- Y.old - t.new%*%c.new# deflate y.old
         X.old <- X.old - (t.new %*% t(p.new))# deflate X.old
-        Sh[,h] <- round(t.new, 4)
+        Th[,h] <- round(t.new, 4)
         Ph[,h] <- round(p.new, 4)
         Wh[,h] <- round(w.new, 4)
         Uh[,h] <- round(u.new, 4)
@@ -39,7 +39,7 @@ function(x, y, nc=2, scaled=TRUE)
     cte <- as.vector(round(mean(y) - Br%*%apply(X,2,mean), 4))# intercept
     y.hat <- round(X%*%Br+cte, 4)# y predicted
     resid <- round(as.vector(Y - y.hat), 4)# residuals
-    R2 <- round(as.vector(cor(Sh, Yy))^2, 4)  # R2 coefficients    
+    R2 <- round(as.vector(cor(Th, Yy))^2, 4)  # R2 coefficients    
     names(Br) <- colnames(X)
     names(resid) <- rownames(Y)
     names(y.hat) <- rownames(Y)

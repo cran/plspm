@@ -23,10 +23,11 @@ function(X, Y, nc=NULL, scaled=TRUE)
     if (!is.logical(scaled)) scaled<-TRUE
     if (!is.null(nc)) 
     {
-        if (!is.numeric(nc) || length(nc)>1) nc<-min(p,q)
-        if (nc > min(p,q)) nc<-min(p,q)        
-    }
-    if (is.null(nc)) nc <- min(p,q)
+        if (mode(nc)!="numeric" || length(nc)!=1 || 
+            nc<=1 || (nc%%1)!=0 || nc>min(n,p,q))
+            nc <- min(n,p,q)   
+    } else
+        nc <- min(n,p,q)
     # ============ setting inputs ==============    
     if (scaled) X<-scale(X) else X<-scale(X,scale=F)
     if (scaled) Y<-scale(Y) else Y<-scale(Y,scale=F)

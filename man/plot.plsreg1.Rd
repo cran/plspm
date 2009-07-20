@@ -19,7 +19,7 @@
   4) the dot chart comparing the response variable (Y) with the predicted values (Y-predicted) \cr
 }
 \author{Gaston Sanchez}
-\seealso{\code{\link{plsreg1}},\code{\link{plsreg2}}}
+\seealso{\code{\link{plsreg1}},  \code{\link{plsreg2}}}
 \examples{
   \dontrun{
   ## example of plsreg1 

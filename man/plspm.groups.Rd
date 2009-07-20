@@ -5,10 +5,9 @@
   This function performs a group comparison test for comparing path coefficients between two groups 
 }
 \usage{
-  plspm.groups(x, pls, g, method = "bootstrap", reps = NULL)
+  plspm.groups(pls, g, method = "bootstrap", reps = NULL)
 }
 \arguments{
-  \item{x}{A numeric matrix or data frame containing the manifest variables.}
   \item{pls}{An object of class \code{"plspm"} returned by the function \code{\link{plspm}}}
   \item{g}{A factor with 2 levels indicating the groups to be compared}
   \item{method}{The method to be used in the test. Possible values are \code{"bootstrap"} or \code{"permutation"} }
@@ -22,8 +21,6 @@
   The null and alternative hypotheses to be tested are: \cr
   H0: path coefficients are not significantly different \cr
   H1: path coefficients are significantly different \cr
-  
-  In order to use the function \code{plspm.groups} the argument \code{x} must be the same argument used in the function \code{\link{plspm}} to calculate the object \code{pls}. \cr  
 }
 \value{
   An object of class \code{"plspm.groups"}, basically a list with the following elements:
@@ -39,7 +36,7 @@
   \url{http://disc-nt.cba.uh.edu/chin/plsfaq/multigroup.htm}
 }
 \author{Gaston Sanchez}
-\seealso{\code{\link{print.plspm.groups}},\code{\link{plot.plspm.groups}}}
+\seealso{\code{\link{print.plspm.groups}},  \code{\link{plot.plspm.groups}}}
 \examples{
   \dontrun{
   ## example with customer satisfaction analysis
@@ -47,7 +44,7 @@
   data(satisfaction)
   IMAG <- c(0,0,0,0,0,0)
   EXPE <- c(1,0,0,0,0,0)
-  QUAL <- c(1,1,0,0,0,0)
+  QUAL <- c(0,1,0,0,0,0)
   VAL  <- c(0,1,1,0,0,0)
   SAT  <- c(1,1,1,1,0,0) 
   LOY  <- c(1,0,0,0,1,0)
@@ -57,7 +54,7 @@
   pls <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="factor", 
                 scaled=FALSE)
   ## permutation test with 100 permutations
-  res.group <- plspm.groups(satisfaction, pls, satisfaction$gender, 
+  res.group <- plspm.groups(pls, satisfaction$gender, 
                method="permutation", reps=100)
   res.group
   plot(res.group)

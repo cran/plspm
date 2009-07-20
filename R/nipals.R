@@ -5,17 +5,17 @@ function(x, nc=2, scaled=TRUE)
     X <- as.matrix(x)
     n <- nrow(X)
     p <- ncol(X)
-    if (!n || !p) 
-        stop("dimension 0 in 'x'")
+    if (!n || !p) stop("dimension 0 in 'x'")
     if (p==1) stop("x must be a numeric matrix or data frame")
     if (is.null(colnames(X)))
         colnames(X) <- paste(rep("X",p),1:p,sep="")
     if (is.null(rownames(X)))
         rownames(X) <- rep(1:n)
     if (!is.logical(scaled)) scaled <- TRUE
-    if (scaled) X<-scale(X) else X<-scale(X,scale=FALSE)
-    if (nc > p) nc <- 2
-    if (n < p) nc <- min(nc,n)
+    if (scaled) X<-scale(X) else X<-scale(X,scale=FALSE)    
+    if (mode(nc)!="numeric" || length(nc)!=1 || 
+        nc<=1 || (nc%%1)!=0 || nc>min(n,p))
+        nc <- 2
     if (nc==n) nc <- n-1
     if (any(is.na(X))) na.miss<-TRUE else na.miss<-FALSE       
     # setting inputs
@@ -44,8 +44,7 @@ function(x, nc=2, scaled=TRUE)
                     j.exist <- which(complete.cases(X[i,]))
                     th.new[i] <- sum(X.old[i,j.exist] * ph.new[j.exist]) / sum(ph.new[j.exist]^2)
                 }
-            }
-            if (!na.miss)
+            } else
             {
                 ph.new <- t(X.old) %*% th.new / sum(th.new^2)
                 ph.new <- ph.new / sqrt(sum(ph.new^2))
@@ -76,8 +75,8 @@ function(x, nc=2, scaled=TRUE)
             cor.sco[j,] <- round(cor(X[i.exist,j], Th[i.exist,]), 4)
         }
         dimnames(cor.sco) <- list(colnames(X), colnames(Th))
-    }
-    if (!na.miss) cor.sco<-round(cor(X, Th), 4)
+    } else
+        cor.sco <- round(cor(X, Th), 4)
     ConInd <- round((100/n)*Th^2 %*% diag(1/eig.vals),4)# individuals contribution
     dimnames(ConInd) <- list(rownames(X), paste(rep("ctr",nc),1:nc,sep=".") )
     D.proj <- Th^2# square distance of projections

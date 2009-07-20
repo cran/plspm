@@ -6,7 +6,7 @@
 }
 \usage{
   plspm(x, inner.mat, sets, modes = NULL, scheme = "centroid",
-  scaled = TRUE, boot.val = FALSE, plsr = FALSE)
+  scaled = TRUE, boot.val = FALSE, br = NULL, plsr = FALSE)
 }
 \arguments{
   \item{x}{A numeric matrix or data frame containing the manifest variables.}
@@ -17,6 +17,7 @@
   \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"centroid"}, \code{"factor"} and \code{"path"}.}
   \item{scaled}{A logical value indicating whether scaling data is performed (\code{TRUE} by default).}
   \item{boot.val}{A logical value indicating whether bootstrap validation is performed (\code{FALSE} by default) }
+  \item{br}{An integer indicating the number bootstrap resamples. Used only when \code{boot.val=TRUE}.}
   \item{plsr}{A logical value indicating whether pls regression is applied (\code{FALSE} by default) }
 }
 \details{
@@ -30,7 +31,7 @@
 
   The argument \code{scaled} is \code{TRUE} by default. This means that data in \code{x} is scaled to standardized values (mean=0, variance=1). Unless the data has the same scale for all variables, it is strongly recommended to keep this argument unchanged. \cr
 
-  When bootstrap validation is performed, the number of re-samples is 200. 
+  When bootstrap validation is performed, the default number of re-samples is 200. However, \code{br} can be specified in a range from 50 to 500.
 
   The argument \code{plsr} gives the option to calculate the inner model relationships by means of pls regression.
 }
@@ -49,6 +50,7 @@
   \item{inner.sum}{Summarized results by latent variable of the inner model. Includes: type of LV, type of measurement, number of indicators, R-squared, average communality, average redundancy, and average variance extracted}
   \item{gof}{Table with indexes of Goodness-of-Fit. Includes: absolute GoF, relative GoF, outer model GoF, and inner model GoF.}
   \item{effects}{Path effects of the structural relationships. Includes: direct, indirect, and total effects.} 
+  \item{data}{Data matrix containing the manifest variables used in the model.}
   \item{boot}{List of bootstrapping results; only available when argument \code{boot.val=TRUE}.}
 }
 \references{
@@ -65,7 +67,9 @@
   Wold, H. (1982) Soft modeling: the basic design and some extensions. In: K.G. Joreskog & H. Wold (Eds.), \emph{Systems under indirect observations: Causality, structure, prediction}, Part 2, pp. 1-54. Amsterdam: Holland.
 }
 \author{
-  Gaston Sanchez \url{http://www.docstoc.com/profile/gasigiri}
+  Gaston Sanchez 
+
+  \url{http://www.docstoc.com/profile/gasigiri}
 }
 \seealso{\code{\link{print.plspm}}, \code{\link{summary.plspm}}.}
 \examples{
@@ -87,7 +91,7 @@
   data(satisfaction)
   IMAG <- c(0,0,0,0,0,0)
   EXPE <- c(1,0,0,0,0,0)
-  QUAL <- c(1,1,0,0,0,0)
+  QUAL <- c(0,1,0,0,0,0)
   VAL  <- c(0,1,1,0,0,0)
   SAT  <- c(1,1,1,1,0,0) 
   LOY  <- c(1,0,0,0,1,0)

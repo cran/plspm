@@ -1,19 +1,21 @@
 `print.summary.plspm` <-
 function(x, ...)
 {
-    # if (x$xxx[[3]]==1) Scheme="Factor" else Scheme="Centroid"
-    Scheme <- switch(x$xxx[[3]], "factor"="Factor", "centroid"="Centroid", "path"="Path")
+    ## x$xxx <- list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br) 
+    Scheme <- x$xxx[[3]]
+    boot.sam <- if(is.null(x$xxx[[9]])) "NULL" else x$xxx[[9]]
     if (x$xxx[[5]]) Scale="Standardized Data" else Scale="Raw Data"
     cat("\n")
     cat("PARTIAL LEAST SQUARES PATH MODELING (PLS-PM)", "\n\n")
     cat("----------------------------------------------", "\n")    
     cat("MODEL SPECIFICATION", "\n")
-    cat("1   Number of Cases", "\t", x$xxx[[6]], "\n")
+    cat("1   Number of Cases", "\t", x$xxx[[8]], "\n")
     cat("2   Latent Variables", "\t", nrow(x$xxx[[1]]), "\n")
     cat("3   Manifest Variables", "\t", sum(x$xxx[[2]]), "\n")
     cat("4   Scale of Data", "\t", Scale, "\n")
     cat("5   Weighting Scheme", "\t", Scheme, "\n")
-    cat("6   Bootstrapping", "\t", x$xxx[[7]], "\n")
+    cat("6   Bootstrapping", "\t", x$xxx[[6]], "\n")
+    cat("7   Bootstrap samples", "\t", boot.sam, "\n")
     cat("\n")
     cat("---------------------------------------------------", "\n")    
     cat("BLOCKS DEFINITION", "\n")
@@ -60,7 +62,7 @@ function(x, ...)
     cat("\n")
     cat("----------------------------------------------------------", "\n")        
     cat("TOTAL EFFECTS","\n")
-    print(x$effects, print.gap=2)
+    print(x$effects, print.gap=2, digits=4)
     if (length(x)==11)
     {
         cat("\n")
@@ -68,7 +70,7 @@ function(x, ...)
         cat("BOOTSTRAP VALIDATION", "\n")
         for (i in 1:length(x$boot))
         {
-             cat(paste("$",names(x$boot)[i],sep=""), "\n")
+             cat(names(x$boot)[i], "\n")
              print(x$boot[[i]], print.gap=2)
              cat("\n")
         }
