@@ -1,4 +1,4 @@
-`plot.plsreg1` <-
+plot.plsreg1 <-
 function(x, ...)
 {
     # Circle of correlations
@@ -12,7 +12,7 @@ function(x, ...)
     text(x$cor.sco[,1], x$cor.sco[,2], labels=abbreviate(rownames(x$cor.sco)), pos=2, 
          col=c(rep("blue",nrow(x$x.loads)),"red"), cex=.7)
     # Graphic of components TT
-    win.graph()
+    dev.new()
     par(mfrow=c(1,2))
     plot(x$scores[,1], x$scores[,2], main=expression(bold("Graphic of PLS components  " * t[1] *","* t[2])), 
          xlab=expression("X-component  " * t[1]), ylab=expression("X-component  " * t[2]),
@@ -45,7 +45,7 @@ function(x, ...)
         xy %*% rbind(c(cos(0),sin(0)), c(-sin(0),cos(0))) + cbind(rep(0,n),rep(0,n))
     }
     ep1 = ellipsePoints(a, b)
-    win.graph()
+    dev.new()
     plot(x$scores[,1], x$scores[,2], main=expression(bold(" Ellipse Hotelling  " *T^2 * " (0.05)")), 
          type="n", cex.main=1, cex.lab=.8, xlab=expression(t[1]), ylab=expression(t[2]),
           cex.axis=.8, xlim=1.10*c(-a,a), ylim=1.10*c(-b,b) ) 
@@ -54,7 +54,7 @@ function(x, ...)
     points(ep1, type="l", col="purple", lty=1)
     text(x$scores[,1], x$scores[,2], labels=abbreviate(rownames(x$scores)), col="blue", pos=2, cex=.7)
     # Comparison Y -vs- Y.hat
-    win.graph()
+    dev.new()
     (z <- line(cbind(x$y, x$y.pred)))
     plot(x$y, x$y.pred, main="Y-observed -vs- Y-predicted", type="n",
          xlab="Y", ylab=expression(hat(Y)), cex.main=1, cex.axis=.8)

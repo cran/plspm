@@ -1,4 +1,4 @@
-`plot.nipals` <-
+plot.nipals <-
 function(x, ...)
 {
     # screeplot
@@ -11,7 +11,7 @@ function(x, ...)
     points(x$values[,3], pch=20, col="blue")
     lines(x$values[,3], col="blue")
     # Circle of correlations
-    win.graph()
+    dev.new()
     t = seq(0,2*pi,l=100)
     plot(cos(t), sin(t), type="l", main="Circle of Correlations", 
          xlab=expression("Component  " * t[1]), ylab=expression("Component  " * t[2]), 
@@ -22,7 +22,7 @@ function(x, ...)
     text(x$cor.sco[,1], x$cor.sco[,2], labels=abbreviate(rownames(x$loadings)),  
          pos=2, col="blue", cex=.7)
     # Graphic of components TT
-    win.graph()
+    dev.new()
     par(mfrow=c(1,2))
     plot(x$scores[,1], x$scores[,2], main=expression(bold("Graphic of components  " * t[1] *","* t[2])), 
          xlab=expression("Component  " * t[1]), ylab=expression("Component  " * t[2]),

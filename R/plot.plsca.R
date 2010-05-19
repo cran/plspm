@@ -1,4 +1,4 @@
-`plot.plsca` <-
+plot.plsca <-
 function(x, ...)
 {
     # Circle of correlations
@@ -24,7 +24,7 @@ function(x, ...)
     text(x$cor.xu[,1], x$cor.xu[,2], labels=rownames(x$cor.xu), pos=3, col="blue", cex=.7)
 
     # plot of scores
-    win.graph()
+    dev.new()
     par(mfrow=c(1,2))
     plot(x$x.scores[,1], x$x.scores[,2], main=expression(bold("Graphic of PLS components  " * t[1] *","* t[2])), 
          xlab=expression("X-component  " * t[1]), ylab=expression("X-component  " * t[2]),
@@ -40,7 +40,7 @@ function(x, ...)
          offset=.2, cex=.7)
 
     # plot of R2 and communalities
-    win.graph()
+    dev.new()
     par(mfrow=c(2,2), mar=c(2.5, 3, 3, 1.5))
     barplot(x$R2X, beside=T, border=NA, main="Explained variance of X-scores", cex.main=1)
     barplot(x$R2Y, beside=T, border=NA, main="Explained variance of Y-scores", cex.main=1)
@@ -48,7 +48,7 @@ function(x, ...)
     barplot(x$com.yt, beside=T, border=NA, main="Communality of Y with T", cex.main=1)
 
     # plot T-vs-U
-    win.graph()
+    dev.new()
     (z1 <- line(cbind(x$x.scores[,1], x$y.scores[,1])))
     par(mfrow=c(1,2))
     plot(x$x.scores[,1], x$y.scores[,1], main=expression(bold("Graphic of PLS components  " * t[1] *","* u[1])), 

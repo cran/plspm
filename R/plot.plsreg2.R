@@ -1,4 +1,4 @@
-`plot.plsreg2` <-
+plot.plsreg2 <-
 function(x, ...)
 {
     # Circle of correlations
@@ -16,7 +16,7 @@ function(x, ...)
          col=rep("red",nrow(x$y.loads)), cex=.8)
 
     # WC plot
-    win.graph()
+    dev.new()
     xmi <- 1.15*min(x$weights[,1], x$y.loads[,1])
     xma <- 1.15*max(x$weights[,1], x$y.loads[,1])
     ymi <- 1.15*min(x$weights[,2], x$y.loads[,2])
@@ -30,7 +30,7 @@ function(x, ...)
     text(x$y.loads[,1], x$y.loads[,2], labels=rownames(x$y.loads), cex=.7, col="red", pos=3)
 
     # TT and UU plots
-    win.graph()
+    dev.new()
     par(mfrow=c(1,2))
     # t1,t2 plot
     plot(x$x.scores[,1], x$x.scores[,2], main=expression(bold("Scores on components  ")* bold(list(t[1],t[2]))), 
@@ -48,7 +48,7 @@ function(x, ...)
          cex=.7, col="red", pos=2)
 
     # TU plots
-    win.graph()
+    dev.new()
     par(mfrow=c(1,2))
     # t1,u1 plot
     plot(x$x.scores[,1], x$y.scores[,1], main=expression(bold("Scores on components  ")* bold(list(t[1],u[1]))), 

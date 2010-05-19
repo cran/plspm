@@ -1,4 +1,4 @@
-`plsreg2` <-
+plsreg2 <-
 function(X, Y, nc=2)
 {
     X <- as.matrix(X)
