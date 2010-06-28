@@ -22,7 +22,7 @@
   When \code{y} is an \code{integer} vector or a \code{factor}, the values or levels are assumed to represent the group to which each observation belongs. In this case, the function \code{local.models} calculates PLS-PM for the global model, as well as PLS-PM for each group (local models). \cr
   If \code{scheme=NULL}, then the original scheme from the object \code{pls} will be taken. \cr
   If \code{scaled=NULL}, then the original scaled from the object \code{pls} will be taken. \cr
-  When bootstrap validation is performed, the default number of re-samples is 200. However, \code{br} can be specified in a range from 50 to 500.
+  When bootstrap validation is performed, the default number of re-samples is 100. However, \code{br} can be specified in a range from 100 to 1000.
 }
 \value{
   An object of class \code{"local.models"}, basically a list of length \code{k+1}, where \code{k} is the number of classes. The list contains the following elements:

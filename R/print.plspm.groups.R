@@ -1,4 +1,4 @@
-`print.plspm.groups` <-
+print.plspm.groups <-
 function(x,...)
 {
     cat("GROUP COMPARISON IN PLS-PM FOR PATH COEFFICIENTS", "\n\n")

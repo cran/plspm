@@ -1,4 +1,4 @@
-`plspm.groups` <-
+plspm.groups <-
 function(pls, g, method="bootstrap", reps=NULL)
 {
     # =========================== ARGUMENTS ==============================
@@ -38,10 +38,14 @@ function(pls, g, method="bootstrap", reps=NULL)
          blocklist[[j]] <- rep(j,blocks[j])
     blocklist <- unlist(blocklist)
     # apply the selected scaling
-    if(scaled) X=scale(DM) else X=scale(DM, scale=FALSE)
-
+    if (scaled) {
+        sd.X <- sqrt((nrow(DM)-1)/nrow(DM)) * apply(DM, 2, sd)
+        X <- scale(DM, scale=sd.X)
+    } else {
+        X <- scale(DM, scale=FALSE)
+    }
     # ====================== Global model estimation =====================
-    out.ws <- pls.weights(X, IDM, blocks, modes, scheme)
+    out.ws <- .pls.weights(X, IDM, blocks, modes, scheme)
     if (is.null(out.ws)) stop("The pls algorithm is non convergent") 
     cor.XY <- cor(X, X%*%out.ws[[2]])
     w.sig <- rep(NA,lvs)
@@ -53,7 +57,7 @@ function(pls, g, method="bootstrap", reps=NULL)
         Y.lvs <- round(DM %*% out.ws[[2]] %*% diag(w.sig,lvs,lvs), 4)
     dimnames(Y.lvs) <- list(rownames(X), lvs.names)
     # Path coefficients
-    pathmod <- pls.paths(IDM, Y.lvs, plsr)
+    pathmod <- .pls.paths(IDM, Y.lvs, plsr)
     innmod <- pathmod[[1]]
     Path.global <- pathmod[[2]]
     R2.global <- pathmod[[3]]
@@ -71,8 +75,15 @@ function(pls, g, method="bootstrap", reps=NULL)
     # ====================== Group1 model estimation =====================
     g1.lab <- levels(g)[1]
     group1 <- which(g==levels(g)[1])
-    if(scaled) X.g1=scale(DM[group1,]) else X.g1=scale(DM[group1,], scale=FALSE)
-    wgs.g1 <- pls.weights(X.g1, IDM, blocks, modes, scheme)
+    ng1 <- length(group1)
+    # apply the selected scaling
+    if (scaled) {
+        sd.Xg1 <- sqrt((ng1-1)/ng1) * apply(DM[group1,], 2, sd)
+        X.g1 <- scale(DM[group1,], scale=sd.Xg1)
+    } else {
+        X.g1 <- scale(DM[group1,], scale=FALSE)
+    }
+    wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme)
     if (is.null(wgs.g1)) stop("The algorithm is non convergent") 
     cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
     w.sig <- rep(NA,lvs)
@@ -84,7 +95,7 @@ function(pls, g, method="bootstrap", reps=NULL)
         Y1.lvs <- round(DM[group1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
     dimnames(Y1.lvs) <- list(rownames(X.g1), lvs.names)
     # Path coefficients 
-    pathmod.g1 <- pls.paths(IDM, Y1.lvs, plsr)
+    pathmod.g1 <- .pls.paths(IDM, Y1.lvs, plsr)
     innmod.g1 <- pathmod.g1[[1]]
     Path.g1 <- pathmod.g1[[2]]
     R2.g1 <- pathmod.g1[[3]]    
@@ -94,20 +105,27 @@ function(pls, g, method="bootstrap", reps=NULL)
     # ====================== Group2 model estimation =====================
     g2.lab <- levels(g)[2]
     group2 <- which(g==levels(g)[2])
-    if(scaled) X.g2=scale(DM[group2,]) else X.g2=scale(DM[group2,], scale=FALSE)
-    wgs.g2 <- pls.weights(X.g2, IDM, blocks, modes, scheme)
+    ng2 <- length(group2)
+    # apply the selected scaling
+    if (scaled) {
+        sd.Xg2 <- sqrt((ng2-1)/ng2) * apply(DM[group2,], 2, sd)
+        X.g2 <- scale(DM[group2,], scale=sd.Xg2)
+    } else {
+        X.g2 <- scale(DM[group2,], scale=FALSE)
+    }
+    wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme)
     if (is.null(wgs.g2)) stop("The algorithm is non convergent") 
     cor.XY <- cor(X[group2,], X.g2%*%wgs.g2[[2]])
     w.sig <- rep(NA,lvs)
     for (k in 1:lvs) 
-         w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
+        w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
     if (scaled) {
         Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
     } else   
         Y2.lvs <- round(DM[group2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
     dimnames(Y2.lvs) <- list(rownames(X.g2), lvs.names)
     # Path coefficients 
-    pathmod.g2 <- pls.paths(IDM, Y2.lvs, plsr)
+    pathmod.g2 <- .pls.paths(IDM, Y2.lvs, plsr)
     innmod.g2 <- pathmod.g2[[1]]
     Path.g2 <- pathmod.g2[[2]]
     R2.g2 <- pathmod.g2[[3]]    
@@ -117,10 +135,8 @@ function(pls, g, method="bootstrap", reps=NULL)
     # ====================== Group Comparison =====================
     dif.orig <- abs(path.g1-path.g2)
     nb <- round(reps)
-    ng1 <- length(group1)
-    ng2 <- length(group2)
 
-    if (method==1)
+    if (method==1)   # bootstrap
     {
         BG1 <- matrix(0, nb, sum(IDM))
         BG2 <- BG1
@@ -128,10 +144,18 @@ function(pls, g, method="bootstrap", reps=NULL)
         {
             samg1 <- sample(group1, ng1, replace=TRUE) 
             samg2 <- sample(group2, ng2, replace=TRUE)
-            if(scaled) X.g1=scale(DM[samg1,]) else X.g1=scale(DM[samg1,], scale=FALSE)
-            if(scaled) X.g2=scale(DM[samg2,]) else X.g2=scale(DM[samg2,], scale=FALSE)
-            wgs.g1 <- pls.weights(X.g1, IDM, blocks, modes, scheme)
-            wgs.g2 <- pls.weights(X.g2, IDM, blocks, modes, scheme)
+            # apply the selected scaling
+            if (scaled) {
+                sd.Xg1 <- sqrt((ng1-1)/ng1) * apply(DM[samg1,], 2, sd)
+                sd.Xg2 <- sqrt((ng2-1)/ng2) * apply(DM[samg2,], 2, sd)
+                X.g1 <- scale(DM[samg1,], scale=sd.Xg1)
+                X.g2 <- scale(DM[samg2,], scale=sd.Xg2)
+            } else {
+                X.g1 <- scale(DM[samg1,], scale=FALSE)
+                X.g2 <- scale(DM[samg2,], scale=FALSE)
+            }
+            wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme)
+            wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme)
             if (is.null(wgs.g1)) stop("Non convergence in bootstrap samples") 
             if (is.null(wgs.g2)) stop("Non convergence in bootstrap samples") 
             cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
@@ -150,9 +174,9 @@ function(pls, g, method="bootstrap", reps=NULL)
                 Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
             } else   
                 Y2.lvs <- round(DM[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
-            pathmod.g1 <- pls.paths(IDM, Y1.lvs, plsr)
+            pathmod.g1 <- .pls.paths(IDM, Y1.lvs, plsr)
             paths.g1 <- pathmod.g1[[2]]    
-            pathmod.g2 <- pls.paths(IDM, Y2.lvs, plsr)
+            pathmod.g2 <- .pls.paths(IDM, Y2.lvs, plsr)
             paths.g2 <- pathmod.g2[[2]]
             BG1[i,] <- as.vector(paths.g1[which(IDM==1)])
             BG2[i,] <- as.vector(paths.g2[which(IDM==1)])
@@ -183,10 +207,18 @@ function(pls, g, method="bootstrap", reps=NULL)
             permu <- sample(1:(ng1+ng2), ng1+ng2)
             samg1 <- permu[1:ng1]
             samg2 <- permu[(ng1+1):(ng1+ng2)]
-            if(scaled) X.g1=scale(DM[samg1,]) else X.g1=scale(DM[samg1,], scale=FALSE)
-            if(scaled) X.g2=scale(DM[samg2,]) else X.g2=scale(DM[samg2,], scale=FALSE)
-            wgs.g1 <- pls.weights(X.g1, IDM, blocks, modes, scheme)
-            wgs.g2 <- pls.weights(X.g2, IDM, blocks, modes, scheme)
+            # apply the selected scaling
+            if (scaled) {
+                sd.Xg1 <- sqrt((ng1-1)/ng1) * apply(DM[samg1,], 2, sd)
+                sd.Xg2 <- sqrt((ng2-1)/ng2) * apply(DM[samg2,], 2, sd)
+                X.g1 <- scale(DM[samg1,], scale=sd.Xg1)
+                X.g2 <- scale(DM[samg2,], scale=sd.Xg2)
+            } else {
+                X.g1 <- scale(DM[samg1,], scale=FALSE)
+                X.g2 <- scale(DM[samg2,], scale=FALSE)
+            }
+            wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme)
+            wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme)
             if (is.null(wgs.g1)) stop("Non convergence in bootstrap samples") 
             if (is.null(wgs.g2)) stop("Non convergence in bootstrap samples") 
             cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
@@ -205,9 +237,9 @@ function(pls, g, method="bootstrap", reps=NULL)
                 Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
             } else   
                 Y2.lvs <- round(DM[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
-            pathmod.g1 <- pls.paths(IDM, Y1.lvs, plsr)
+            pathmod.g1 <- .pls.paths(IDM, Y1.lvs, plsr)
             paths.g1 <- pathmod.g1[[2]]    
-            pathmod.g2 <- pls.paths(IDM, Y2.lvs, plsr)
+            pathmod.g2 <- .pls.paths(IDM, Y2.lvs, plsr)
             paths.g2 <- pathmod.g2[[2]]
             pp1 <- as.vector(paths.g1[which(IDM==1)])
             pp2 <- as.vector(paths.g2[which(IDM==1)])

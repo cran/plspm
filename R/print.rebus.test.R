@@ -1,4 +1,4 @@
-`print.rebus.test` <-
+print.rebus.test <-
 function(x, ...)
 {
     cat("Validation for REBUS-PLS by permutation tests", "\n")

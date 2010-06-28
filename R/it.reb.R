@@ -1,4 +1,4 @@
-`it.reb` <-
+it.reb <-
 function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
 {
     # ========================== it.reb function ==========================
@@ -7,7 +7,7 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
     # =========================== ARGUMENTS ==============================
     # pls: object of class "plspm"
     # hclus.res: object of class "hclust" obtained from function "res.clus"
-    # nk: an integer lasrger than 1 indicating the number of classes 
+    # nk: an integer larger than 1 indicating the number of classes 
     # stop.crit: stop criterion number (must be between 0 and 1)
     # iter.max: maximum number of iterations (must be an integer)
 
@@ -63,8 +63,9 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
     endo <- rowSums(IDM)
     endo[endo!=0] <- 1  # indicator of endog LVs
     n.end <- sum(endo)# number of enfod LVs
-    # apply the selected scaling
-    if(scaled) X=scale(DM) 
+    # data scaling
+    sd.X <- sqrt((N-1)/N) * apply(DM, 2, sd)
+    X <- scale(DM, scale=sd.X) 
     # initial partition
     ini.part <- cutree(hclus.res, nk)# cutting dendrogram in 'nk' clusters
     nclus <- nlevels(factor(ini.part))  # number of clusters
@@ -93,21 +94,22 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
         # local models computation
         for (k in 1:nclus)
         {   
+            nk <- nrow(split.DM[[k]])
             mean.k <- apply(split.DM[[k]],2,mean)# local mean
-            sd.k <- apply(split.DM[[k]],2,sd)# local std.dev
+            sd.k <- sqrt((nk-1)/nk) * apply(split.DM[[k]],2,sd)# local std.dev
             # spliting data matrix for each class
             split.X[[k]] <- scale(split.DM[[k]], center=mean.k, scale=sd.k)
             # calculating outer weights for each class
-            out.ws  <- pls.weights(split.X[[k]], IDM, blocks, modes, scheme)
+            out.ws  <- .pls.weights(split.X[[k]], IDM, blocks, modes, scheme)
             w.locals[[k]] <- out.ws[[2]]
             # calculating LV scores for each class
             Y.k <- split.X[[k]] %*% out.ws[[2]]
             # calculating path coefficients for each class
-            pathmod <- pls.paths(IDM, Y.k, plsr)
+            pathmod <- .pls.paths(IDM, Y.k, plsr)
             path.locals[[k]] <- pathmod[[2]]
             R2.locals[[k]] <- pathmod[[3]][endo==1]
             # calculating loadings and communalities for each class
-            loadcomu <- pls.loads(split.X[[k]], Y.k, blocks)   
+            loadcomu <- .pls.loads(split.X[[k]], Y.k, blocks)   
             loads.locals[[k]] <- loadcomu[[1]]
             comu.locals[[k]] <- loadcomu[[2]]
             # latent variables for each unit in each local model
@@ -171,12 +173,16 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
     qual.rebus <- matrix(NA,sum(lvs+2*n.end+1),nclus)
     for (k in 1:nclus)
     {               
-        out.ws <- pls.weights(scale(DM.cl.rebus[[k]]), IDM, blocks, modes, scheme)
-        Y.k <- scale(DM.cl.rebus[[k]]) %*% out.ws[[2]]
-        pathmod <- pls.paths(IDM, Y.k, plsr)
+        nk <- nrow(DM.cl.rebus[[k]])
+        mean.k <- apply(DM.cl.rebus[[k]], 2, mean)# local mean
+        sd.k <- sqrt((nk-1)/nk) * apply(DM.cl.rebus[[k]], 2, sd)# local std.dev
+        DM.k <- scale(DM.cl.rebus[[k]], center=mean.k, scale=sd.k)        
+        out.ws <- .pls.weights(DM.k, IDM, blocks, modes, scheme)
+        Y.k <- DM.k %*% out.ws[[2]]
+        pathmod <- .pls.paths(IDM, Y.k, plsr)
         path.locals[[k]] <- pathmod[[2]]
         R2.locals[[k]] <- pathmod[[3]][endo==1]
-        loadcomu <- pls.loads(DM.cl.rebus[[k]], Y.k, blocks)    
+        loadcomu <- .pls.loads(DM.cl.rebus[[k]], Y.k, blocks)    
         loads.locals[[k]] <- loadcomu[[1]]
         comu.locals[[k]] <- loadcomu[[2]]
         redun <- rep(0,mvs)
@@ -187,8 +193,7 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
                 aux <- aux + 1
                 redun[blocklist==j] <- comu.locals[[k]][blocklist==j] * R2.locals[[k]][aux]
             }
-        redun.locals[[k]] <- redun
-        
+        redun.locals[[k]] <- redun        
         path.rebus[,k] <- as.vector(path.locals[[k]][IDM==1])# path coeffs for local models        
         loads.rebus[,k] <- loads.locals[[k]]# loadings for local models  
         # table of quality indexes
@@ -211,7 +216,7 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
         qual.rebus[(lvs+n.end+1):(lvs+2*n.end),k] <- R2.aux
         qual.rebus[(lvs+2*n.end+1),k] <- sqrt(mean(comu.aveg)*mean(R2.aux))
     }
-    gqi <- round(GQI(pls, new.clas), 4)
+    gqi <- round(.pls.GQI(pls, new.clas), 4)
     dimnames(path.rebus) <- list(path.labs, reb.labs)
     dimnames(loads.rebus) <- list(mvs.names, reb.labs)
     v1 <- paste(rep("Com",lvs),lvs.names,sep=".")

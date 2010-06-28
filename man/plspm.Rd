@@ -1,12 +1,15 @@
 \name{plspm}
 \alias{plspm}
+\alias{plspm.fit}
 \title{PLS-PM: Partial Least Squares Path Modeling}
 \description{
   Estimate path models with latent variables by partial least squares approach
 }
 \usage{
   plspm(x, inner.mat, sets, modes = NULL, scheme = "centroid",
-  scaled = TRUE, boot.val = FALSE, br = NULL, plsr = FALSE)
+        scaled = TRUE, boot.val = FALSE, br = NULL, plsr = FALSE)
+
+  plspm.fit(x, inner.mat, sets, modes = NULL, scheme = "centroid", scaled = TRUE)
 }
 \arguments{
   \item{x}{A numeric matrix or data frame containing the manifest variables.}
@@ -14,14 +17,16 @@
   \item{sets}{List of vectors with column indices from x indicating which manifest variables correspond to the latent variables.}
   \item{modes}{A character vector indicating the type of measurement for each latent variable.
                \code{"A"} for reflective measurement or \code{"B"} for formative measurement (\code{NULL} by default).}
-  \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"centroid"}, \code{"factor"} and \code{"path"}.}
+  \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"centroid"} or \code{"factor"}.}
   \item{scaled}{A logical value indicating whether scaling data is performed (\code{TRUE} by default).}
-  \item{boot.val}{A logical value indicating whether bootstrap validation is performed (\code{FALSE} by default) }
+  \item{boot.val}{A logical value indicating whether bootstrap validation is performed (\code{FALSE} by default).}
   \item{br}{An integer indicating the number bootstrap resamples. Used only when \code{boot.val=TRUE}.}
-  \item{plsr}{A logical value indicating whether pls regression is applied (\code{FALSE} by default) }
+  \item{plsr}{A logical value indicating whether pls regression is applied (\code{FALSE} by default).}
 }
 \details{
-  The function \code{plspm} estimates a path model with latent variables by partial least squares approach. \cr
+  The function \code{plspm} estimates a path model by partial least squares approach while providing all results. \cr
+
+  The function \code{plspm.fit} performs the basic PLS algorithm and provides simple results (e.g. outer weights, LVs scores, path coefficients, R2, and loadings). \cr
   
   The argument \code{inner.mat} is a matrix of zeros and ones that indicates the structural relationships between latent variables. This must be a lower triangular matrix. \code{inner.mat} will contain a 1 when column \code{j} affects row \code{i}, 0 otherwise. \cr
 
@@ -29,27 +34,29 @@
 
   The argument \code{modes} is a character vector indicating the type of measurement for each latent variable. A value of \code{"A"} is used when a latent variable has reflective manifest variables, and a value of \code{"B"} is used when the latent variable has formative manifest variables. The length of \code{modes} must be equal to the number of rows of \code{inner.mat} (i.e. equal to the length of \code{sets}). \cr
 
-  The argument \code{scaled} is \code{TRUE} by default. This means that data in \code{x} is scaled to standardized values (mean=0, variance=1). Unless the data has the same scale for all variables, it is strongly recommended to keep this argument unchanged. \cr
+  The argument \code{scaled} is \code{TRUE} by default. This means that data in \code{x} is scaled to standardized values (i.e. mean=0 and variance=1, calculating the variance dividing by \code{N} instead of \code{N-1}). Unless the data has the same scale for all variables, it is strongly recommended to keep this argument unchanged. \cr
 
-  When bootstrap validation is performed, the default number of re-samples is 200. However, \code{br} can be specified in a range from 50 to 500.
+  When bootstrap validation is performed, the default number of re-samples is 100. However, \code{br} can be specified in a range from 100 to 1000.
 
-  The argument \code{plsr} gives the option to calculate the inner model relationships by means of pls regression.
+  The argument \code{plsr} gives the option to calculate the path coefficients by means of pls regression.
 }
 \value{
-  An object of class \code{"plspm"}, basically a list with the following elements:
-  \item{unidim}{Results for checking the unidimensionality of blocks (These results are only meaningful for reflective blocks).}
+  An object of class \code{"plspm"}. When the function \code{plspm.fit} is called, it returns a list with basic results:
   \item{outer.mod}{Results of the outer (measurement) model. Includes: outer weights, standardized loadings, communalities, and redundancies.}
   \item{inner.mod}{Results of the inner (structural) model. Includes: path coefficients and R-squared for each endogenous latent variable.}
-  \item{latents}{Matrix of standardized latent variables (variance=1).}
-  \item{scores}{Matrix of re-scaled latent variables. If \code{scaled=FALSE} then \code{scores} are the standardized latent variables expressed in the same scale of the manifest variables. If \code{scaled=TRUE} then \code{scores} are equal to \code{latents}}
+  \item{latents}{Matrix of standardized latent variables (variance=1 calculated divided by \code{N}) obtained from centered data (mean=0).}
+  \item{scores}{Matrix of latent variables used to estimate the inner model. If \code{scaled=FALSE} then \code{scores} are latent variables calculated with the original data (non-stardardized). If \code{scaled=TRUE} then \code{scores} and \code{latents} have the same values.}
   \item{out.weights}{Vector of outer weights.}
   \item{loadings}{Vector of standardized loadings (i.e. correlations with LVs.)}
   \item{path.coefs}{Matrix of path coefficients (this matrix has a similar form as \code{inner.mat}).}
   \item{r.sqr}{Vector of R-squared coefficients.}
+  \cr
+  If the function \code{plspm} is called, the previous list of results also contains the following elements:
   \item{outer.cor}{Correlations between the latent variables and the manifest variables (also called crossloadings).}
   \item{inner.sum}{Summarized results by latent variable of the inner model. Includes: type of LV, type of measurement, number of indicators, R-squared, average communality, average redundancy, and average variance extracted}
-  \item{gof}{Table with indexes of Goodness-of-Fit. Includes: absolute GoF, relative GoF, outer model GoF, and inner model GoF.}
   \item{effects}{Path effects of the structural relationships. Includes: direct, indirect, and total effects.} 
+  \item{unidim}{Results for checking the unidimensionality of blocks (These results are only meaningful for reflective blocks).}
+  \item{gof}{Table with indexes of Goodness-of-Fit. Includes: absolute GoF, relative GoF, outer model GoF, and inner model GoF.}
   \item{data}{Data matrix containing the manifest variables used in the model.}
   \item{boot}{List of bootstrapping results; only available when argument \code{boot.val=TRUE}.}
 }
@@ -69,9 +76,9 @@
 \author{
   Gaston Sanchez 
 
-  \url{http://www.docstoc.com/profile/gasigiri}
+  \url{http://www.scribd.com/plspm}
 }
-\seealso{\code{\link{print.plspm}}, \code{\link{summary.plspm}}.}
+\seealso{\code{\link{print.plspm}}, \code{\link{summary.plspm}}, \code{\link{plot.plspm}}.}
 \examples{
   \dontrun{
   ## example of PLS-PM in ecological analysis
@@ -98,9 +105,9 @@
   sat.mat <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
   sat.sets <- list(1:5,6:10,11:15,16:19,20:23,24:27)
   sat.mod <- rep("A",6)   ## reflective indicators
-  res2 <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="centroid", 
-                scaled=FALSE)
+  res2 <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scaled=FALSE)
   summary(res2)
+  plot(res2)
   
   ## example of PLS-PM in sensory analysis
   ## estimate a path model for the orange juice data
@@ -110,8 +117,9 @@
                               c("PHYCHEM","SENSORY","HEDONIC"))
   senso.sets <- list(1:9,10:16,17:112)
   senso.mod <- rep("A",3)
-  res3 <- plspm(orange, senso.mat, senso.sets, senso.mod, 
-                scheme="centroid", scaled=TRUE, boot.val=FALSE)
+  res3 <- plspm.fit(orange, senso.mat, senso.sets, senso.mod, 
+                scheme="centroid", scaled=TRUE)
+  summary(res3)
 
   ## example of PLS-PM in multi-block data analysis
   ## estimate a path model for the wine data set 
@@ -125,9 +133,8 @@
   wine.mat <- rbind(SMELL,VIEW,SHAKE,TASTE)
   wine.sets <- list(3:7,8:10,11:20,21:29)
   wine.mods <- rep("A",4)
-  scheme <- "centroid"
-  scaled <- FALSE
-  boot.val <- FALSE
-  res4 <- plspm(wine, wine.mat, wine.sets, wine.mods, scheme="centroid")                
+  # using function plspm.fit (basic pls algorithm)
+  res4 <- plspm.fit(wine, wine.mat, wine.sets, wine.mods, scheme="centroid")                
+  plot(res4, what="all", arr.pos=.4, box.prop=.4, cex.txt=.8)
   }
 }

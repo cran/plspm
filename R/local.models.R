@@ -1,4 +1,4 @@
-`local.models` <-
+local.models <-
 function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
 {
     # ======================== local.models function ======================
@@ -12,7 +12,7 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
     # scaled: a logical value indicating whether scale data is performed
     # boot.val:a logical value indicating whether bootstrap validation is done 
     # br: an integer indicating the number of bootstraps resamples, used 
-    #     only when boot.val=TRUE, (50 <= br <= 500)
+    #     only when boot.val=TRUE, (100 <= br <= 1000)
 
     # ==================== Checking function arguments ====================
     if (class(pls)!="plspm") 
@@ -30,7 +30,7 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
         scheme <- pls$model[[3]]
     if (is.null(pmatch(scheme, "centroid"))) 
         scheme <- "centroid"
-    SCHEMES <- c("centroid", "factor", "path")
+    SCHEMES <- c("centroid", "factor")
     scheme <- pmatch(scheme, SCHEMES)
     if (is.na(scheme)) {
         warning("Invalid argument 'scheme'. Default 'scheme=centroid' is used.")   
@@ -45,7 +45,7 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
     if (boot.val) {
         if (!is.null(br)) {        
             if (mode(br)!="numeric" || length(br)!=1 || (br%%1)!=0 ||
-                br<50 || br>500) {
+                br<100 || br>1000) {
                 warning("Invalid argument 'br'. Default 'br=100' is used.")   
                 br <- 100
             } 
@@ -81,18 +81,18 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
     n.clus <- length(table(segments))
 
     # ============ final models computation (global and local models) ============
-    skem <- switch(scheme, "centroid"="centroid", "factor"="factor", "path"="path")
+    skem <- switch(scheme, "centroid"="centroid", "factor"="factor")
     final.mod <- as.list(1:(n.clus+1))# final plspm models
     for (k in 1:(n.clus+1))
     {
         if (k==1) {
-            # applying the selected data scale
+            # global model
             X <- DM
             final.mod[[1]] <- plspm(X, IDM, new.sets, modes, skem, scaled, boot.val, br)
         } else
         {
             units.k <- which(segments==levels(segments)[k-1])
-            # applying the selected data scale
+            # local models
             X.k <- DM[units.k,]
             final.mod[[k]] <- plspm(X.k, IDM, new.sets, modes, skem, scaled, boot.val, br)
         }

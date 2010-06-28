@@ -28,10 +28,10 @@
   iterations and the initial composition of the classes are obtained by performing a Hierarchical 
   Cluster Analysis on the computed residuals (both from the measurement and the structural models).
   \cr
-  Step 4: Choose the number of classes (K) to take into account according to the dendograme obtained
+  Step 4: Choose the number of classes (K) to take into account according to the dendrogram obtained
   at Step 3.
   \cr
-  Step 5: Once the number of classes to consider is choosen, the initial composition of the classes are 
+  Step 5: Once the number of classes to consider is chosen, the initial composition of the classes are 
   obtained according to results of the Hierarchical Cluster Analysis.
   \cr
   Step 6: A PLS Path Modeling analysis is performed on each formed class and K provisional local 
@@ -56,9 +56,9 @@
   \cr
   In particular, firstly it computes the communality and structural residuals from the global model 
   and performs a Hierarchical Cluster Analysis on this residuals (by applying \code{\link{res.clus}} 
-  function). Then it shows the obtained dendograme and ask to the user to choose the number of cluster 
+  function). Then it shows the obtained dendrogram and asks the user to choose the number of clusters 
   to be take into account.This value need to be an integer value higher than 1.
-  Once the number of classes to consider is choosen, this function performs the iteration steps of 
+  Once the number of classes is chosen, this function performs the iteration steps of 
   the REBUS-PLS Algorithm and directly provides the final class membership for each unit, 
   summary results for the final local models, and the Group Quality Index (GQI) (Trinchera, 2007)
   ((by applying \code{\link{it.reb}} function). 
@@ -71,12 +71,12 @@
   
   Both these last two steps can be performed by running \code{\link{local.models}}. 
   
-  N.B. Once compute the global model it is possible to obtain the same results as the ones obtained
+  N.B. Once the global model is computed it is possible to obtain the same results as the ones obtained
   by running \code{rebus.pls} function, by running the function \code{\link{res.clus}} and then the 
   function \code{\link{it.reb}}. 
   \cr
   If you want to test REBUS-PLS on several number of classes you need to run \code{\link{it.reb}}
-  function several times by changing nk. This allows you to not compute each time residuals from the
+  function several times by changing nk. This allows you to avoid computing the residuals each time from the
   global model.
 }
 \value{
@@ -101,7 +101,7 @@
   \url{http://www.fedoa.unina.it/view/people/Trinchera,_Laura.html}
 }
 \author{Laura Trinchera, Gaston Sanchez}
-\seealso{\code{\link{plspm}}, \code{\link{res.clus}}, \code{\link{it.reb}}, \code{\link{rebus.test}}, \code{\link{local.models}}}
+\seealso{\code{\link{plspm}}, \code{\link{res.clus}}, \code{\link{resclus.plot}}, \code{\link{it.reb}}, \code{\link{rebus.test}}, \code{\link{local.models}}}
 \examples{
   \dontrun{
   ## example of rebus analysis with simulated data
@@ -126,7 +126,7 @@
   ## AND THEN THE FUNCTION it.reb.
   ##
   ## Example:
-  ## Once compute the global model you need to compute cluster analysis on residuals of the global model:
+  ## Once the global model is calculated you need to perform cluster analysis on residuals of the global model:
   sim.res.clus <- res.clus(sim.global)
   ## and then run the iteration algorithm:
   rebus.sim.twofunc <- it.reb(sim.global, sim.res.clus, nk=2, 

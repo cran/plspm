@@ -1,4 +1,4 @@
-`print.local.models` <-
+print.local.models <-
 function(x, ...)
 {
     ## x$model = list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br) 

@@ -1,4 +1,4 @@
-`plot.plspm.groups` <-
+plot.plspm.groups <-
 function(x,...)
 {
     test <- ifelse (x$settings[[3]]=="bootstrap", "Bootstrap test", "Permutation test")

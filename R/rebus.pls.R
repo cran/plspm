@@ -1,4 +1,4 @@
-`rebus.pls` <-
+rebus.pls <-
 function(pls, stop.crit=0.005, iter.max=100)
 {
     # ========================= rebus.pls function ========================

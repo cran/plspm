@@ -1,22 +1,22 @@
-`print.plspm` <-
+print.plspm <-
 function(x, ...)
 {
-    Name <- c("$unidim", "$outer.mod", "$inner.mod", "$latents", "$scores", "$out.weights",  
-             "$loadings", "$path.coefs", "$r.sqr", "$outer.cor", "$inner.sum", "$gof", 
-             "$effects", "$data")
-    Description <- c("unidimensionality", "outer model", "inner model", "scaled LVs (variance=1)", 
-       "re-scaled LVs for scaled=FALSE", "outer weights", "measurement loadings", 
-       "path coefficients", "R-squared", "outer correlations", "summary inner model", 
-       "goodnes-of-fit", "total effects", "original data matrix")
-    if (length(x)==16) {
-       Name <- c(Name, "$boot", "$boot$weights", "$boot$loadings", "$boot$paths",
-                 "$boot$efects", "$boot$rsq")
-       Description <- c(Description, "bootstrap results", "bootstrap weights", 
-              "bootstrap loadings", "bootstrap path.coefs", "bootstrap total effects", "bootstrap R2")
+    k <- length(x)-1
+    Name <- paste(rep("$",k),names(x)[1:k], sep="")
+    Description <- c("outer model", "inner model", "scaled LVs", "LVs for scaled=FALSE",
+                     "outer weights", "loadings", "path coefficients matrix", "R-squared")
+    if (k==14)
+        Description <- c(Description, "outer correlations", "summary inner model", "total effects",
+                         "unidimensionality", "goodnes-of-fit", "original data matrix")
+    if (k==15) {
+       Description <- c(Description, "outer correlations", "summary inner model", "total effects",
+                        "unidimensionality", "goodnes-of-fit", "bootstrap results",
+                        "original data matrix")
     }
     res1 <- cbind(Name, Description)
     cat("\n")
     cat("PARTIAL LEAST SQUARES PATH MODELING (PLS-PM)", "\n")
+    if (k==8) cat("             Basic Algorithm", "\n")               
     cat("----------------------------------------------", "\n")    
     cat("Results available in the following objects:", "\n\n")
     rownames(res1) <- 1:nrow(res1)

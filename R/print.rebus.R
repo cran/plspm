@@ -1,4 +1,4 @@
-`print.rebus` <-
+print.rebus <-
 function(x, ...)
 {
     lvs <- x$aux[[1]]

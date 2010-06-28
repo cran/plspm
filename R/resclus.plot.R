@@ -42,9 +42,8 @@ function(x, k=2, col.up="black", col.down=rainbow(k), lty.up=2, lty.down=1,
     ._a2r_height_cut <<- mean(x$height[nn-k+1:2])
     ._a2r_group      <<- 0    
     n.indiv <- length(x$order)
-    groups.o <- cutree.order(x, k=k)[x$order]    
-    bottom <- if(is.null(members)) 0 else x$height[nn] * -.2 
-    
+    groups.o <- .cutree.order(x, k=k)[x$order]    
+    bottom <- if(is.null(members)) 0 else x$height[nn] * -.2     
     if (only.tree){
         if (is.null(members)) 
             plot(0, type="n", xlim=c(0.5,n.indiv+.5), ylim=c(bottom,x$height[nn]), 
@@ -55,14 +54,12 @@ function(x, k=2, col.up="black", col.down=rainbow(k), lty.up=2, lty.down=1,
         .rec.hclust(nn, col=col.up, lty=lty.up, lwd=lwd.up)        
         axis(2)
         return(NULL)
-    }
-    
+    }    
     # prepare the layout
     matlayout <- matrix(c(1,2), nc=1, nr=2)
     widths    <- c(1,9)
     heights   <- c(9,1)
     layout(matlayout, width=widths, height=heights)        
-
     # Plotting the tree (1)
     par(mar=c(0,3,3,2))
     if(is.null(members)) plot(0,type="n",xlim=c(0.5,n.indiv+.5), ylim=c(bottom,x$height[nn]), xaxs="i", axes=FALSE, xlab="",ylab="") 
@@ -86,6 +83,6 @@ function(x, k=2, col.up="black", col.down=rainbow(k), lty.up=2, lty.down=1,
             text(cumsum(xo)-xo/2, 0, obs.labels, pos=4, col=col.down[groups.o])
         }
     }
-  par(opar) # reset parameter
+    par(opar) # reset parameter
 }
 

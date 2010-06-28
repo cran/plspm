@@ -37,7 +37,7 @@
   Naples, Italy.
 }
 \author{Laura Trinchera, Gaston Sanchez}
-\seealso{\code{\link{plspm}}, \code{\link{it.reb}}}
+\seealso{\code{\link{resclus.plot}}, \code{\link{it.reb}}, \code{\link{plspm}}}
 \examples{
   \dontrun{
   ## example of rebus analysis with simulated data

@@ -1,4 +1,4 @@
-`res.clus` <-
+res.clus <-
 function(pls)
 {
     # ========================= res.clus function ========================
@@ -34,8 +34,9 @@ function(pls)
          blocklist[[j]] <- rep(j,blocks[j])
     blocklist <- unlist(blocklist)
     # data scaling (standardized data)
-    X <- scale(DM)
-    
+    sd.X <- sqrt((nrow(DM)-1)/nrow(DM)) * apply(DM, 2, sd)
+    X <- scale(DM, scale=sd.X)
+   
     # ====================== computation of residuals =====================
     Y.lvs <- pls$latents# recovering LV scores from pls
     loads <- pls$loadings# recovering loadings from pls

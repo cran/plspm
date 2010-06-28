@@ -1,4 +1,4 @@
-`rebus.test` <-
+rebus.test <-
 function(pls, reb)
 {
     # ======================= rebus.test function ========================
@@ -16,7 +16,7 @@ function(pls, reb)
     if (!pls$model[[5]])# checking scaled data
         stop("REBUS only works with scaled='TRUE'")
     if (class(reb)!="rebus") 
-        stop("argument 'reb' must be an obkect of class 'rebus'")
+        stop("argument 'reb' must be an object of class 'rebus'")
     if (length(reb$segments)!=nrow(pls$data))
         stop("arguments 'pls' and 'reb' are incompatible")
     if (length(table(reb$segments))>6)
@@ -38,7 +38,8 @@ function(pls, reb)
          blocklist[[j]] <- rep(j,blocks[j])
     blocklist <- unlist(blocklist)
     # data scaling (standardized data)
-    X <- scale(DM)
+    sd.X <- sqrt((nrow(DM)-1)/nrow(DM)) * apply(DM, 2, sd)
+    X <- scale(DM, scale=sd.X)
     n.clus <- length(table(reb$segments))
     # multi-group comparison
     ic <- NULL
@@ -54,7 +55,7 @@ function(pls, reb)
     { 
         a <- which(reb$segments%in%gp.index[i,])
         g <- as.factor(reb$segments[a])
-        gp.test[[i]] <- locals.test(DM[a,], pls, g)
+        gp.test[[i]] <- .pls.locals.test(DM[a,], pls, g)
     }
     names(gp.test) <- paste(rep("test",nrow(gp.index)),gp.index[,1],gp.index[,2],sep="_")
     class(gp.test) <- "rebus.test"
