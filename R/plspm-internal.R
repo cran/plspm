@@ -71,114 +71,117 @@ function(IDM, modes, blocks, loadings, arr.pos=arr.pos,
 }
 
 .pls.boot <-
-function(DM, IDM, blocks, modes, scheme, scaled, br, plsr)
+function (DM, IDM, blocks, modes, scheme, scaled, br, plsr) 
 {
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
     mvs <- ncol(DM)
     mvs.names <- colnames(DM)
     blocklist <- as.list(1:lvs)
-    for (j in 1:lvs)
-         blocklist[[j]] <- rep(j,blocks[j])
+    for (j in 1:lvs) blocklist[[j]] <- rep(j, blocks[j])
     blocklist <- unlist(blocklist)
     endo <- rowSums(IDM)
-    endo[endo!=0] <- 1    
+    endo[endo != 0] <- 1
     bootnum <- br
-    # scaling data
     if (scaled) {
-        sd.X <- sqrt((nrow(DM)-1)/nrow(DM)) * apply(DM, 2, sd)
-        X <- scale(DM, scale=sd.X)
-    } else {
-        X <- scale(DM, scale=FALSE)
+        sd.X <- sqrt((nrow(DM) - 1)/nrow(DM)) * apply(DM, 2, 
+            sd)
+        X <- scale(DM, scale = sd.X)
+    }
+    else {
+        X <- scale(DM, scale = FALSE)
     }
     colnames(X) <- mvs.names
-    # =============== computation of the original plspm model ================
     out.ws <- .pls.weights(X, IDM, blocks, modes, scheme)
     wgs.orig <- out.ws[[1]]
-    cor.XY <- cor(X, X%*%out.ws[[2]])
-    w.sig <- rep(NA,lvs)
-    for (k in 1:lvs) 
-         w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-    Y.lvs <- X %*% out.ws[[2]] %*% diag(w.sig,lvs,lvs)
+    cor.XY <- cor(X, X %*% out.ws[[2]])
+    w.sig <- rep(NA, lvs)
+    for (k in 1:lvs) w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist == 
+        k), k])) <= 0, -1, 1)
+    Y.lvs <- X %*% out.ws[[2]] %*% diag(w.sig, lvs, lvs)
     pathmod <- .pls.paths(IDM, Y.lvs, plsr)
     Path <- pathmod[[2]]
-    path.orig <- as.vector(Path[which(IDM==1)])
-    r2.orig <- pathmod[[3]][which(endo==1)]
+    path.orig <- as.vector(Path[which(IDM == 1)])
+    r2.orig <- pathmod[[3]][which(endo == 1)]
     Path.efs <- .pls.efects(Path)
-    loadcomu <- .pls.loads(X, Y.lvs, blocks)    
+    loadcomu <- .pls.loads(X, Y.lvs, blocks)
     loads.orig <- loadcomu[[1]]
-    # ========================= Bootstrap Validation =========================
     path.labs <- NULL
     efs.labs <- NULL
-    for (j in 1:lvs)
-        for (i in j:lvs)
-             if (IDM[i,j]==1) 
-                 path.labs <- c(path.labs, paste(lvs.names[j],"->",lvs.names[i],sep=""))    
+    for (j in 1:lvs) for (i in j:lvs) if (IDM[i, j] == 1) 
+        path.labs <- c(path.labs, paste(lvs.names[j], "->", lvs.names[i], 
+            sep = ""))
     WEIGS <- matrix(NA, bootnum, mvs)
     LOADS <- matrix(NA, bootnum, mvs)
     PATHS <- matrix(NA, bootnum, sum(IDM))
     TOEFS <- matrix(NA, bootnum, nrow(Path.efs))
-    RSQRS <- matrix(NA, bootnum, sum(endo))
-    for (i in 1:bootnum)
-    {
-        boot.obs <- sample.int(nrow(X), replace=TRUE)
-        DM.boot <- DM[boot.obs,]
-        # scaling boot sample
+    RSQRS <- matrix(NA, bootnum, sum(endo))    
+    # while loop, in case of non-convergent iteration then re-run iteration
+    i <- 1
+    while (i <= bootnum) {
+    	boot.obs <- sample.int(nrow(X), size=nrow(X), replace = TRUE)
+        DM.boot <- DM[boot.obs, ]
         if (scaled) {
-            sd.XB <- sqrt((nrow(DM.boot)-1)/nrow(DM.boot)) * apply(DM.boot, 2, sd)
-            X.boot <- scale(DM.boot, scale=sd.XB)
-        } else {
-            X.boot <- scale(DM.boot, scale=FALSE)
+            sd.XB <- sqrt((nrow(DM.boot) - 1)/nrow(DM.boot)) * 
+                apply(DM.boot, 2, sd)
+            X.boot <- scale(DM.boot, scale = sd.XB)
+        }
+        else {
+            X.boot <- scale(DM.boot, scale = FALSE)
         }
         colnames(X.boot) <- mvs.names
-        # calculating boot model parameters 
         w.boot <- .pls.weights(X.boot, IDM, blocks, modes, scheme)
-        if (is.null(w.boot)) stop("Bootstrapping failed") 
-        WEIGS[i,] <- w.boot[[1]]
+        if (is.null(w.boot)) {
+            i <- i - 1   # if invalid replication, decrease the loop counter by one and continue 
+            next
+        }
+        WEIGS[i, ] <- w.boot[[1]]
         Y.boot <- X.boot %*% w.boot[[2]]
         pathmod <- .pls.paths(IDM, Y.boot, plsr)
         P.boot <- pathmod[[2]]
         Toef.boot <- .pls.efects(P.boot)
-        PATHS[i,] <- as.vector(P.boot[which(IDM==1)])
-        TOEFS[i,] <- Toef.boot[,4]
-        RSQRS[i,] <- pathmod[[3]][which(endo==1)]
-        l.boot <- .pls.loads(X.boot, Y.boot, blocks)    
-        LOADS[i,] <- l.boot[[1]]
+        PATHS[i, ] <- as.vector(P.boot[which(IDM == 1)])
+        TOEFS[i, ] <- Toef.boot[, 4]
+        RSQRS[i, ] <- pathmod[[3]][which(endo == 1)]
+        l.boot <- .pls.loads(X.boot, Y.boot, blocks)
+        LOADS[i, ] <- l.boot[[1]]        
+        i <- i + 1
     }
-    # Outer weights
     colnames(WEIGS) <- mvs.names
-    WB <- data.frame(Original=round(wgs.orig,3), Mean.Boot=round(apply(WEIGS,2,mean), 3), 
-                Std.Error=round(apply(WEIGS,2,sd),3), 
-                perc.05=round(apply(WEIGS,2,function(x) quantile(x,0.05)), 3), 
-                perc.95=round(apply(WEIGS,2,function(x) quantile(x,0.95)), 3))
-    # Loadings
+    WB <- data.frame(Original = round(wgs.orig, 3), Mean.Boot = round(apply(WEIGS, 
+        2, mean), 3), Std.Error = round(apply(WEIGS, 2, sd), 
+        3), perc.05 = round(apply(WEIGS, 2, function(x) quantile(x, 
+        0.05)), 3), perc.95 = round(apply(WEIGS, 2, function(x) quantile(x, 
+        0.95)), 3))
     colnames(LOADS) <- mvs.names
-    LB <- data.frame(Original=round(loads.orig,3), Mean.Boot=round(apply(LOADS,2,mean), 3), 
-                Std.Error=round(apply(LOADS,2,sd),3), 
-                perc.05=round(apply(LOADS,2,function(x) quantile(x,0.05)), 3), 
-                perc.95=round(apply(LOADS,2,function(x) quantile(x,0.95)), 3))
-    # Path Coefficients
+    LB <- data.frame(Original = round(loads.orig, 3), Mean.Boot = round(apply(LOADS, 
+        2, mean), 3), Std.Error = round(apply(LOADS, 2, sd), 
+        3), perc.05 = round(apply(LOADS, 2, function(x) quantile(x, 
+        0.05)), 3), perc.95 = round(apply(LOADS, 2, function(x) quantile(x, 
+        0.95)), 3))
     colnames(PATHS) <- path.labs
-    PB <- data.frame(Original=round(path.orig,3), Mean.Boot=round(apply(PATHS,2,mean), 3), 
-                Std.Error=round(apply(PATHS,2,sd),3), 
-                perc.05=round(apply(PATHS,2,function(x) quantile(x,0.05)), 3), 
-                perc.95=round(apply(PATHS,2,function(x) quantile(x,0.95)), 3))
-    # Total Effects
-    colnames(TOEFS) <- Path.efs[,1]
-    TE <- data.frame(Original=round(Path.efs[,4],3), Mean.Boot=round(apply(TOEFS,2,mean), 3), 
-                Std.Error=round(apply(TOEFS,2,sd), 3), 
-                perc.05=round(apply(TOEFS,2,function(x) quantile(x,0.05)), 3), 
-                perc.95=round(apply(TOEFS,2,function(x) quantile(x,0.95)), 3))
-    # R Squared
-    colnames(RSQRS) <- lvs.names[endo==1]
-    RB <- data.frame(Original=round(r2.orig,3), Mean.Boot=round(apply(RSQRS, 2, mean), 3), 
-                Std.Error=round(apply(RSQRS,2,sd),3), 
-                perc.05=round(apply(RSQRS,2,function(x) quantile(x,0.05)), 3), 
-                perc.95=round(apply(RSQRS,2,function(x) quantile(x,0.95)), 3))
-    # Bootstrap Results
-    res.boot <- list(weights=WB, loadings=LB, paths=PB, rsq=RB, total.efs=TE)
+    PB <- data.frame(Original = round(path.orig, 3), Mean.Boot = round(apply(PATHS, 
+        2, mean), 3), Std.Error = round(apply(PATHS, 2, sd), 
+        3), perc.05 = round(apply(PATHS, 2, function(x) quantile(x, 
+        0.05)), 3), perc.95 = round(apply(PATHS, 2, function(x) quantile(x, 
+        0.95)), 3))
+    colnames(TOEFS) <- Path.efs[, 1]
+    TE <- data.frame(Original = round(Path.efs[, 4], 3), Mean.Boot = round(apply(TOEFS, 
+        2, mean), 3), Std.Error = round(apply(TOEFS, 2, sd), 
+        3), perc.05 = round(apply(TOEFS, 2, function(x) quantile(x, 
+        0.05)), 3), perc.95 = round(apply(TOEFS, 2, function(x) quantile(x, 
+        0.95)), 3))
+    colnames(RSQRS) <- lvs.names[endo == 1]
+    RB <- data.frame(Original = round(r2.orig, 3), Mean.Boot = round(apply(RSQRS, 
+        2, mean), 3), Std.Error = round(apply(RSQRS, 2, sd), 
+        3), perc.05 = round(apply(RSQRS, 2, function(x) quantile(x, 
+        0.05)), 3), perc.95 = round(apply(RSQRS, 2, function(x) quantile(x, 
+        0.95)), 3))
+    res.boot <- list(weights = WB, loadings = LB, paths = PB, 
+        rsq = RB, total.efs = TE)
     return(res.boot)
 }
+
 
 .pls.efects <-
 function(Path)
@@ -195,7 +198,7 @@ function(Path)
     if (lvs > 2)
     {
         for (k in 2:(lvs-1))
-            path.efects[[k]] <- round(path.efects[[k-1]] %*% Path, 4)
+            path.efects[[k]] <- path.efects[[k-1]] %*% Path
         ind.paths <- matrix(0, lvs, lvs)
         for (k in 2:length(path.efects))
             ind.paths <- ind.paths + path.efects[[k]]
@@ -207,15 +210,15 @@ function(Path)
     tot.efs <- NULL
     for (j in 1:lvs)
         for (i in j:lvs)
-             if (total.paths[i,j]!=0) 
+             if (i != j) # elements in matrices below the diagonal
              {
                  efs.labs <- c(efs.labs, paste(lvs.names[j],"->",lvs.names[i],sep=""))
                  dir.efs <- c(dir.efs, Path[i,j])# direct effects
                  ind.efs <- c(ind.efs, ind.paths[i,j])# indirect effects
                  tot.efs <- c(tot.efs, total.paths[i,j])# total effects
              }
-    Effects <- data.frame(relationships=efs.labs, dir.effects=dir.efs, 
-                          ind.effects=ind.efs, tot.effects=tot.efs)
+    Effects <- data.frame(relationships=efs.labs, dir.effects=round(dir.efs,4), 
+                          ind.effects=round(ind.efs,4), tot.effects=round(tot.efs,4))
     return(Effects)
 }
 
