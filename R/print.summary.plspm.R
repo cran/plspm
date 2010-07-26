@@ -1,8 +1,8 @@
 print.summary.plspm <-
 function(x, ...)
 {
-    ## x$xxx <- list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br) 
-    ## x.fit$xxx <- list(IDM, blocks, scheme, modes, scaled, obs) 
+    ## x$xxx <- list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br, tol, iter, n.iter) 
+    ## x.fit$xxx <- list(IDM, blocks, scheme, modes, scaled, obs, tol, iter, n.iter) 
     Scheme <- x$xxx[[3]]
     if (x$xxx[[5]]) Scale="Standardized Data" else Scale="Raw Data"
     cat("\n")
@@ -14,12 +14,15 @@ function(x, ...)
     cat("3   Manifest Variables", "\t", sum(x$xxx[[2]]), "\n")
     cat("4   Scale of Data", "\t", Scale, "\n")
     cat("5   Weighting Scheme", "\t", Scheme, "\n")
-    if (length(x$xxx)>6)
+    cat("6   Tolerance Crit", "\t", x$xxx$tol, "\n")
+    cat("7   Max Num Iters", "\t", x$xxx$iter, "\n")
+    cat("8   Convergence Iters", "\t", x$xxx$n.iter, "\n")
+    if (length(x$xxx)>9)
     {
         boot.sam <- if(is.null(x$xxx[[9]])) "NULL" else x$xxx[[9]]
-        cat("6   Paths by PLS-R", "\t", x$xxx[[7]], "\n")
-        cat("7   Bootstrapping", "\t", x$xxx[[6]], "\n")
-        cat("8   Bootstrap samples", "\t", boot.sam, "\n")
+        cat("9   Paths by PLS-R", "\t", x$xxx[[7]], "\n")
+        cat("10  Bootstrapping", "\t", x$xxx[[6]], "\n")
+        cat("11  Bootstrap samples", "\t", boot.sam, "\n")
     }
     cat("\n")
     cat("----------------------------------------------------------", "\n")    
@@ -27,10 +30,10 @@ function(x, ...)
     print(x$inputs, print.gap=3)
     cat("\n")
     cat("----------------------------------------------------------", "\n") 
-    if (length(x$xxx)>6) 
+    if (length(x$xxx)>9) 
     {   
         cat("BLOCKS UNIDIMENSIONALITY","\n")
-        print(x$unidim, print.gap=2)
+        print(x$unidim, print.gap=2, digits=3)
         cat("\n")
         cat("----------------------------------------------------------", "\n")    
     }
@@ -46,7 +49,7 @@ function(x, ...)
     print(OM, na.print="", print.gap=2, digits=3)
     cat("\n")
     cat("----------------------------------------------------------", "\n")    
-    if (length(x$xxx)>6)
+    if (length(x$xxx)>9)
     {
         cat("CORRELATIONS BETWEEN MVs AND LVs","\n")
         Cros <- NULL
@@ -58,8 +61,8 @@ function(x, ...)
         cat("----------------------------------------------------------", "\n")    
     }
     cat("INNER MODEL","\n")
-    print(x$inner.mod, print.gap=3)
-    if (length(x$xxx)>6)
+    print(x$inner.mod, print.gap=3, digits=3)
+    if (length(x$xxx)>9)
     {
         cat("----------------------------------------------------------", "\n")    
         cat("CORRELATIONS BETWEEN LVs","\n")
@@ -84,7 +87,7 @@ function(x, ...)
             for (i in 1:length(x$boot))
             {
                  cat(names(x$boot)[i], "\n")
-                 print(x$boot[[i]], print.gap=2)
+                 print(x$boot[[i]], print.gap=2, digits=3)
                  cat("\n")
             }
         }      

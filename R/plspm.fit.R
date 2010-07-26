@@ -1,5 +1,6 @@
 plspm.fit <-
-function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE)
+function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE,
+                      tol=0.00001, iter=100)
 {
     # =========================== ARGUMENTS ====================================
     # x: a numeric matrix or data.frame containing the manifest variables
@@ -54,7 +55,7 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE)
         if (modes[i]!="A" && modes[i]!="B") modes[i]<-"A"
     if (!is.na(pmatch(scheme, "centroid"))) 
         scheme <- "centroid"
-    SCHEMES <- c("centroid", "factor")
+    SCHEMES <- c("centroid", "factor", "path")
     scheme <- pmatch(scheme, SCHEMES)
     if (is.na(scheme)) {
         warning("Invalid argument 'scheme'. Default 'scheme=centroid' is used.")   
@@ -65,6 +66,14 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE)
         scaled <- TRUE
     }
     plsr <- FALSE
+    if (mode(tol)!="numeric" || length(tol)!=1 || tol<=0 || tol>0.001) {
+        warning("Invalid argument 'tol'. Default 'tol=0.00001' is used.")   
+        tol <- 0.00001
+    } 
+    if (mode(iter)!="numeric" || length(iter)!=1 || iter<100) {
+        warning("Invalid argument 'iter'. Default 'iter=100' is used.")   
+        iter <- 100
+    } 
 
     # ========================== INPUTS SETTING ==========================
     IDM <- inner.mat
@@ -102,9 +111,12 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE)
     dimnames(X) <- list(rownames(x), mvs.names)
 
     # ==================== Stage 1: Iterative procedure ==================
-    out.ws <- .pls.weights(X, IDM, blocks, modes, scheme)
-    if (is.null(out.ws)) stop("The pls algorithm is non convergent") 
-    out.weights <- round(out.ws[[1]], 4)
+    out.ws <- .pls.weights(X, IDM, blocks, modes, scheme, tol, iter)
+    if (is.null(out.ws)) {
+        print(paste("Iterative process is non-convergent with 'iter'=", iter, " and 'tol'=", tol, sep=""))
+        stop("Algorithm stops") 
+    }
+    out.weights <- out.ws[[1]]
     cor.XY <- cor(X, X%*%out.ws[[2]])
     w.sig <- rep(NA,lvs)
     for (k in 1:lvs) 
@@ -118,11 +130,11 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE)
     # ============ Stage 2: Path coefficients and total effects ==========
     pathmod <- .pls.paths(IDM, Y.lvs, plsr)
     innmod <- pathmod[[1]]
-    Path <- round(pathmod[[2]], 4)
-    R2 <- round(pathmod[[3]], 4)
+    Path <- pathmod[[2]]
+    R2 <- pathmod[[3]]
     # ========== Stage 3: Measurement loadings and communalities =========
     loadcomu <- .pls.loads(X, Y.lvs, blocks)    
-    loads <- round(loadcomu[[1]], 4)
+    loads <- loadcomu[[1]]
     comu <- loadcomu[[2]]
     # ========================= Measurement model ========================
     outmod <- as.list(1:lvs)
@@ -135,7 +147,8 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE)
     names(outmod) <- lvs.names
     # =========================== Basic Results ==========================
     skem <- switch(scheme, "centroid"="centroid", "factor"="factor", "path"="path")
-    model <- list(IDM=IDM, blocks=blocks, scheme=skem, modes=modes, scaled=scaled, obs=nrow(X))
+    model <- list(IDM=IDM, blocks=blocks, scheme=skem, modes=modes, scaled=scaled, 
+                  obs=nrow(X), tol=tol, iter=iter, n.iter=out.ws[[3]])
     res <- list(outer.mod=outmod, inner.mod=innmod, latents=Z.lvs, scores=Y.lvs,
                out.weights=out.weights, loadings=loads, path.coefs=Path, r.sqr=R2, 
                model=model)

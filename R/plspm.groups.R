@@ -23,12 +23,14 @@ function(pls, g, method="bootstrap", reps=NULL)
     if (is.null(reps) | length(reps)>1) reps<-100
     if (!is.numeric(reps) | floor(reps)<=0) reps<-100
     # ========================== INPUTS SETTING ==========================
-    IDM <- pls$model[[1]]# Inner Design Matrix
-    blocks <- pls$model[[2]]# cardinality of blocks
-    scheme <- pls$model[[3]]# inner weighting scheme
-    modes <- pls$model[[4]]# measurement modes
-    scaled <- pls$model[[5]]# type of scaling
-    plsr <- pls$model[[7]]# pls-regression
+    IDM <- pls$model$IDM# Inner Design Matrix
+    blocks <- pls$model$blocks# cardinality of blocks
+    scheme <- pls$model$scheme# inner weighting scheme
+    modes <- pls$model$modes# measurement modes
+    scaled <- pls$model$scaled# type of scaling
+    plsr <- pls$model$plsr# pls-regression
+    tol <- pls$model$tol# tolerance criterion
+    iter <- pls$model$tol# max num iterations
     DM <- pls$data
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
@@ -45,7 +47,7 @@ function(pls, g, method="bootstrap", reps=NULL)
         X <- scale(DM, scale=FALSE)
     }
     # ====================== Global model estimation =====================
-    out.ws <- .pls.weights(X, IDM, blocks, modes, scheme)
+    out.ws <- .pls.weights(X, IDM, blocks, modes, scheme, tol, iter)
     if (is.null(out.ws)) stop("The pls algorithm is non convergent") 
     cor.XY <- cor(X, X%*%out.ws[[2]])
     w.sig <- rep(NA,lvs)
@@ -83,7 +85,7 @@ function(pls, g, method="bootstrap", reps=NULL)
     } else {
         X.g1 <- scale(DM[group1,], scale=FALSE)
     }
-    wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme)
+    wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme, tol, iter)
     if (is.null(wgs.g1)) stop("The algorithm is non convergent") 
     cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
     w.sig <- rep(NA,lvs)
@@ -113,7 +115,7 @@ function(pls, g, method="bootstrap", reps=NULL)
     } else {
         X.g2 <- scale(DM[group2,], scale=FALSE)
     }
-    wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme)
+    wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme, tol, iter)
     if (is.null(wgs.g2)) stop("The algorithm is non convergent") 
     cor.XY <- cor(X[group2,], X.g2%*%wgs.g2[[2]])
     w.sig <- rep(NA,lvs)
@@ -154,8 +156,8 @@ function(pls, g, method="bootstrap", reps=NULL)
                 X.g1 <- scale(DM[samg1,], scale=FALSE)
                 X.g2 <- scale(DM[samg2,], scale=FALSE)
             }
-            wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme)
-            wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme)
+            wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme, tol, iter)
+            wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme, tol, iter)
             if (is.null(wgs.g1)) stop("Non convergence in bootstrap samples") 
             if (is.null(wgs.g2)) stop("Non convergence in bootstrap samples") 
             cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
@@ -163,17 +165,17 @@ function(pls, g, method="bootstrap", reps=NULL)
             for (k in 1:lvs) 
                  w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
             if (scaled) {
-                Y1.lvs <- round(X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
+                Y1.lvs <- X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs)
             } else   
-                Y1.lvs <- round(DM[samg1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)        
+                Y1.lvs <- DM[samg1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs)
             cor.XY <- cor(X.g2, X.g2%*%wgs.g2[[2]])
             w.sig <- rep(NA,lvs)
             for (k in 1:lvs) 
                  w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
             if (scaled) { 
-                Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+                Y2.lvs <- X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs)
             } else   
-                Y2.lvs <- round(DM[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+                Y2.lvs <- DM[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs)
             pathmod.g1 <- .pls.paths(IDM, Y1.lvs, plsr)
             paths.g1 <- pathmod.g1[[2]]    
             pathmod.g2 <- .pls.paths(IDM, Y2.lvs, plsr)
@@ -217,8 +219,8 @@ function(pls, g, method="bootstrap", reps=NULL)
                 X.g1 <- scale(DM[samg1,], scale=FALSE)
                 X.g2 <- scale(DM[samg2,], scale=FALSE)
             }
-            wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme)
-            wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme)
+            wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme, tol, iter)
+            wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme, tol, iter)
             if (is.null(wgs.g1)) stop("Non convergence in bootstrap samples") 
             if (is.null(wgs.g2)) stop("Non convergence in bootstrap samples") 
             cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
@@ -226,17 +228,17 @@ function(pls, g, method="bootstrap", reps=NULL)
             for (k in 1:lvs) 
                  w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
             if (scaled) {
-                Y1.lvs <- round(X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
+                Y1.lvs <- X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs)
             } else   
-                Y1.lvs <- round(DM[samg1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)        
+                Y1.lvs <- DM[samg1,] %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs)
             cor.XY <- cor(X.g2, X.g2%*%wgs.g2[[2]])
             w.sig <- rep(NA,lvs)
             for (k in 1:lvs) 
                  w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
             if (scaled) {
-                Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+                Y2.lvs <- X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs)
             } else   
-                Y2.lvs <- round(DM[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+                Y2.lvs <- DM[samg2,] %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs)
             pathmod.g1 <- .pls.paths(IDM, Y1.lvs, plsr)
             paths.g1 <- pathmod.g1[[2]]    
             pathmod.g2 <- .pls.paths(IDM, Y2.lvs, plsr)

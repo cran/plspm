@@ -1,8 +1,8 @@
 summary.plspm <-
 function(object, ...)
 {
-    ## plspm$model <- list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br)
-    ## plspm.fit$model <- list(IDM, blocks, scheme, modes, scaled, obs)
+    ## x$model <- list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br, tol, iter, n.iter)
+    ## x.fit$model <- list(IDM, blocks, scheme, modes, scaled, obs, tol, iter, n.iter)
     y <- object
     IDM <- y$model[[1]]
     blocks <- y$model[[2]]

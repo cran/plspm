@@ -41,12 +41,14 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
     }
 
     # ========================== INPUTS SETTING ==========================
-    IDM <- pls$model[[1]]# Inner Design Matrix
-    blocks <- pls$model[[2]]# cardinality of blocks
-    scheme <- pls$model[[3]]# inner weighting scheme
-    modes <- pls$model[[4]]# measurement modes
-    scaled <- pls$model[[5]]# type of scaling
-    plsr <- pls$model[[7]]# pls-regression
+    IDM <- pls$model$IDM# Inner Design Matrix
+    blocks <- pls$model$blocks# cardinality of blocks
+    scheme <- pls$model$scheme# inner weighting scheme
+    modes <- pls$model$modes# measurement modes
+    scaled <- pls$model$scaled# type of scaling
+    plsr <- pls$model$plsr# pls-regression
+    tol <- pls$model$tol# tolerance criterion
+    iter <- pls$model$iter# max num iterations
     if (plsr) 
         warning("path coefficients will be calculated with OLS regression")
     plsr <- FALSE
@@ -100,7 +102,7 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
             # spliting data matrix for each class
             split.X[[k]] <- scale(split.DM[[k]], center=mean.k, scale=sd.k)
             # calculating outer weights for each class
-            out.ws  <- .pls.weights(split.X[[k]], IDM, blocks, modes, scheme)
+            out.ws  <- .pls.weights(split.X[[k]], IDM, blocks, modes, scheme, tol, iter)
             w.locals[[k]] <- out.ws[[2]]
             # calculating LV scores for each class
             Y.k <- split.X[[k]] %*% out.ws[[2]]
@@ -177,7 +179,7 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
         mean.k <- apply(DM.cl.rebus[[k]], 2, mean)# local mean
         sd.k <- sqrt((nk-1)/nk) * apply(DM.cl.rebus[[k]], 2, sd)# local std.dev
         DM.k <- scale(DM.cl.rebus[[k]], center=mean.k, scale=sd.k)        
-        out.ws <- .pls.weights(DM.k, IDM, blocks, modes, scheme)
+        out.ws <- .pls.weights(DM.k, IDM, blocks, modes, scheme, tol, iter)
         Y.k <- DM.k %*% out.ws[[2]]
         pathmod <- .pls.paths(IDM, Y.k, plsr)
         path.locals[[k]] <- pathmod[[2]]

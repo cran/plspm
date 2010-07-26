@@ -54,10 +54,12 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
     }
 
     # ========================== INPUTS SETTING ==========================
-    IDM <- pls$model[[1]]# Inner Design Matrix
-    blocks <- pls$model[[2]]# cardinality of blocks
-    modes <- pls$model[[4]]# measurement modes    
+    IDM <- pls$model$IDM# Inner Design Matrix
+    blocks <- pls$model$blocks# cardinality of blocks
+    modes <- pls$model$modes# measurement modes    
     plsr <- FALSE 
+    tol <- pls$model$tol
+    iter <- pls$model$iter
     DM <- pls$data
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
@@ -88,13 +90,13 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
         if (k==1) {
             # global model
             X <- DM
-            final.mod[[1]] <- plspm(X, IDM, new.sets, modes, skem, scaled, boot.val, br)
+            final.mod[[1]] <- plspm(X, IDM, new.sets, modes, skem, scaled, boot.val, br, tol, iter)
         } else
         {
             units.k <- which(segments==levels(segments)[k-1])
             # local models
             X.k <- DM[units.k,]
-            final.mod[[k]] <- plspm(X.k, IDM, new.sets, modes, skem, scaled, boot.val, br)
+            final.mod[[k]] <- plspm(X.k, IDM, new.sets, modes, skem, scaled, boot.val, br, tol, iter)
         }
     }
     names(final.mod) <- c("glob.model",paste(rep("loc.model",n.clus), 1:n.clus, sep="."))

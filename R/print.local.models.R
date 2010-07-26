@@ -1,7 +1,7 @@
 print.local.models <-
 function(x, ...)
 {
-    ## x$model = list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br) 
+    ## x$model = list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br, tol, iter) 
     model <- x$glob.model$model
     boot.sam <- if(is.null(model[[9]])) "NULL" else model[[9]]
     if (model[[5]]) Scale="Standardized Data" else Scale="Raw Data"

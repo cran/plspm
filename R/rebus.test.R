@@ -23,12 +23,14 @@ function(pls, reb)
         stop("the number of classes in 'rebus.test' is limited to 6")
 
     # ========================== INPUTS SETTING ==========================
-    IDM <- pls$model[[1]]# Inner Design Matrix
-    blocks <- pls$model[[2]]# cardinality of blocks
-    scheme <- pls$model[[3]]# inner weighting scheme
-    modes <- pls$model[[4]]# measurement modes
-    scaled <- pls$model[[5]]# type of scaling
-    plsr <- pls$model[[7]]# pls-regression
+    IDM <- pls$model$IDM# Inner Design Matrix
+    blocks <- pls$model$blocks# cardinality of blocks
+    scheme <- pls$model$scheme# inner weighting scheme
+    modes <- pls$model$modes# measurement modes
+    scaled <- pls$model$scaled# type of scaling
+    plsr <- pls$model$plsr# pls-regression
+    tol <- pls$model$tol# tolerance criterion
+    iter <- pls$model$iter# max num iterations
     DM <- pls$data
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)

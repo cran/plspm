@@ -20,6 +20,48 @@ function(hclu, k=NULL, h=NULL)
     coupe.out
 }
 
+.identity.model <-
+function(Y.lvs, IDM, SCE0, split.a, split.b)
+{    
+    # INPUT
+    # Y.lvs: matrix containing the estimated latent variables
+    # IDM: Inner Design Matrix
+    # SCE0: Suma de cuadrados de errores nodo padre
+    # split.a: elements of split a (left split)
+    # split.b: elements of split b (right split)
+
+    # PARAMS
+    lvs <- ncol(Y.lvs)# number of latent variables
+    endo <- rowSums(IDM)
+    endo[endo!=0] <- 1  # endogenous vector   
+    SCE1 <- 0# initialize SCE1
+    p <- 0# initialize p
+
+    for (aux1 in 2:lvs) {
+        if (endo[aux1] == 1) {
+            indep <- which(IDM[aux1,1:aux1]==1)
+            reg <- cbind(Y.lvs[,aux1], Y.lvs[,indep])
+            # Split regression matrix into "Xa" and "Xb"
+            Xa <- reg[split.a,]
+            Xb <- reg[split.b,]
+            # SCE1 calculation
+            lm.resa <- summary(lm(Xa[,1] ~ Xa[,2:ncol(Xa)]))$residuals
+            lm.resb <- summary(lm(Xb[,1] ~ Xb[,2:ncol(Xb)]))$residuals
+            SCE1 <- SCE1 + sum(lm.resa^2) + sum(lm.resb^2)
+            p <- p + ncol(reg)
+        }
+    }
+    # "F-test" calculation  (adaption from 'Lebart et al')
+    m <- sum(endo)
+    n <- m * (length(split.a) + length(split.b))
+    f <- ((n-2*p)/p)  *  ((SCE0 - SCE1)/SCE1)  # F statistic
+    df1 <- p   # degrees of freedom
+    df2 <- n - 2*p# degrees of freedom
+    p.val <- 1 - pf(f, df1, df2)   # p.value
+    iden <- c(f, df1, df2, p.val)   # result
+    return(iden)
+}
+
 .innerplot <-
 function(path.coefs, arr.pos=arr.pos, box.prop=box.prop, 
                        box.cex=box.cex, cex.txt=cex.txt)
@@ -70,118 +112,404 @@ function(IDM, modes, blocks, loadings, arr.pos=arr.pos,
     }
 }
 
+.nominal.split <-
+function(v)
+{
+    # INPUT(S)
+    # v: vector containing the nominal categories
+
+    # PARAM(S)
+    k = length(v)   # length of vector
+    num.parts = (2^(k-1))-1   # number of binary partitions
+    # stop limit of order of partitions
+    if ((k%%2)==0) stop.parts=k/2 else stop.parts=(k-1)/2    
+    part = as.list(1:num.parts)    # list for warehousing the partitions
+    antipar = part   # complementary list for part
+
+    # FUNCTION(S)
+    # internal function for evaluating candidates splits
+    eval.cand = function(x, y, aux)
+    {
+        # x: list of partitions
+        # y: candidate split to be included in part
+        # aux: num of parts already included in part
+        acum = 0
+        for (i in 1:(aux-1))
+        {
+             true.false = setequal(x[[i]], y)
+             if (true.false) acum=acum+1 else acum=acum+0
+        }
+        return(acum)
+    }
+       
+    # first order partitions
+    aux = 1
+    for (i in 1:k)
+    {
+         part[[aux]] = v[i]
+         antipar[[aux]] = setdiff(v, part[[i]])
+         aux = aux + 1
+    }
+    
+    # partitions of order greater than one
+    for (ord in 2:stop.parts)
+    {
+        if (stop.parts < ord)
+            break
+        # partitions of the immediate past order
+        p1 = aux - choose(k, (ord-1))
+        p2 = aux - 1
+        part.ant = part[p1:p2]
+        antipar.ant = antipar[p1:p2]    
+        for (i in 1:length(part.ant))
+        { 
+             part1 = part.ant[[i]]
+             anti1 = antipar.ant[[i]]
+             for (j in 1:length(anti1))
+             {
+                  candidat = c(part1, anti1[j])
+                  cand = eval.cand(part, candidat, aux)
+                  if (cand==0)
+                  {
+                       part[[aux]] = candidat
+                       antipar[[aux]] = setdiff(v, candidat)
+                       aux = aux + 1
+                  } else
+                  {
+                       next
+                  }
+             }
+        }
+    }    
+    # in case that k is even, only select partitions until num.parts
+    if (length(part) > num.parts)
+    {
+        part = part[1:num.parts]
+        antipar = antipar[1:num.parts]
+    }   
+    parts = list(par1=part, par2=antipar)
+    return(parts)
+}
+
+.ordinal.split <-
+function(cat.exe)
+{
+    a = length(cat.exe)
+    if (a == 2)  # binary variable
+    {
+        part = cat.exe[1]
+        antipar = cat.exe[2]
+    }
+    if (a > 2)   # more than 2 categories
+    {
+        part = as.list(1:(a-1))
+        antipar = part
+        for (i in 1:(a-1))
+        {
+             part[[i]] = cat.exe[1:i]
+             antipar[[i]] = setdiff(cat.exe, part[[i]])
+        }
+    }
+    parts = list(par1=part, par2=antipar)
+    return(parts)
+}
+
+.partition <-
+function(pls, DT, EXEV, type.exev, elemnod, nv, size)
+{
+    # INPUT(S)
+    # pls: object of class pls
+    # DT: data table
+    # EXEV: matrix of external explanatory variables
+    # type.exev: vector of type (ordinals or nominals)
+    # elemnod: vector of labeled elements according to node
+    # nv: node value
+    # size: minimum number of elements inside a node
+
+     # identifying which elements are in node "nv"
+     N <- nrow(EXEV)
+     if (nv==0) elems<-1:length(elemnod) else elems<-which(elemnod==nv)
+     indelem <- cbind(1:length(elems), elems)# adding identifier to elems
+     E.node <- EXEV[elems,]# select EXEV elements of current node      
+     exevs <- apply(E.node, 2, function(x) nlevels(as.factor(x)))# vector fo exevs
+     list.cata <- as.list(1:length(exevs))   # list of categs for best split.a
+     list.catb <- as.list(1:length(exevs))   # list of categs for best split.b
+     Ftest.global <- matrix(NA, length(exevs), 4)# matrix of results for best indent.mod
+
+     # parameters of plspm
+     Y.lvs <- pls$scores# matrix of latent variables
+     IDM <- pls$model$IDM# IDM matrix
+     blocks <- pls$model$blocks
+     modes <- pls$model$modes
+     scheme <- pls$model$scheme
+     scaled <- pls$model$scaled
+     tol <- pls$model$tol
+     iter <- pls$model$iter
+     pls.resid <- .pls.basic(DT, IDM, blocks, modes, scheme, scaled, tol, iter)
+     resid <- pls.resid$residuals# vector of residuals
+     SCE0 <- 0# Initialize SCE0
+     for (aux in 1:length(resid))
+          SCE0 <- SCE0 + sum(resid[[aux]]^2)     # calculating SCE0
+
+     # determining size limit
+     if (size < 1) {
+         size.limit <- ceiling(size*N)
+     } else {
+         size.limit <- size
+     }
+
+     # for each external explanatory variable
+     for (i in 1:length(exevs))    
+     {
+          if (exevs[i] == 1)  # category already used
+          {
+               Ftest.global[i,4] <- 1   # p.value of 1 (not significative)
+               list.cata[[i]] <- NA# NAs in categs split.a
+               list.catb[[i]] <- NA# NAs in categs split.b
+               next   # next exev
+          }  else   # category to be analized               
+          {
+               ### computing number of binary splits
+               cat.exe <- unique(E.node[,i])  # vector of categories
+               if (type.exev[i] == "ord") # for an ordinal variable
+               {
+                    bin.split <- .ordinal.split(sort(cat.exe))  # function of ordinal splits 
+               } else  # for a nominal variable
+               {
+                    if (exevs[i]==2)   # nominal var with 2 categories
+                    {
+                        bin.split <- as.list(cat.exe)
+                    } else     # nominal var > 2 categories
+                    { 
+                        bin.split <- .nominal.split(cat.exe)   # function of nominal splits
+                    }
+               }
+               ### Perform identity.model test for every binary split
+               Ftest <- matrix(NA, length(bin.split[[1]]), 4)   # matrix for identity.test results
+               for (aux in 1:length(bin.split[[1]]))   # for each binary split
+               {
+                     split.a <- which(E.node[,i] %in% bin.split[[1]][[aux]])# elems of left split
+                     split.b <- which(E.node[,i] %in% bin.split[[2]][[aux]])  # elems of right split
+                     n.a <- length(split.a)
+                     n.b <- length(split.b)
+                     if (n.a<=size.limit || n.b<=size.limit)# stop cond true
+                     {
+                          Ftest[aux,4] <- 1   # p.value of 1 (not significative)
+                          next  # next binary split
+                     } else# stop cond false
+                     {
+                          # identity.model test
+                          Ftest[aux,] <- .identity.model(Y.lvs, IDM, SCE0, split.a, split.b)
+                     }
+               }
+               ### select best split of the analized exev
+               for (aux in 1:nrow(Ftest))
+               {
+                    min.p <- which(Ftest[,4]==min(Ftest[,4]))[1]  # which split has the min p.value
+                    Ftest.global[i,] <- Ftest[min.p,]
+                    list.cata[[i]] <- bin.split[[1]][[min.p]]
+                    list.catb[[i]] <- bin.split[[2]][[min.p]]
+               } 
+          }
+     }
+     ### select optimum split
+     optim <- which(Ftest.global[,4]==min(Ftest.global[,4]))[1]
+     f.optim <- Ftest.global[optim,]
+     cats.optim <- list.cata[[optim]]
+     anticat.optim <- list.catb[[optim]]
+
+     aux.a <- which(E.node[,optim] %in% cats.optim)
+     aux.b <- which(E.node[,optim] %in% anticat.optim)
+     part.a <- indelem[aux.a,2]
+     part.b <- indelem[aux.b,2]
+     list.elems <- list(part.a, part.b)
+
+     ### return(result.part)
+     test.opt <- data.frame(exev=colnames(EXEV)[optim], F.test=f.optim[1], 
+                           df1=f.optim[2], df2=f.optim[3], p.val=f.optim[4])
+     categs <- list(as.vector(cats.optim), as.vector(anticat.optim))
+     resul <- list(inner.test=test.opt, categs=categs, list.elems=list.elems)
+     return(resul)
+}
+
+.path.scheme <-
+function(IDM, Y)
+{
+    lvs <- nrow(IDM)
+    E <- IDM
+    for (k in 1:lvs) 
+    {
+        if (length(which(IDM[k,]==1)) > 0)
+            E[which(IDM[k,]==1),k] <- lm(Y[,k]~Y[,which(IDM[k,]==1)]-1)$coef
+        if (length(which(IDM[,k]==1)) > 0)
+            E[which(IDM[,k]==1),k] <- cor(Y[,k], Y[,which(IDM[,k]==1)])
+    }                 
+    return(E)
+}
+
+.pls.basic <-
+function(DT, IDM, blocks, modes, scheme, scaled, tol, iter)
+{   
+    ##### PARAMETERS
+    DM <- DT
+    lvs <- nrow(IDM)
+    mvs <- sum(blocks)
+    blocklist <- as.list(1:lvs)
+    for (j in 1:lvs)
+         blocklist[[j]] <- rep(j,blocks[j])
+    blocklist <- unlist(blocklist)
+    endo = rowSums(IDM)
+    endo[endo!=0] = 1
+    plsr <- FALSE
+    ### Variable Names
+    lvs.names = colnames(IDM)
+    mvs.names = colnames(DM)
+
+    # apply the selected scaling
+    if (scaled) {
+        sd.X <- sqrt((nrow(DM)-1)/nrow(DM)) * apply(DM, 2, sd)
+        X <- scale(DM, scale=sd.X)
+    } else {
+        X <- scale(DM, scale=FALSE)
+    }
+    dimnames(X) <- list(rownames(DM), mvs.names)
+
+    # ==================== Stage 1: Iterative procedure ==================
+    out.ws <- .pls.weights(X, IDM, blocks, modes, scheme, tol, iter)
+    if (is.null(out.ws)) stop("The pls algorithm is non convergent") 
+    out.weights <- round(out.ws[[1]], 4)
+    cor.XY <- cor(X, X%*%out.ws[[2]])
+    w.sig <- rep(NA,lvs)
+    for (k in 1:lvs) 
+         w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
+    Z.lvs <- X %*% out.ws[[2]] %*% diag(w.sig,lvs,lvs)
+    Y.lvs <- Z.lvs
+    if (!scaled) 
+        Y.lvs <- DM %*% out.ws[[2]] %*% diag(w.sig,lvs,lvs)
+    dimnames(Y.lvs) <- list(rownames(X), lvs.names)
+    dimnames(Z.lvs) <- list(rownames(X), lvs.names)
+    loadcomu <- .pls.loads(X, Y.lvs, blocks)    
+    loads <- loadcomu[[1]]
+
+    # ============ Stage 2: Path coefficients and total effects ==========
+    pathmod <- .pls.paths(IDM, Y.lvs, plsr)
+    innmod <- pathmod[[1]]
+    Path <- pathmod[[2]]
+    R2 <- pathmod[[3]]
+    residuals <- pathmod[[4]]
+
+    # ============================= Results ==============================
+    model <- list(IDM=IDM, blocks=blocks, scheme=scheme, modes=modes, scaled=scaled)
+    resul = list(out.weights=out.weights, loadings=loads, scores=Y.lvs,   
+                 path.coefs=Path, R2=R2, residuals=residuals, model=model)
+    resul
+}
+
 .pls.boot <-
-function (DM, IDM, blocks, modes, scheme, scaled, br, plsr) 
+function(DM, IDM, blocks, modes, scheme, scaled, br, plsr, tol, iter)
 {
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
     mvs <- ncol(DM)
     mvs.names <- colnames(DM)
     blocklist <- as.list(1:lvs)
-    for (j in 1:lvs) blocklist[[j]] <- rep(j, blocks[j])
+    for (j in 1:lvs)
+         blocklist[[j]] <- rep(j,blocks[j])
     blocklist <- unlist(blocklist)
     endo <- rowSums(IDM)
-    endo[endo != 0] <- 1
+    endo[endo!=0] <- 1    
     bootnum <- br
+    # scaling data
     if (scaled) {
-        sd.X <- sqrt((nrow(DM) - 1)/nrow(DM)) * apply(DM, 2, 
-            sd)
-        X <- scale(DM, scale = sd.X)
-    }
-    else {
-        X <- scale(DM, scale = FALSE)
+        sd.X <- sqrt((nrow(DM)-1)/nrow(DM)) * apply(DM, 2, sd)
+        X <- scale(DM, scale=sd.X)
+    } else {
+        X <- scale(DM, scale=FALSE)
     }
     colnames(X) <- mvs.names
-    out.ws <- .pls.weights(X, IDM, blocks, modes, scheme)
+    # =============== computation of the original plspm model ================
+    out.ws <- .pls.weights(X, IDM, blocks, modes, scheme, tol, iter)
     wgs.orig <- out.ws[[1]]
-    cor.XY <- cor(X, X %*% out.ws[[2]])
-    w.sig <- rep(NA, lvs)
-    for (k in 1:lvs) w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist == 
-        k), k])) <= 0, -1, 1)
-    Y.lvs <- X %*% out.ws[[2]] %*% diag(w.sig, lvs, lvs)
+    cor.XY <- cor(X, X%*%out.ws[[2]])
+    w.sig <- rep(NA,lvs)
+    for (k in 1:lvs) 
+         w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
+    Y.lvs <- X %*% out.ws[[2]] %*% diag(w.sig,lvs,lvs)
     pathmod <- .pls.paths(IDM, Y.lvs, plsr)
     Path <- pathmod[[2]]
-    path.orig <- as.vector(Path[which(IDM == 1)])
-    r2.orig <- pathmod[[3]][which(endo == 1)]
+    path.orig <- as.vector(Path[which(IDM==1)])
+    r2.orig <- pathmod[[3]][which(endo==1)]
     Path.efs <- .pls.efects(Path)
-    loadcomu <- .pls.loads(X, Y.lvs, blocks)
+    loadcomu <- .pls.loads(X, Y.lvs, blocks)    
     loads.orig <- loadcomu[[1]]
+    # ========================= Bootstrap Validation =========================
     path.labs <- NULL
     efs.labs <- NULL
-    for (j in 1:lvs) for (i in j:lvs) if (IDM[i, j] == 1) 
-        path.labs <- c(path.labs, paste(lvs.names[j], "->", lvs.names[i], 
-            sep = ""))
+    for (j in 1:lvs)
+        for (i in j:lvs)
+             if (IDM[i,j]==1) 
+                 path.labs <- c(path.labs, paste(lvs.names[j],"->",lvs.names[i],sep=""))    
     WEIGS <- matrix(NA, bootnum, mvs)
     LOADS <- matrix(NA, bootnum, mvs)
     PATHS <- matrix(NA, bootnum, sum(IDM))
     TOEFS <- matrix(NA, bootnum, nrow(Path.efs))
-    RSQRS <- matrix(NA, bootnum, sum(endo))    
-    # while loop, in case of non-convergent iteration then re-run iteration
+    RSQRS <- matrix(NA, bootnum, sum(endo))
     i <- 1
-    while (i <= bootnum) {
-    	boot.obs <- sample.int(nrow(X), size=nrow(X), replace = TRUE)
-        DM.boot <- DM[boot.obs, ]
+    while (i <= bootnum)
+    {
+        boot.obs <- sample.int(nrow(X), size=nrow(X), replace=TRUE)
+        DM.boot <- DM[boot.obs,]
+        # scaling boot sample
         if (scaled) {
-            sd.XB <- sqrt((nrow(DM.boot) - 1)/nrow(DM.boot)) * 
-                apply(DM.boot, 2, sd)
-            X.boot <- scale(DM.boot, scale = sd.XB)
-        }
-        else {
-            X.boot <- scale(DM.boot, scale = FALSE)
+            sd.XB <- sqrt((nrow(DM.boot)-1)/nrow(DM.boot)) * apply(DM.boot, 2, sd)
+            X.boot <- scale(DM.boot, scale=sd.XB)
+        } else {
+            X.boot <- scale(DM.boot, scale=FALSE)
         }
         colnames(X.boot) <- mvs.names
-        w.boot <- .pls.weights(X.boot, IDM, blocks, modes, scheme)
+        # calculating boot model parameters 
+        w.boot <- .pls.weights(X.boot, IDM, blocks, modes, scheme, tol, iter)
         if (is.null(w.boot)) {
-            i <- i - 1   # if invalid replication, decrease the loop counter by one and continue 
+            i <- i - 1
             next
         }
-        WEIGS[i, ] <- w.boot[[1]]
+        WEIGS[i,] <- w.boot[[1]]
         Y.boot <- X.boot %*% w.boot[[2]]
         pathmod <- .pls.paths(IDM, Y.boot, plsr)
         P.boot <- pathmod[[2]]
         Toef.boot <- .pls.efects(P.boot)
-        PATHS[i, ] <- as.vector(P.boot[which(IDM == 1)])
-        TOEFS[i, ] <- Toef.boot[, 4]
-        RSQRS[i, ] <- pathmod[[3]][which(endo == 1)]
-        l.boot <- .pls.loads(X.boot, Y.boot, blocks)
-        LOADS[i, ] <- l.boot[[1]]        
+        PATHS[i,] <- as.vector(P.boot[which(IDM==1)])
+        TOEFS[i,] <- Toef.boot[,4]
+        RSQRS[i,] <- pathmod[[3]][which(endo==1)]
+        l.boot <- .pls.loads(X.boot, Y.boot, blocks)    
+        LOADS[i,] <- l.boot[[1]]
         i <- i + 1
     }
+    # Outer weights
     colnames(WEIGS) <- mvs.names
-    WB <- data.frame(Original = round(wgs.orig, 3), Mean.Boot = round(apply(WEIGS, 
-        2, mean), 3), Std.Error = round(apply(WEIGS, 2, sd), 
-        3), perc.05 = round(apply(WEIGS, 2, function(x) quantile(x, 
-        0.05)), 3), perc.95 = round(apply(WEIGS, 2, function(x) quantile(x, 
-        0.95)), 3))
+    WB <- data.frame(Original = wgs.orig, Mean.Boot = apply(WEIGS, 2, mean), 
+        Std.Error = apply(WEIGS, 2, sd), perc.05 = apply(WEIGS, 2, function(x) quantile(x, 0.05)),
+        perc.95 = apply(WEIGS, 2, function(x) quantile(x, 0.95)))
     colnames(LOADS) <- mvs.names
-    LB <- data.frame(Original = round(loads.orig, 3), Mean.Boot = round(apply(LOADS, 
-        2, mean), 3), Std.Error = round(apply(LOADS, 2, sd), 
-        3), perc.05 = round(apply(LOADS, 2, function(x) quantile(x, 
-        0.05)), 3), perc.95 = round(apply(LOADS, 2, function(x) quantile(x, 
-        0.95)), 3))
+    LB <- data.frame(Original = loads.orig, Mean.Boot = apply(LOADS, 2, mean),
+        Std.Error = apply(LOADS, 2, sd), perc.05 = apply(LOADS, 2, function(x) quantile(x, 0.05)),
+        perc.95 = apply(LOADS, 2, function(x) quantile(x, 0.95)))
     colnames(PATHS) <- path.labs
-    PB <- data.frame(Original = round(path.orig, 3), Mean.Boot = round(apply(PATHS, 
-        2, mean), 3), Std.Error = round(apply(PATHS, 2, sd), 
-        3), perc.05 = round(apply(PATHS, 2, function(x) quantile(x, 
-        0.05)), 3), perc.95 = round(apply(PATHS, 2, function(x) quantile(x, 
-        0.95)), 3))
+    PB <- data.frame(Original = path.orig, Mean.Boot = apply(PATHS, 2, mean),
+        Std.Error = apply(PATHS, 2, sd), perc.05 = apply(PATHS, 2, function(x) quantile(x, 0.05)),
+        perc.95 = apply(PATHS, 2, function(x) quantile(x, 0.95)))
     colnames(TOEFS) <- Path.efs[, 1]
-    TE <- data.frame(Original = round(Path.efs[, 4], 3), Mean.Boot = round(apply(TOEFS, 
-        2, mean), 3), Std.Error = round(apply(TOEFS, 2, sd), 
-        3), perc.05 = round(apply(TOEFS, 2, function(x) quantile(x, 
-        0.05)), 3), perc.95 = round(apply(TOEFS, 2, function(x) quantile(x, 
-        0.95)), 3))
+    TE <- data.frame(Original = Path.efs[, 4], Mean.Boot = apply(TOEFS, 2, mean), 
+        Std.Error = apply(TOEFS, 2, sd), perc.05 = apply(TOEFS, 2, function(x) quantile(x, 0.05)), 
+        perc.95 = apply(TOEFS, 2, function(x) quantile(x, 0.95)))
     colnames(RSQRS) <- lvs.names[endo == 1]
-    RB <- data.frame(Original = round(r2.orig, 3), Mean.Boot = round(apply(RSQRS, 
-        2, mean), 3), Std.Error = round(apply(RSQRS, 2, sd), 
-        3), perc.05 = round(apply(RSQRS, 2, function(x) quantile(x, 
-        0.05)), 3), perc.95 = round(apply(RSQRS, 2, function(x) quantile(x, 
-        0.95)), 3))
-    res.boot <- list(weights = WB, loadings = LB, paths = PB, 
-        rsq = RB, total.efs = TE)
+    RB <- data.frame(Original = r2.orig, Mean.Boot = apply(RSQRS, 2, mean),
+        Std.Error = apply(RSQRS, 2, sd), perc.05 = apply(RSQRS, 2, function(x) quantile(x, 0.05)),
+        perc.95 = apply(RSQRS, 2, function(x) quantile(x, 0.95)))
+    # Bootstrap Results
+    res.boot <- list(weights=WB, loadings=LB, paths=PB, rsq=RB, total.efs=TE)
     return(res.boot)
 }
-
 
 .pls.efects <-
 function(Path)
@@ -210,15 +538,15 @@ function(Path)
     tot.efs <- NULL
     for (j in 1:lvs)
         for (i in j:lvs)
-             if (i != j) # elements in matrices below the diagonal
+             if (i != j) 
              {
                  efs.labs <- c(efs.labs, paste(lvs.names[j],"->",lvs.names[i],sep=""))
                  dir.efs <- c(dir.efs, Path[i,j])# direct effects
                  ind.efs <- c(ind.efs, ind.paths[i,j])# indirect effects
                  tot.efs <- c(tot.efs, total.paths[i,j])# total effects
              }
-    Effects <- data.frame(relationships=efs.labs, dir.effects=round(dir.efs,4), 
-                          ind.effects=round(ind.efs,4), tot.effects=round(tot.efs,4))
+    Effects <- data.frame(relationships=efs.labs, dir.effects=dir.efs, 
+                          ind.effects=ind.efs, tot.effects=tot.efs)
     return(Effects)
 }
 
@@ -227,20 +555,25 @@ function(comu, R2, blocks, IDM)
 {
     lvs <- nrow(IDM)
     blocklist <- as.list(1:lvs)
-    for (j in 1:lvs)
+    for (j in 1:lvs)         
          blocklist[[j]] <- rep(j,blocks[j])
     blocklist <- unlist(blocklist)
     endo <- rowSums(IDM)
     endo[endo!=0] <- 1  
     n.end <- sum(endo)
     # average of communalities
-    comu.aveg <- rep(NA,lvs) 
-    R2.aux <- rep(NA,n.end)
-    aux <- 0
-    for (j in 1:lvs)
-        comu.aveg[j] <- mean(comu[blocklist==j]) 
     R2.aux <- R2[endo==1]
-    gof <- sqrt(mean(comu.aveg)*mean(R2.aux))
+    comu.aux <- 0 
+    n.comu <- 0
+    for (j in 1:lvs)
+    {
+        if (length(which(blocklist==j))>1)
+        {
+            comu.aux <- comu.aux + sum(comu[which(blocklist==j)])
+            n.comu <- n.comu + length(which(blocklist==j))
+        }
+    }
+    gof <- sqrt((comu.aux/n.comu)*mean(R2.aux))
     return(gof)
 }
 
@@ -255,28 +588,34 @@ function(DM, IDM, blocks, comu, unidim, R2)
     endo <- rowSums(IDM)
     endo[endo!=0] <- 1  
     R2.aux <- R2[endo==1]
-    comu.aveg <- rep(NA,lvs)# average of communalities
-    gof.out <- rep(1, lvs)# outer model term
-    gof.inn <- gof.out# inner model term
+    comu.aux <- 0# storing communalities
+    n.comu <- 0
+    gof.out <- 0# storing outer model term
+    gof.inn <- rep(1, lvs)  # inner model term
     for (j in 1:lvs)
     {
-        comu.aveg[j] <- mean(comu[blocklist==j]) 
-        gof.out[j] <- sum(comu[which(blocklist==j)]) / unidim[j,5]
+        k <- which(blocklist==j)
+        if (length(k)>1)
+        {
+            comu.aux <- comu.aux + sum(comu[k])
+            n.comu <- n.comu + length(k)
+            gof.out <- gof.out + ( sum(comu[k]) / unidim[j,5] )
+        }
         if (endo[j]==1)
         {
              EB <- DM[,which(blocklist==j)]  # endog block
              aux <- which(IDM[j,]==1)
              SB <- DM[,which(blocklist %in% aux)]  # super block             
-             gof.inn[j] <- round(cancor(EB, SB)$cor[1]^2, 4)
+             gof.inn[j] <- cancor(EB, SB)$cor[1]^2
         }
     }
     # ============================ GoF Indexes ===========================
-    gof.abs <- sqrt(mean(comu.aveg)*mean(R2.aux))
-    gof.om <- sqrt(mean(gof.out))
+    gof.abs <- sqrt((comu.aux/n.comu)*mean(R2.aux))
+    gof.om <- sqrt(gof.out/length(which(blocks>1)))
     gof.im <- sqrt(sum(R2/gof.inn)/sum(endo))
     gof.rel <- gof.om * gof.im
     GOF <- data.frame(GoF=c("Absolute", "Relative", "Outer.mod", "Inner.mod"),
-                      value=round(c(gof.abs, gof.rel, gof.om, gof.im),4))
+                      value=c(gof.abs, gof.rel, gof.om, gof.im))
     return(GOF)
 }
 
@@ -289,12 +628,14 @@ function(pls, part)
     # pls: object of class "plspm"
     # part: vector with units memberships / or categorical variable
     
-    IDM <- pls$model[[1]]# Inner Design Matrix
-    blocks <- pls$model[[2]]# cardinality of blocks
-    scheme <- pls$model[[3]]# inner weighting scheme
-    modes <- pls$model[[4]]# measurement modes
-    scaled <- pls$model[[5]]# type of scaling
+    IDM <- pls$model$IDM# Inner Design Matrix
+    blocks <- pls$model$blocks# cardinality of blocks
+    scheme <- pls$model$scheme# inner weighting scheme
+    modes <- pls$model$modes# measurement modes
+    scaled <- pls$model$scaled# type of scaling
     plsr <- FALSE 
+    tol <- pls$model$tol
+    iter <- pls$model$iter
     DM <- pls$data
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
@@ -338,7 +679,7 @@ function(pls, part)
         # spliting data matrix for each class
         split.X[[k]] <- scale(split.DM[[k]], center=mean.k, scale=sd.k)
         # calculating outer weights for each class
-        out.ws  <- .pls.weights(split.X[[k]], IDM, blocks, modes, scheme)
+        out.ws  <- .pls.weights(split.X[[k]], IDM, blocks, modes, scheme, tol, iter)
         w.locals[[k]] <- out.ws[[2]]
         # calculating LV scores for each class
         LV.locals[[k]] <- split.X[[k]] %*% out.ws[[2]]
@@ -407,12 +748,14 @@ function(X, pls, g)
     # g: a factor with 2 levels indicating the groups to be compared
 
     # ========================== INPUTS SETTING ==========================
-    IDM <- pls$model[[1]]# Inner Design Matrix
-    blocks <- pls$model[[2]]# cardinality of blocks
-    scheme <- pls$model[[3]]# inner weighting scheme
-    modes <- pls$model[[4]]# measurement modes
-    scaled <- pls$model[[5]]# type of scaling
-    plsr <- pls$model[[7]]# pls-regression
+    IDM <- pls$model$IDM# Inner Design Matrix
+    blocks <- pls$model$blocks# cardinality of blocks
+    scheme <- pls$model$scheme# inner weighting scheme
+    modes <- pls$model$modes# measurement modes
+    scaled <- pls$model$scaled# type of scaling
+    plsr <- pls$model$plsr# pls-regression
+    tol <- pls$model$tol# tolerance criterion
+    iter <- pls$model$iter# max num iterations
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
     mvs <- sum(blocks)
@@ -438,13 +781,13 @@ function(X, pls, g)
     } else {
         X.g1 <- scale(X[group1,], scale=FALSE)
     }
-    wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme)
+    wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme, tol, iter)
     if (is.null(wgs.g1)) stop("The algorithm is non convergent") 
     cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
     w.sig <- rep(NA,lvs)
     for (k in 1:lvs) 
          w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-    Y1.lvs <- round(X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
+    Y1.lvs <- X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs)
     dimnames(Y1.lvs) <- list(rownames(X.g1), lvs.names)
     # Path coefficients 
     pathmod.g1 <- .pls.paths(IDM, Y1.lvs, plsr)
@@ -469,13 +812,13 @@ function(X, pls, g)
     } else {
         X.g2 <- scale(X[group2,], scale=FALSE)
     }
-    wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme)
+    wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme, tol, iter)
     if (is.null(wgs.g2)) stop("The algorithm is non convergent") 
     cor.XY <- cor(X[group2,], X.g2%*%wgs.g2[[2]])
     w.sig <- rep(NA,lvs)
     for (k in 1:lvs) 
          w.sig[k] <- ifelse(sum(sign(cor.XY[which(blocklist==k),k]))<=0,-1,1)
-    Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+    Y2.lvs <- X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs)
     dimnames(Y2.lvs) <- list(rownames(X.g2), lvs.names)
     # Path coefficients 
     pathmod.g2 <- .pls.paths(IDM, Y2.lvs, plsr)
@@ -515,20 +858,20 @@ function(X, pls, g)
             X.g1 <- scale(X[samg1,], scale=FALSE)
             X.g2 <- scale(X[samg2,], scale=FALSE)
         }
-        wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme)
-        wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme)
+        wgs.g1 <- .pls.weights(X.g1, IDM, blocks, modes, scheme, tol, iter)
+        wgs.g2 <- .pls.weights(X.g2, IDM, blocks, modes, scheme, tol, iter)
         if (is.null(wgs.g1)) stop("Non convergence in bootstrap samples") 
         if (is.null(wgs.g2)) stop("Non convergence in bootstrap samples") 
         cor.XY <- cor(X.g1, X.g1%*%wgs.g1[[2]])
         w.sig <- rep(NA,lvs)
         for (j in 1:lvs) 
              w.sig[j] <- ifelse(sum(sign(cor.XY[blocklist==j,j]))<=0,-1,1)
-        Y1.lvs <- round(X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs), 4)
+        Y1.lvs <- X.g1 %*% wgs.g1[[2]] %*% diag(w.sig,lvs,lvs)
         cor.XY <- cor(X.g2, X.g2%*%wgs.g2[[2]])
         w.sig <- rep(NA,lvs)
         for (j in 1:lvs) 
              w.sig[j] <- ifelse(sum(sign(cor.XY[blocklist==j,j]))<=0,-1,1)
-        Y2.lvs <- round(X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs), 4)
+        Y2.lvs <- X.g2 %*% wgs.g2[[2]] %*% diag(w.sig,lvs,lvs)
         pathmod.g1 <- .pls.paths(IDM, Y1.lvs, plsr)
         paths.g1 <- pathmod.g1[[2]]    
         pathmod.g2 <- .pls.paths(IDM, Y2.lvs, plsr)
@@ -601,25 +944,25 @@ function(IDM, Y.lvs, plsr)
             Path[k1,k2] <- path.lm$coeffs
             residuals[[aux]] <- path.lm$resid
             R2[k1] <- path.lm$R2[1]
-            inn.val <- round(c(path.lm$R2[1], path.lm$cte, path.lm$coeffs), 3)
+            inn.val <- c(path.lm$R2[1], path.lm$cte, path.lm$coeffs)
             inn.lab <- c("R2", "Intercept", paste(rep("path_",length(k2)),names(k2),sep=""))
             names(inn.val) <- NULL
-            innmod[[aux]] <- data.frame(concept=inn.lab, value=inn.val)
+            innmod[[aux]] <- data.frame(concept=inn.lab, value=round(inn.val,4))
         }
         if (length(k2)==1 | !plsr) {
             path.lm <- summary(lm(Y.lvs[,k1] ~ Y.lvs[,k2]))
             Path[k1,k2] <- path.lm$coef[-1,1]
             residuals[[aux]] <- path.lm$residuals  
             R2[k1] <- path.lm$r.squared
-            inn.val <- round(c(path.lm$r.squared, path.lm$coef[,1]), 3)
+            inn.val <- c(path.lm$r.squared, path.lm$coef[,1])
             inn.lab <- c("R2", "Intercept", paste(rep("path_",length(k2)),names(k2),sep=""))
             names(inn.val) <- NULL
-            innmod[[aux]] <- data.frame(concept=inn.lab, value=inn.val)
+            innmod[[aux]] <- data.frame(concept=inn.lab, value=round(inn.val,4))
         }
     }
     names(innmod) <- lvs.names[endo!=0]  
     names(R2) <- lvs.names
-    res.paths <- list(innmod, Path, R2)
+    res.paths <- list(innmod, Path, R2, residuals)
     return(res.paths)
 }
 
@@ -665,17 +1008,17 @@ function(DM, blocks, modes)
                 p = ncol(X.uni)
                 a.denom <- var(rowSums(X.uni)) * sdvf^2
                 a.numer <- 2*sum(cor(X.uni)[lower.tri(cor(X.uni))])
-                alpha <- round((a.numer / a.denom) * (p/(p-1)), 3)
-                Alpha[aux] <- alpha
+                alpha <- (a.numer / a.denom) * (p/(p-1))
+                Alpha[aux] <- ifelse(alpha<0,0,alpha)
                 numer.rho <- colSums(cor(X.rho, acp$scores[,1]))^2
                 denom.rho <- numer.rho + (p - colSums(cor(X.rho, acp$scores[,1])^2) )
-                Rho[aux] <- round(numer.rho / denom.rho, 3)
+                Rho[aux] <- numer.rho / denom.rho
             } else {  # modes[aux]=="B"
                 Alpha[aux] <- 0
                 Rho[aux] <- 0
             }
-            eig.1st[aux] <- round(acp$sdev[1]^2, 3)
-            eig.2nd[aux] <- round(acp$sdev[2]^2, 3)
+            eig.1st[aux] <- acp$sdev[1]^2
+            eig.2nd[aux] <- acp$sdev[2]^2
         }
     }
     unidim <- data.frame(Type.measure=Mode, MVs=blocks, C.alpha=Alpha, 
@@ -685,7 +1028,7 @@ function(DM, blocks, modes)
 }
 
 .pls.weights <-
-function(X, IDM, blocks, modes, scheme)
+function(X, IDM, blocks, modes, scheme, tol, iter)
 {
     lvs <- nrow(IDM)
     mvs <- ncol(X)
@@ -705,10 +1048,12 @@ function(X, IDM, blocks, modes, scheme)
     repeat 
     {            
         Y <- X %*% W  # external estimation of LVs 'Y'
+        Y <- scale(Y) * sdv
         # matrix of inner weights 'e' 
         E <- switch(scheme, 
                "centroid" = sign(cor(Y) * (IDM + t(IDM))),
-               "factor" = cor(Y) * (IDM + t(IDM)))
+               "factor" = cor(Y) * (IDM + t(IDM)),
+               "path" = .path.scheme(IDM, Y))
         Z <- Y %*% E  # internal estimation of LVs 'Z'
         # scaling Z
         Z <- Z %*% diag(1/(sd(Z)*sdv), lvs, lvs)
@@ -717,21 +1062,23 @@ function(X, IDM, blocks, modes, scheme)
         {
             X.blok = X[,which(blocklist==j)] 
             if (modes[j]=="A")# reflective way
-                ODM[which(blocklist==j),j] = cov(Z[,j], X.blok)
+                ODM[which(blocklist==j),j] <- (1/nrow(X)) * Z[,j] %*% X.blok
             if (modes[j]=="B")# formative way
-                ODM[which(blocklist==j),j] = solve.qr(qr(X.blok),Z[,j])
+                ODM[which(blocklist==j),j] <- solve.qr(qr(X.blok),Z[,j])
         }
-        W <- ODM %*% diag(1/(sd(X %*% ODM)*sdv),lvs,lvs)
-        w.new = rowSums(W)                
-        w.dif <- sum((w.old - w.new)^2)  # difference of out.weights 
+        W <- ODM
+        w.new <- rowSums(W)                
+        w.dif <- sum((abs(w.old) - abs(w.new))^2)  # difference of out.weights 
+        if (w.dif<tol || itermax==iter) break
         w.old <- w.new
-        if (sum(w.dif^2)<1e-05 || itermax==300) break
         itermax <- itermax + 1
     } # end repeat       
+    W <- ODM %*% diag(1/(sd(X %*% ODM)*sdv),lvs,lvs)
+    w.new <- rowSums(W)                
     names(w.new) <- colnames(X)
     dimnames(W) <- list(colnames(X),rownames(IDM))       
-    res.ws <- list(w.new, W)
-    if (itermax==300) res.ws=NULL
+    res.ws <- list(w.new, W, itermax)
+    if (itermax==iter) res.ws=NULL
     return(res.ws)
 }
 

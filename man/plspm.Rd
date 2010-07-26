@@ -6,10 +6,10 @@
   Estimate path models with latent variables by partial least squares approach
 }
 \usage{
-  plspm(x, inner.mat, sets, modes = NULL, scheme = "centroid",
-        scaled = TRUE, boot.val = FALSE, br = NULL, plsr = FALSE)
+  plspm(x, inner.mat, sets, modes = NULL, scheme = "centroid", scaled = TRUE,
+        boot.val = FALSE, br = NULL, plsr = FALSE, tol=0.00001, iter=100)
 
-  plspm.fit(x, inner.mat, sets, modes = NULL, scheme = "centroid", scaled = TRUE)
+  plspm.fit(x, inner.mat, sets, modes = NULL, scheme = "centroid", scaled = TRUE, tol=0.00001, iter=100)
 }
 \arguments{
   \item{x}{A numeric matrix or data frame containing the manifest variables.}
@@ -17,11 +17,13 @@
   \item{sets}{List of vectors with column indices from x indicating which manifest variables correspond to the latent variables.}
   \item{modes}{A character vector indicating the type of measurement for each latent variable.
                \code{"A"} for reflective measurement or \code{"B"} for formative measurement (\code{NULL} by default).}
-  \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"centroid"} or \code{"factor"}.}
+  \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"centroid"}, \code{"factor"}, or \code{"path"}.}
   \item{scaled}{A logical value indicating whether scaling data is performed (\code{TRUE} by default).}
   \item{boot.val}{A logical value indicating whether bootstrap validation is performed (\code{FALSE} by default).}
   \item{br}{An integer indicating the number bootstrap resamples. Used only when \code{boot.val=TRUE}.}
   \item{plsr}{A logical value indicating whether pls regression is applied (\code{FALSE} by default).}
+  \item{tol}{Decimal value indicating the tolerance crietrion for the iterations (\code{tol=0.00001} by default).}
+  \item{iter}{An integer indicating the maximum number of iterations (\code{iter=100} by default).}
 }
 \details{
   The function \code{plspm} estimates a path model by partial least squares approach while providing all results. \cr
@@ -36,9 +38,13 @@
 
   The argument \code{scaled} is \code{TRUE} by default. This means that data in \code{x} is scaled to standardized values (i.e. mean=0 and variance=1, calculating the variance dividing by \code{N} instead of \code{N-1}). Unless the data has the same scale for all variables, it is strongly recommended to keep this argument unchanged. \cr
 
-  When bootstrap validation is performed, the default number of re-samples is 100. However, \code{br} can be specified in a range from 100 to 1000.
+  When bootstrap validation is performed, the default number of re-samples is 100. However, \code{br} can be specified in a range from 100 to 1000. \cr
 
-  The argument \code{plsr} gives the option to calculate the path coefficients by means of pls regression.
+  The argument \code{plsr} gives the option to calculate the path coefficients by means of pls regression. \cr
+
+  The argument \code{tol} can be specified in a range from 0 to 0.001. \cr
+
+  The minimum value of \code{iter} is 100. \cr
 }
 \value{
   An object of class \code{"plspm"}. When the function \code{plspm.fit} is called, it returns a list with basic results:
