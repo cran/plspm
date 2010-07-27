@@ -51,7 +51,6 @@ function(Y.lvs, IDM, SCE0, split.a, split.b)
             p <- p + ncol(reg)
         }
     }
-    # "F-test" calculation  (adaption from 'Lebart et al')
     m <- sum(endo)
     n <- m * (length(split.a) + length(split.b))
     f <- ((n-2*p)/p)  *  ((SCE0 - SCE1)/SCE1)  # F statistic
@@ -399,7 +398,8 @@ function(DT, IDM, blocks, modes, scheme, scaled, tol, iter)
     residuals <- pathmod[[4]]
 
     # ============================= Results ==============================
-    model <- list(IDM=IDM, blocks=blocks, scheme=scheme, modes=modes, scaled=scaled)
+    model <- list(IDM=IDM, blocks=blocks, scheme=scheme, modes=modes, 
+                  scaled=scaled, tol=tol, iter=iter)
     resul = list(out.weights=out.weights, loadings=loads, scores=Y.lvs,   
                  path.coefs=Path, R2=R2, residuals=residuals, model=model)
     resul
@@ -620,13 +620,14 @@ function(DM, IDM, blocks, comu, unidim, R2)
 }
 
 .pls.GQI <-
-function(pls, part)
+function(pls, part, DM)
 {
     # ========================== GQI function ==========================
     # Function to calculate Group Quality Index (GQI)        
     # =========================== arguments ==============================
     # pls: object of class "plspm"
     # part: vector with units memberships / or categorical variable
+    # DM: data matrix
     
     IDM <- pls$model$IDM# Inner Design Matrix
     blocks <- pls$model$blocks# cardinality of blocks
@@ -636,7 +637,11 @@ function(pls, part)
     plsr <- FALSE 
     tol <- pls$model$tol
     iter <- pls$model$iter
-    DM <- pls$data
+    outer <- pls$model$outer
+    blocklist <- outer
+    for (k in 1:length(blocks))
+         blocklist[[k]] <- rep(k,blocks[k])
+    blocklist <- unlist(blocklist)
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
     mvs <- sum(blocks)
@@ -940,7 +945,7 @@ function(IDM, Y.lvs, plsr)
         k1 <- which(endo==1)[aux]    # index for endo LV
         k2 <- which(IDM[k1,]==1)     # index for indep LVs
         if (length(k2)>1 & plsr) {               
-            path.lm <- .plsr1(Y.lvs[,k2], Y.lvs[,k1])
+            path.lm <- .plsr1(Y.lvs[,k2], Y.lvs[,k1], nc=2)
             Path[k1,k2] <- path.lm$coeffs
             residuals[[aux]] <- path.lm$resid
             R2[k1] <- path.lm$R2[1]
@@ -979,7 +984,6 @@ function(DM, blocks, modes)
     Mode[modes=="A"] <- "Reflective"
     Mode[modes=="B"] <- "Formative"   
     obs <- nrow(DM)
-    one.vec <- rep(1,obs)
     sdvf <- sqrt((nrow(DM)-1)/nrow(DM)) 
     # Unidimensionality
     Alpha <- rep(1, lvs)# Cronbach's Alpha for each block
@@ -992,10 +996,8 @@ function(DM, blocks, modes)
         { 
             # scaling data
             DM.block <- DM[,which(blocklist==aux)]
-            center <- diag(1,obs,obs) - one.vec%*%t(one.vec)/obs
-            X.cen <- center %*% DM.block
-            stdev.X <- sd(DM.block) * sdvf 
-            X.uni <- X.cen %*% diag(1/stdev.X, ncol(DM.block), ncol(DM.block))
+            stdev.X <- apply(DM.block, 2, sd) * sdvf 
+            X.uni <- scale(DM.block, scale=stdev.X)
             if (nrow(X.uni)<ncol(X.uni)) {   # more columns than rows
                 acp <- princomp(t(X.uni)) 
                 X.rho <- t(X.uni)
@@ -1083,13 +1085,15 @@ function(X, IDM, blocks, modes, scheme, tol, iter)
 }
 
 .plsr1 <-
-function(x, y, nc=2, scaled=TRUE)
+function(x, y, nc=NULL, scaled=TRUE)
 {
     # ============ checking arguments ============
     X <- as.matrix(x)
     Y <- as.matrix(y)
     n <- nrow(X)
     p <- ncol(X)
+    if (is.null(nc))
+        nc <- p
     # ============ setting inputs ==============
     if (scaled) Xx<-scale(X) else Xx<-scale(X,scale=F)
     if (scaled) Yy<-scale(Y) else Yy<-scale(Y,scale=F)
@@ -1111,24 +1115,24 @@ function(x, y, nc=2, scaled=TRUE)
         u.new <- Y.old / as.vector(c.new)
         Y.old <- Y.old - t.new%*%c.new# deflate y.old
         X.old <- X.old - (t.new %*% t(p.new))# deflate X.old
-        Th[,h] <- round(t.new, 4)
-        Ph[,h] <- round(p.new, 4)
-        Wh[,h] <- round(w.new, 4)
-        Uh[,h] <- round(u.new, 4)
-        ch[h] <- round(c.new, 4)        
+        Th[,h] <- t.new
+        Ph[,h] <- p.new
+        Wh[,h] <- w.new
+        Uh[,h] <- u.new
+        ch[h] <- c.new
     }
-    Ws <- round(Wh %*% solve(t(Ph)%*%Wh), 4)# modified weights
-    Bs <- round(as.vector(Ws %*% ch), 4) # std beta coeffs    
-    Br <- round(Bs * (rep(sd(Y),p)/apply(X,2,sd)), 4)   # beta coeffs
-    cte <- as.vector(round(mean(y) - Br%*%apply(X,2,mean), 4))# intercept
-    y.hat <- round(X%*%Br+cte, 4)# y predicted
-    resid <- round(as.vector(Y - y.hat), 4)# residuals
-    R2 <- round(as.vector(cor(Th, Yy))^2, 4)  # R2 coefficients    
+    Ws <- Wh %*% solve(t(Ph)%*%Wh)# modified weights
+    Bs <- as.vector(Ws %*% ch) # std beta coeffs    
+    Br <- Bs * (rep(sd(Y),p)/apply(X,2,sd))   # beta coeffs
+    cte <- as.vector(mean(y) - Br%*%apply(X,2,mean))# intercept
+    y.hat <- X%*%Br+cte# y predicted
+    resid <- as.vector(Y - y.hat)# residuals
+    R2 <- as.vector(cor(Th, Yy))^2  # R2 coefficients    
     names(Br) <- colnames(X)
     names(resid) <- rownames(Y)
     names(y.hat) <- rownames(Y)
     names(R2) <- paste(rep("t",nc),1:nc,sep="")
-    res <- list(coeffs=Br, cte=cte, R2=R2[1:nc], resid=resid, y.pred=y.hat)    
+    res <- list(coeffs=Br, coef.std=Bs, cte=cte, R2=R2[1:nc], resid=resid, y.pred=y.hat)    
     return(res)
 }
 

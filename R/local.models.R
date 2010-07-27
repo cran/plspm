@@ -1,5 +1,5 @@
 local.models <-
-function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
+function(pls, y, Y=NULL)
 {
     # ======================== local.models function ======================
     # Function to calculate PLS-PM for global and local models
@@ -7,12 +7,7 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
     # =========================== arguments ===============================
     # pls: object of class "plspm"
     # y: can be an object of class "rebus", a numeric vector, or a factor
-    # scheme: a character string indicating the inner weighting scheme 
-    #         to be used: "factor", "centroid", or "path"
-    # scaled: a logical value indicating whether scale data is performed
-    # boot.val:a logical value indicating whether bootstrap validation is done 
-    # br: an integer indicating the number of bootstraps resamples, used 
-    #     only when boot.val=TRUE, (100 <= br <= 1000)
+    # Y: optional data matrix or dataframe
 
     # ==================== Checking function arguments ====================
     if (class(pls)!="plspm") 
@@ -20,37 +15,24 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
     if (!is.element(class(y), c("rebus","integer","factor")))   
         stop("argument 'y' must be of class 'rebus', 'integer' or 'factor'")
     if (class(y)=="rebus") {
-        if (length(y$segments)!=nrow(pls$data))
+        if (length(y$segments)!=nrow(pls$latents))
             stop("arguments 'pls' and 'y' are incompatible")
     } else {
-        if (length(y)!=nrow(pls$data))
+        if (length(y)!=nrow(pls$latents))
             stop("arguments 'pls' and 'y' are incompatible")
     }
-    if (is.null(scheme))
-        scheme <- pls$model[[3]]
-    if (is.null(pmatch(scheme, "centroid"))) 
-        scheme <- "centroid"
-    SCHEMES <- c("centroid", "factor")
-    scheme <- pmatch(scheme, SCHEMES)
-    if (is.na(scheme)) {
-        warning("Invalid argument 'scheme'. Default 'scheme=centroid' is used.")   
-        scheme <- "centroid"
-    }
-    if (is.null(scaled) || !is.logical(scaled))
-        scaled <- pls$model[[5]]# type of scaling
-    if (!is.logical(boot.val)) {
-        warning("Invalid argument 'boot.val'. No bootstrap validation is done.")
-        boot.val <- FALSE
-    }   
-    if (boot.val) {
-        if (!is.null(br)) {        
-            if (mode(br)!="numeric" || length(br)!=1 || (br%%1)!=0 ||
-                br<100 || br>1000) {
-                warning("Invalid argument 'br'. Default 'br=100' is used.")   
-                br <- 100
-            } 
-        } else
-            br <- 100
+    if (!is.null(Y)) # if Y available
+    {
+        if (is.null(pls$data))
+        {
+            if (!is.matrix(Y) && !is.data.frame(Y))
+                stop("Invalid object 'Y'. Must be a numeric matrix or data frame.")
+            if (nrow(Y)!=nrow(pls$latents))
+                stop("Argument 'pls' and 'Y' are incompatible. Different number of rows.")
+        }
+    } else { # if no Y
+        if (is.null(pls$data)) 
+            stop("Argument 'Y' is missing. No dataset available.")
     }
 
     # ========================== INPUTS SETTING ==========================
@@ -60,14 +42,30 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
     plsr <- FALSE 
     tol <- pls$model$tol
     iter <- pls$model$iter
-    DM <- pls$data
+    scheme <- pls$model$scheme
+    scaled <- pls$model$scaled
+    tol <- pls$model$tol
+    iter <- pls$model$iter
+    outer <- pls$model$outer
+    blocklist <- outer
+    for (k in 1:length(blocks))
+         blocklist[[k]] <- rep(k,blocks[k])
+    blocklist <- unlist(blocklist)
+    # data matrix DM
+    if (!is.null(pls$data)) {
+        DM <- pls$data
+        dataset <- TRUE
+    } else {         
+        dataset <- FALSE
+        # building data matrix 'DM'
+        DM <- matrix(NA, nrow(pls$latents), sum(blocks))
+        for (k in 1:nrow(IDM))
+            DM[,which(blocklist==k)] <- as.matrix(Y[,outer[[k]]])
+        dimnames(DM) <- list(rownames(pls$latents), names(pls$out.weights))
+    }
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
     mvs <- sum(blocks)
-    blocklist <- as.list(1:lvs)
-    for (j in 1:lvs)
-         blocklist[[j]] <- rep(j,blocks[j])
-    blocklist <- unlist(blocklist)
     endo <- rowSums(IDM)
     endo[endo!=0] <- 1  
     end.ind <- cumsum(blocks)
@@ -90,13 +88,15 @@ function(pls, y, scheme=NULL, scaled=NULL, boot.val=FALSE, br=NULL)
         if (k==1) {
             # global model
             X <- DM
-            final.mod[[1]] <- plspm(X, IDM, new.sets, modes, skem, scaled, boot.val, br, tol, iter)
+            final.mod[[1]] <- plspm(X, IDM, new.sets, modes, skem, scaled, 
+                              tol=tol, iter=iter, dataset=dataset)
         } else
         {
             units.k <- which(segments==levels(segments)[k-1])
             # local models
             X.k <- DM[units.k,]
-            final.mod[[k]] <- plspm(X.k, IDM, new.sets, modes, skem, scaled, boot.val, br, tol, iter)
+            final.mod[[k]] <- plspm(X.k, IDM, new.sets, modes, skem, scaled, 
+                              tol=tol, iter=iter, dataset=dataset)
         }
     }
     names(final.mod) <- c("glob.model",paste(rep("loc.model",n.clus), 1:n.clus, sep="."))

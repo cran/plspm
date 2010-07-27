@@ -8,10 +8,11 @@
   This function allows to perform all the steps of the REBUS-PLS Algorithm. 
 }
 \usage{
-  rebus.pls(pls, stop.crit = 0.005, iter.max = 100)
+  rebus.pls(pls, Y = NULL, stop.crit = 0.005, iter.max = 100)
 }
 \arguments{
   \item{pls}{ Object of class \code{"plspm"} returned by \code{\link{plspm}}. }
+  \item{Y}{ Optional dataset (matrix or data frame) used when argument \code{dataset=NULL} inside \code{pls}. }
   \item{stop.crit}{ Number indicating the stop criterion for the iterative algorithm. The author suggests using the threshold
        of less than 0.05\% of units changing class from one iteration to the other as stopping rule.}
   \item{iter.max}{ An integer indicating the maximum number of iterations. Default value = 100.}
@@ -107,12 +108,13 @@
   ## example of rebus analysis with simulated data
   data(sim.data)
   ## First compute GLOBAL model
-  sim.mat <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
-  dimnames(sim.mat) <- list(c("Price","Quality","Satisfaction"),
+  sim.inner <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
+  dimnames(sim.inner) <- list(c("Price","Quality","Satisfaction"),
                             c("Price","Quality","Satisfaction"))
-  sim.sets <- list(c(1,2,3,4,5),c(6,7,8,9,10),c(11,12,13)) 
+  sim.outer <- list(c(1,2,3,4,5),c(6,7,8,9,10),c(11,12,13)) 
   sim.mod <- c("A","A","A")  ## reflective indicators
-  sim.global <- plspm(sim.data, sim.mat, sim.sets, sim.mod)
+  sim.global <- plspm(sim.data, inner=sim.inner, 
+                      outer=sim.outer, modes=sim.mod)
   sim.global
   ## run rebus.pls function on the sim.data and choose the number of classes
   ## to be taken into account according to the displayed dendrogram.

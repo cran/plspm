@@ -6,10 +6,11 @@
   and performs a Hierarchical Cluster Analysis on these residuals according to the REBUS algorithm.
 }
 \usage{
-  res.clus(pls)
+  res.clus(pls, Y = NULL)
 }
 \arguments{
   \item{pls}{ Object of class \code{"plspm"} returned by \code{\link{plspm}} .}
+  \item{Y}{ Optional dataset (matrix or data frame) used when argument \code{dataset=NULL} inside \code{pls}. }
 }
 \details{
   The function \code{res.clus} comprises the second and third steps of the REBUS-PLS Algorithm. 
@@ -22,6 +23,8 @@
   Algorithm (performed by \code{\link{it.reb}}), and the initial composition of the classes are obtained according
   to the results of the Hierarchical Cluster Analysis. Users must choose K according to this dendrogram and use it as an argument in the 
   \code{\link{it.reb}} function.
+
+  When the object \code{pls} does not contain a data matrix (i.e. \code{pls$data=NULL}), the user must provide the data matrix or data frame in \code{Y}.
 }
 \value{
   An Object of class \code{"hclust"} containing the results of the Hierarchical Cluster Analysis 
@@ -43,12 +46,13 @@
   ## example of rebus analysis with simulated data
   data(sim.data)
   ## First compute GLOBAL model
-  sim.mat <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
-  dimnames(sim.mat) <- list(c("Price","Quality","Satisfaction"),
+  sim.inner <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
+  dimnames(sim.inner) <- list(c("Price","Quality","Satisfaction"),
                             c("Price","Quality","Satisfaction"))
-  sim.sets <- list(c(1,2,3,4,5),c(6,7,8,9,10),c(11,12,13)) 
+  sim.outer <- list(c(1,2,3,4,5),c(6,7,8,9,10),c(11,12,13)) 
   sim.mod <- c("A","A","A")  ## reflective indicators
-  sim.global <- plspm(sim.data, sim.mat, sim.sets, sim.mod)
+  sim.global <- plspm(sim.data, inner=sim.inner, 
+                      outer=sim.outer, modes=sim.mod)
   sim.global
   ## Then compute cluster analysis on the residuals of global model
   sim.res.clus <- res.clus(sim.global)

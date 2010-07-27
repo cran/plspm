@@ -1,27 +1,26 @@
 print.summary.plspm <-
 function(x, ...)
 {
-    ## x$xxx <- list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br, tol, iter, n.iter) 
-    ## x.fit$xxx <- list(IDM, blocks, scheme, modes, scaled, obs, tol, iter, n.iter) 
-    Scheme <- x$xxx[[3]]
-    if (x$xxx[[5]]) Scale="Standardized Data" else Scale="Raw Data"
+    ## x$xxx <- list(IDM, blocks, scheme, modes, scaled, boot.val, plsr, obs, br, tol, iter, n.iter, outer) 
+    ## x.fit$xxx <- list(IDM, blocks, scheme, modes, scaled, obs, tol, iter, n.iter, outer) 
+    if (x$xxx$scaled) Scale="Standardized Data" else Scale="Raw Data"
     cat("\n")
     cat("PARTIAL LEAST SQUARES PATH MODELING (PLS-PM)", "\n\n")
     cat("----------------------------------------------------------", "\n")    
     cat("MODEL SPECIFICATION", "\n")
     cat("1   Number of Cases", "\t", x$xxx$obs, "\n")
-    cat("2   Latent Variables", "\t", nrow(x$xxx[[1]]), "\n")
-    cat("3   Manifest Variables", "\t", sum(x$xxx[[2]]), "\n")
+    cat("2   Latent Variables", "\t", nrow(x$xxx$IDM), "\n")
+    cat("3   Manifest Variables", "\t", sum(x$xxx$blocks), "\n")
     cat("4   Scale of Data", "\t", Scale, "\n")
-    cat("5   Weighting Scheme", "\t", Scheme, "\n")
+    cat("5   Weighting Scheme", "\t", x$xxx$scheme, "\n")
     cat("6   Tolerance Crit", "\t", x$xxx$tol, "\n")
     cat("7   Max Num Iters", "\t", x$xxx$iter, "\n")
     cat("8   Convergence Iters", "\t", x$xxx$n.iter, "\n")
-    if (length(x$xxx)>9)
+    if (length(x$xxx)>10)
     {
-        boot.sam <- if(is.null(x$xxx[[9]])) "NULL" else x$xxx[[9]]
-        cat("9   Paths by PLS-R", "\t", x$xxx[[7]], "\n")
-        cat("10  Bootstrapping", "\t", x$xxx[[6]], "\n")
+        boot.sam <- if(is.null(x$xxx$br)) "NULL" else x$xxx$br
+        cat("9   Paths by PLS-R", "\t", x$xxx$plsr, "\n")
+        cat("10  Bootstrapping", "\t", x$xxx$boot.val, "\n")
         cat("11  Bootstrap samples", "\t", boot.sam, "\n")
     }
     cat("\n")
@@ -30,7 +29,7 @@ function(x, ...)
     print(x$inputs, print.gap=3)
     cat("\n")
     cat("----------------------------------------------------------", "\n") 
-    if (length(x$xxx)>9) 
+    if (length(x$xxx)>10) 
     {   
         cat("BLOCKS UNIDIMENSIONALITY","\n")
         print(x$unidim, print.gap=2, digits=3)
@@ -49,7 +48,7 @@ function(x, ...)
     print(OM, na.print="", print.gap=2, digits=3)
     cat("\n")
     cat("----------------------------------------------------------", "\n")    
-    if (length(x$xxx)>9)
+    if (length(x$xxx)>10)
     {
         cat("CORRELATIONS BETWEEN MVs AND LVs","\n")
         Cros <- NULL
@@ -62,7 +61,7 @@ function(x, ...)
     }
     cat("INNER MODEL","\n")
     print(x$inner.mod, print.gap=3, digits=3)
-    if (length(x$xxx)>9)
+    if (length(x$xxx)>10)
     {
         cat("----------------------------------------------------------", "\n")    
         cat("CORRELATIONS BETWEEN LVs","\n")

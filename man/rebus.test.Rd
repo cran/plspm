@@ -5,15 +5,18 @@
   Performs permutation tests for comparing pairs of groups from a REBUS object.
 }
 \usage{
-  rebus.test(pls, reb)
+  rebus.test(pls, reb, Y = NULL)
 }
 \arguments{
   \item{pls}{ Object of class \code{"plspm"} returned by \code{\link{plspm}}. }
   \item{reb}{ Object of class \code{"rebus"} returned by either \code{\link{rebus.pls}} or \code{\link{it.reb}}. }
+  \item{Y}{ Optional dataset (matrix or data frame) used when argument \code{dataset=NULL} inside \code{pls}. }
 }
 \details{
   A permutation test on path coefficients, loadings, and GoF index is applied to the classes obtained from REBUS, by comparing two classes at a time. That is to say, a permutation test is applied on pair of classes. The number of permutations in each test is 100. \cr
   The number of classes handled by \code{rebus.test} is limited to 6. 
+
+  When the object \code{pls} does not contain a data matrix (i.e. \code{pls$data=NULL}), the user must provide the data matrix or data frame in \code{Y}.
 }
 \value{
   An object of class \code{"rebus.test"}, basically a list containing the results of each pair of compared classes.
@@ -29,12 +32,14 @@
   ## example of rebus analysis with simulated data
   data(sim.data)
   ## Calcualte plspm
-  sim.mat <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
-  dimnames(sim.mat) <- list(c("Price","Quality","Satisfaction"),
+  sim.inner <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
+  dimnames(sim.inner) <- list(c("Price","Quality","Satisfaction"),
                             c("Price","Quality","Satisfaction"))
-  sim.sets <- list(c(1,2,3,4,5),c(6,7,8,9,10),c(11,12,13)) 
+  sim.outer <- list(c(1,2,3,4,5),c(6,7,8,9,10),c(11,12,13)) 
   sim.mod <- c("A","A","A")  ## reflective indicators
-  sim.global <- plspm(sim.data, sim.mat, sim.sets, sim.mod)
+  sim.global <- plspm(sim.data, inner=sim.inner, 
+                      outer=sim.outer, modes=sim.mod)
+  sim.global
   ## Cluster analysis on residuals of global model
   sim.res.clus <- res.clus(sim.global)
   ## Iterative steps of REBUS algorithm on 2 classes

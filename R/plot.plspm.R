@@ -83,5 +83,5 @@ function(x, what="inner", how="joint", arr.pos=0.5, box.prop=.5, box.cex=1, cex.
         }
     }
 
-}
+} # end function
 

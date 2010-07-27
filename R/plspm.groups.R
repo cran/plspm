@@ -1,9 +1,10 @@
 plspm.groups <-
-function(pls, g, method="bootstrap", reps=NULL)
+function(pls, g, Y=NULL, method="bootstrap", reps=NULL)
 {
     # =========================== ARGUMENTS ==============================
     # pls: an object of class "plspm"
     # g: a factor with 2 levels indicating the groups to be compared
+    # Y: optional data matrix used when pls$data is null
     # method: the method to be used: "bootstrap", or "permutation"
     # reps: number of bootstrap resamples or number of permutations
     # ==================== Checking function arguments ===================
@@ -12,6 +13,19 @@ function(pls, g, method="bootstrap", reps=NULL)
     if (!is.factor(g)) stop("argument 'g' must be a factor")
     ng <- nlevels(g)
     if (ng > 2) stop("argument 'g' must contain only 2 levels") 
+    if (!is.null(Y)) # if Y available
+    {
+        if (is.null(pls$data))
+        {
+            if (!is.matrix(Y) && !is.data.frame(Y))
+                stop("Invalid object 'Y'. Must be a numeric matrix or data frame.")
+            if (nrow(Y)!=nrow(pls$latents))
+                stop("Argument 'pls' and 'Y' are incompatible. Different number of rows.")
+        }
+    } else { # if no Y
+        if (is.null(pls$data)) 
+            stop("Argument 'Y' is missing. No dataset available.")
+    }
     if (!is.na(pmatch(method, "bootstrap"))) 
         method <- "bootstrap"
     METHODS <- c("bootstrap", "permutation")
@@ -31,7 +45,23 @@ function(pls, g, method="bootstrap", reps=NULL)
     plsr <- pls$model$plsr# pls-regression
     tol <- pls$model$tol# tolerance criterion
     iter <- pls$model$tol# max num iterations
-    DM <- pls$data
+    outer <- pls$model$outer
+    blocklist <- outer
+    for (k in 1:length(blocks))
+         blocklist[[k]] <- rep(k,blocks[k])
+    blocklist <- unlist(blocklist)
+    # data matrix DM
+    if (!is.null(pls$data)) {
+        DM <- pls$data
+        dataset <- TRUE
+    } else {         
+        dataset <- FALSE
+        # building data matrix 'DM'
+        DM <- matrix(NA, nrow(pls$latents), sum(blocks))
+        for (k in 1:nrow(IDM))
+            DM[,which(blocklist==k)] <- as.matrix(Y[,outer[[k]]])
+        dimnames(DM) <- list(rownames(pls$latents), names(pls$out.weights))
+    }
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
     mvs <- sum(blocks)

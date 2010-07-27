@@ -42,10 +42,10 @@
   VAL  <- c(0,1,1,0,0,0)
   SAT  <- c(1,1,1,1,0,0) 
   LOY  <- c(1,0,0,0,1,0)
-  sat.mat <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
-  sat.sets <- list(1:5,6:10,11:15,16:19,20:23,24:27)
+  sat.inner <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
+  sat.outer <- list(1:5,6:10,11:15,16:19,20:23,24:27)
   sat.mod <- rep("A",6)   ## reflective indicators
-  res2 <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="centroid", 
+  res2 <- plspm(satisfaction, sat.inner, sat.outer, sat.mod, scheme="centroid", 
                 scaled=FALSE)
   ## plot diagram of the inner model
   plot(res2)

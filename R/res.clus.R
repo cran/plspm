@@ -1,5 +1,5 @@
 res.clus <-
-function(pls)
+function(pls, Y=NULL)
 {
     # ========================= res.clus function ========================
     # Function to calculate communality and structural residuals that
@@ -7,16 +7,31 @@ function(pls)
     # in the "rebus" function
     # =========================== ARGUMENTS ==============================
     # pls: object of class "plspm"
-    ## pls$model <- list(IDM, blocks, scheme, modes, 
-    ##                   scaled, boot.val, plsr, obs, br)
+    # Y: optional data matrix used when pls$data is null
+    ## pls$model <- list(IDM, blocks, scheme, modes, scaled, boot.val, 
+    ##                    plsr, obs, br, tol, iter, n.iter, outer)
 
     # ==================== Checking function arguments ===================
     if (class(pls)!="plspm") 
         stop("An object of class 'plspm' was expected")
-    if (any(pls$model[[4]]!="A"))# checking reflective modes
+    if (any(pls$model$modes!="A"))# checking reflective modes
         stop("REBUS only works for reflective modes")
-    if (!pls$model[[5]])# checking scaled data
+    if (!pls$model$scaled)# checking scaled data
         stop("REBUS only works with scaled='TRUE'")
+    if (!is.null(Y)) # if Y available
+    {
+        if (is.null(pls$data))
+        {
+            if (!is.matrix(Y) && !is.data.frame(Y))
+                stop("Invalid object 'Y'. Must be a numeric matrix or data frame.")
+            if (nrow(Y)!=nrow(pls$latents))
+                stop("Argument 'pls' and 'Y' are incompatible. Different number of rows.")
+        }
+    } else { # if no Y
+        if (is.null(pls$data)) 
+            stop("Argument 'Y' is missing. No dataset available.")
+    }
+
 
     # ========================== INPUTS SETTING ==========================
     IDM <- pls$model$IDM# Inner Design Matrix
@@ -27,14 +42,24 @@ function(pls)
     plsr <- pls$model$plsr# pls-regression
     tol <- pls$model$tol# tolerance criterion
     iter <- pls$model$iter# max num iterations
-    DM <- pls$data
+    outer <- pls$model$outer
+    blocklist <- outer
+    for (k in 1:length(blocks))
+         blocklist[[k]] <- rep(k,blocks[k])
+    blocklist <- unlist(blocklist)
+    # data matrix DM
+    if (!is.null(pls$data)) {
+        DM <- pls$data
+    } else {         
+        # building data matrix 'DM'
+        DM <- matrix(NA, nrow(pls$latents), sum(blocks))
+        for (k in 1:nrow(IDM))
+            DM[,which(blocklist==k)] <- as.matrix(Y[,outer[[k]]])
+        dimnames(DM) <- list(rownames(pls$latents), names(pls$out.weights))
+    }
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
     mvs <- sum(blocks)
-    blocklist <- as.list(1:lvs)
-    for (j in 1:lvs)
-         blocklist[[j]] <- rep(j,blocks[j])
-    blocklist <- unlist(blocklist)
     # data scaling (standardized data)
     sd.X <- sqrt((nrow(DM)-1)/nrow(DM)) * apply(DM, 2, sd)
     X <- scale(DM, scale=sd.X)

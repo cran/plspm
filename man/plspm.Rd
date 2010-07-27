@@ -6,15 +6,15 @@
   Estimate path models with latent variables by partial least squares approach
 }
 \usage{
-  plspm(x, inner.mat, sets, modes = NULL, scheme = "centroid", scaled = TRUE,
-        boot.val = FALSE, br = NULL, plsr = FALSE, tol=0.00001, iter=100)
+  plspm(x, inner, outer, modes = NULL, scheme = "centroid", scaled = TRUE, boot.val = FALSE,
+        br = NULL, plsr = FALSE, tol = 0.00001, iter = 100, dataset = TRUE)
 
-  plspm.fit(x, inner.mat, sets, modes = NULL, scheme = "centroid", scaled = TRUE, tol=0.00001, iter=100)
+  plspm.fit(x, inner, outer, modes = NULL, scheme = "centroid", scaled = TRUE, tol = 0.00001, iter = 100)
 }
 \arguments{
   \item{x}{A numeric matrix or data frame containing the manifest variables.}
-  \item{inner.mat}{A square (lower triangular) boolean matrix indicating the path relationships betwenn latent variables.}
-  \item{sets}{List of vectors with column indices from x indicating which manifest variables correspond to the latent variables.}
+  \item{inner}{A square (lower triangular) boolean matrix representing the inner model (i.e. the path relationships betwenn latent variables).}
+  \item{outer}{List of vectors with column indices from x representing the outer model (i.e. which manifest variables correspond to the latent variables).}
   \item{modes}{A character vector indicating the type of measurement for each latent variable.
                \code{"A"} for reflective measurement or \code{"B"} for formative measurement (\code{NULL} by default).}
   \item{scheme}{A string of characters indicating the type of inner weighting scheme. Possible values are \code{"centroid"}, \code{"factor"}, or \code{"path"}.}
@@ -24,6 +24,7 @@
   \item{plsr}{A logical value indicating whether pls regression is applied (\code{FALSE} by default).}
   \item{tol}{Decimal value indicating the tolerance crietrion for the iterations (\code{tol=0.00001} by default).}
   \item{iter}{An integer indicating the maximum number of iterations (\code{iter=100} by default).}
+  \item{dataset}{A logical value indicating whether the data matrix should be retrieved (\code{TRUE} by default).}
 }
 \details{
   The function \code{plspm} estimates a path model by partial least squares approach while providing all results. \cr
@@ -63,7 +64,7 @@
   \item{effects}{Path effects of the structural relationships. Includes: direct, indirect, and total effects.} 
   \item{unidim}{Results for checking the unidimensionality of blocks (These results are only meaningful for reflective blocks).}
   \item{gof}{Table with indexes of Goodness-of-Fit. Includes: absolute GoF, relative GoF, outer model GoF, and inner model GoF.}
-  \item{data}{Data matrix containing the manifest variables used in the model.}
+  \item{data}{Data matrix containing the manifest variables used in the model. Only when \code{dataset=TRUE}.}
   \item{boot}{List of bootstrapping results; only available when argument \code{boot.val=TRUE}.}
 }
 \references{
@@ -90,11 +91,11 @@
   ## example of PLS-PM in ecological analysis
   ## model with three LVs and formative indicators
   data(arizona)
-  ari.mat <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
-  dimnames(ari.mat) <- list(c("ENV","SOIL","DIV"),c("ENV","SOIL","DIV"))
-  ari.sets <- list(c(1,2),c(3,4,5),c(6,7,8)) 
+  ari.inner <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
+  dimnames(ari.inner) <- list(c("ENV","SOIL","DIV"),c("ENV","SOIL","DIV"))
+  ari.outer <- list(c(1,2),c(3,4,5),c(6,7,8)) 
   ari.mod <- c("B","B","B")  ## formative indicators
-  res1 <- plspm(arizona, inner.mat=ari.mat, sets=ari.sets, modes=ari.mod,
+  res1 <- plspm(arizona, inner=ari.inner, outer=ari.outer, modes=ari.mod,
   scheme="factor", scaled=TRUE, plsr=TRUE)
   res1
   summary(res1)
@@ -108,22 +109,22 @@
   VAL  <- c(0,1,1,0,0,0)
   SAT  <- c(1,1,1,1,0,0) 
   LOY  <- c(1,0,0,0,1,0)
-  sat.mat <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
-  sat.sets <- list(1:5,6:10,11:15,16:19,20:23,24:27)
+  sat.inner <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
+  sat.outer <- list(1:5,6:10,11:15,16:19,20:23,24:27)
   sat.mod <- rep("A",6)   ## reflective indicators
-  res2 <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scaled=FALSE)
+  res2 <- plspm(satisfaction, sat.inner, sat.outer, sat.mod, scaled=FALSE, boot.val=TRUE)
   summary(res2)
   plot(res2)
   
   ## example of PLS-PM in sensory analysis
   ## estimate a path model for the orange juice data
   data(orange)
-  senso.mat <- matrix(c(0,0,0,1,0,0,1,1,0),3,3,byrow=TRUE)
-  dimnames(senso.mat) <- list(c("PHYCHEM","SENSORY","HEDONIC"),
+  senso.inner <- matrix(c(0,0,0,1,0,0,1,1,0),3,3,byrow=TRUE)
+  dimnames(senso.inner) <- list(c("PHYCHEM","SENSORY","HEDONIC"),
                               c("PHYCHEM","SENSORY","HEDONIC"))
-  senso.sets <- list(1:9,10:16,17:112)
+  senso.outer <- list(1:9,10:16,17:112)
   senso.mod <- rep("A",3)
-  res3 <- plspm.fit(orange, senso.mat, senso.sets, senso.mod, 
+  res3 <- plspm.fit(orange, senso.inner, senso.outer, senso.mod, 
                 scheme="centroid", scaled=TRUE)
   summary(res3)
 
@@ -136,11 +137,11 @@
   VIEW <- c(1,0,0,0)
   SHAKE <- c(1,1,0,0)
   TASTE <- c(1,1,1,0)
-  wine.mat <- rbind(SMELL,VIEW,SHAKE,TASTE)
-  wine.sets <- list(3:7,8:10,11:20,21:29)
+  wine.inner <- rbind(SMELL,VIEW,SHAKE,TASTE)
+  wine.outer <- list(3:7,8:10,11:20,21:29)
   wine.mods <- rep("A",4)
   # using function plspm.fit (basic pls algorithm)
-  res4 <- plspm.fit(wine, wine.mat, wine.sets, wine.mods, scheme="centroid")                
+  res4 <- plspm.fit(wine, wine.inner, wine.outer, wine.mods, scheme="centroid")                
   plot(res4, what="all", arr.pos=.4, box.prop=.4, cex.txt=.8)
   }
 }

@@ -5,11 +5,12 @@
   This function performs a group comparison test for comparing path coefficients between two groups 
 }
 \usage{
-  plspm.groups(pls, g, method = "bootstrap", reps = NULL)
+  plspm.groups(pls, g, Y = NULL, method = "bootstrap", reps = NULL)
 }
 \arguments{
   \item{pls}{An object of class \code{"plspm"} returned by the function \code{\link{plspm}}}
   \item{g}{A factor with 2 levels indicating the groups to be compared}
+  \item{Y}{ Optional dataset (matrix or data frame) used when argument \code{dataset=NULL} inside \code{pls}. }
   \item{method}{The method to be used in the test. Possible values are \code{"bootstrap"} or \code{"permutation"} }
   \item{reps}{An integer indicating the number of either bootstrap resamples or number of permutations. If \code{NULL} then \code{reps}=100}
 }
@@ -21,6 +22,8 @@
   The null and alternative hypotheses to be tested are: \cr
   H0: path coefficients are not significantly different \cr
   H1: path coefficients are significantly different \cr
+
+  When the object \code{pls} does not contain a data matrix (i.e. \code{pls$data=NULL}), the user must provide the data matrix or data frame in \code{Y}.
 }
 \value{
   An object of class \code{"plspm.groups"}, basically a list with the following elements:
@@ -48,10 +51,10 @@
   VAL  <- c(0,1,1,0,0,0)
   SAT  <- c(1,1,1,1,0,0) 
   LOY  <- c(1,0,0,0,1,0)
-  sat.mat <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
-  sat.sets <- list(1:5,6:10,11:15,16:19,20:23,24:27)
+  sat.inner <- rbind(IMAG, EXPE, QUAL, VAL, SAT, LOY)
+  sat.outer <- list(1:5,6:10,11:15,16:19,20:23,24:27)
   sat.mod <- rep("A",6)   ## reflective indicators
-  pls <- plspm(satisfaction, sat.mat, sat.sets, sat.mod, scheme="factor", 
+  pls <- plspm(satisfaction, sat.inner, sat.outer, sat.mod, scheme="factor", 
                 scaled=FALSE)
   ## permutation test with 100 permutations
   res.group <- plspm.groups(pls, satisfaction$gender, 

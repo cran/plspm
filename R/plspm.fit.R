@@ -1,5 +1,5 @@
 plspm.fit <-
-function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE,
+function(x, inner, outer, modes=NULL, scheme="centroid", scaled=TRUE,
                       tol=0.00001, iter=100)
 {
     # =========================== ARGUMENTS ====================================
@@ -12,6 +12,8 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE,
     # scheme: a character string indicating the inner weighting scheme 
     #         to be used: "factor", "centroid", or "path"
     # scaled: a logical value indicating whether scale data is performed
+    # tol: tolerance threshold for calculating outer weights (0.00001)
+    # iter: an integer indicating the maximum number of iterations (100)
     # ===========================================================================
 
     # ==================== Checking function arguments ===================
@@ -21,35 +23,35 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE,
         rownames(x) <- 1:nrow(x)
     if (is.null(colnames(x))) 
         colnames(x) <- paste("MV", 1:ncol(x), sep="")
-    if (!is.matrix(inner.mat))
-        stop("Invalid argument 'inner.mat'. Must be a matrix.")
-    if (nrow(inner.mat)!=ncol(inner.mat))
-        stop("Invalid argument 'inner.mat'. Must be a square matrix.")
-    for (j in 1:ncol(inner.mat))
-        for (i in 1:nrow(inner.mat)) {
+    if (!is.matrix(inner))
+        stop("Invalid argument 'inner'. Must be a matrix.")
+    if (nrow(inner)!=ncol(inner))
+        stop("Invalid argument 'inner'. Must be a square matrix.")
+    for (j in 1:ncol(inner))
+        for (i in 1:nrow(inner)) {
             if (i<=j)
-                if (inner.mat[i,j]!=0) 
-                    stop("argument 'inner.mat' must be a lower triangular matrix")
-            if (length(intersect(inner.mat[i,j], c(1,0)))==0)
-                stop("elements in 'inner.mat' must be '1' or '0'")
+                if (inner[i,j]!=0) 
+                    stop("argument 'inner' must be a lower triangular matrix")
+            if (length(intersect(inner[i,j], c(1,0)))==0)
+                stop("elements in 'inner' must be '1' or '0'")
         }
-    if (is.null(dimnames(inner.mat)))
-        lvs.names <- paste("LV", 1:ncol(inner.mat), sep="")
-    if (!is.null(rownames(inner.mat)))
-        lvs.names <- rownames(inner.mat)
-    if (!is.null(colnames(inner.mat)))
-        lvs.names <- colnames(inner.mat)
-    if (!is.list(sets))
-        stop("Invalid argument 'sets'. Must be a list.")
-    if (length(sets) != nrow(inner.mat))
-        stop("Number of rows of 'inner.mat' does not coincide with length of 'sets'.")
+    if (is.null(dimnames(inner)))
+        lvs.names <- paste("LV", 1:ncol(inner), sep="")
+    if (!is.null(rownames(inner)))
+        lvs.names <- rownames(inner)
+    if (!is.null(colnames(inner)))
+        lvs.names <- colnames(inner)
+    if (!is.list(outer))
+        stop("Invalid argument 'outer'. Must be a list.")
+    if (length(outer) != nrow(inner))
+        stop("Number of rows of 'inner' does not coincide with length of 'outer'.")
     if (is.null(modes)) {
-        modes <- rep("A",length(sets))
+        modes <- rep("A",length(outer))
         warning("Argument 'modes' missing. Default reflective 'modes' is used.")
     }
-    if (length(sets) != length(modes)) {
-        warning("Invalid length of 'modes'. Default reflective 'modes' is used.")
-        modes <- rep("A", length(sets))
+    if (length(outer) != length(modes)) {
+        warning("Warning: Invalid length of 'modes'. Default reflective 'modes' is used.")
+        modes <- rep("A", length(outer))
     }
     for (i in 1:length(modes))
         if (modes[i]!="A" && modes[i]!="B") modes[i]<-"A"
@@ -58,33 +60,33 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE,
     SCHEMES <- c("centroid", "factor", "path")
     scheme <- pmatch(scheme, SCHEMES)
     if (is.na(scheme)) {
-        warning("Invalid argument 'scheme'. Default 'scheme=centroid' is used.")   
+        warning("Warning: Invalid argument 'scheme'. Default 'scheme=centroid' is used.")   
         scheme <- "centroid"
     }
     if (!is.logical(scaled)) {
-        warning("Invalid argument 'scaled'. Default 'scaled=TRUE' is used.")
+        warning("Warning: Invalid argument 'scaled'. Default 'scaled=TRUE' is used.")
         scaled <- TRUE
     }
     plsr <- FALSE
     if (mode(tol)!="numeric" || length(tol)!=1 || tol<=0 || tol>0.001) {
-        warning("Invalid argument 'tol'. Default 'tol=0.00001' is used.")   
+        warning("Warning: Invalid argument 'tol'. Default 'tol=0.00001' is used.")   
         tol <- 0.00001
     } 
     if (mode(iter)!="numeric" || length(iter)!=1 || iter<100) {
-        warning("Invalid argument 'iter'. Default 'iter=100' is used.")   
+        warning("Warning: Invalid argument 'iter'. Default 'iter=100' is used.")   
         iter <- 100
     } 
 
     # ========================== INPUTS SETTING ==========================
-    IDM <- inner.mat
+    IDM <- inner
     dimnames(IDM) <- list(lvs.names, lvs.names)
     lvs <- nrow(IDM)
     lvs.names <- rownames(IDM)
-    mvs <- sum(unlist(lapply(sets, length)))
-    blocks <- unlist(lapply(sets, length))
+    blocks <- unlist(lapply(outer, length))
+    mvs <- sum(blocks)
     names(blocks) <- lvs.names
-    blocklist <- sets
-    for (k in 1:length(sets))
+    blocklist <- outer
+    for (k in 1:length(outer))
          blocklist[[k]] <- rep(k,blocks[k])
     blocklist <- unlist(blocklist)
     Mode <- modes
@@ -95,18 +97,16 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE,
     mvs.names <- rep(NA, mvs)
     for (k in 1:lvs)
     {        
-        DM[,which(blocklist==k)] <- as.matrix(x[,sets[[k]]])
-        mvs.names[which(blocklist==k)] <- colnames(x)[sets[[k]]]
+        DM[,which(blocklist==k)] <- as.matrix(x[,outer[[k]]])
+        mvs.names[which(blocklist==k)] <- colnames(x)[outer[[k]]]
     }
     dimnames(DM) <- list(rownames(x), mvs.names)
     # apply the selected scaling
-    one.vec <- rep(1,nrow(DM))
-    center <- diag(1,nrow(DM),nrow(DM)) - one.vec%*%t(one.vec)/nrow(DM)
-    X <- center %*% DM
-    if (scaled)   # standard data (var=1)
-    {
-        stdev.X <- sd(DM) * sqrt((nrow(DM)-1)/nrow(DM)) 
-        X <- X %*% diag(1/stdev.X, ncol(DM), ncol(DM))
+    if (scaled) {
+        sd.X <- sqrt((nrow(DM)-1)/nrow(DM)) * apply(DM, 2, sd)
+        X <- scale(DM, scale=sd.X)
+    } else {
+        X <- scale(DM, scale=FALSE)
     }
     dimnames(X) <- list(rownames(x), mvs.names)
 
@@ -148,10 +148,10 @@ function(x, inner.mat, sets, modes=NULL, scheme="centroid", scaled=TRUE,
     # =========================== Basic Results ==========================
     skem <- switch(scheme, "centroid"="centroid", "factor"="factor", "path"="path")
     model <- list(IDM=IDM, blocks=blocks, scheme=skem, modes=modes, scaled=scaled, 
-                  obs=nrow(X), tol=tol, iter=iter, n.iter=out.ws[[3]])
+                  obs=nrow(X), tol=tol, iter=iter, n.iter=out.ws[[3]], outer=outer)
     res <- list(outer.mod=outmod, inner.mod=innmod, latents=Z.lvs, scores=Y.lvs,
                out.weights=out.weights, loadings=loads, path.coefs=Path, r.sqr=R2, 
-               model=model)
+               data=NULL, model=model)
     class(res) <- c("plspm.fit", "plspm")
     return(res)
 }

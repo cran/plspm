@@ -1,5 +1,5 @@
 it.reb <-
-function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
+function(pls, hclus.res, nk, Y=NULL, stop.crit=0.005, iter.max=100)
 {
     # ========================== it.reb function ==========================
     # Performs iterative steps of Response-Based Unit Segmentation  
@@ -8,15 +8,16 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
     # pls: object of class "plspm"
     # hclus.res: object of class "hclust" obtained from function "res.clus"
     # nk: an integer larger than 1 indicating the number of classes 
+    # Y: optional data matrix used when pls$data is null
     # stop.crit: stop criterion number (must be between 0 and 1)
     # iter.max: maximum number of iterations (must be an integer)
 
     # ==================== Checking function arguments ===================
     if (class(pls)!="plspm") 
         stop("argument 'pls' must be an object of class 'plspm'")
-    if (any(pls$model[[4]]!="A"))# checking reflective modes
+    if (any(pls$model$modes!="A"))# checking reflective modes
         stop("REBUS only works for reflective modes")
-    if (!pls$model[[5]])# checking scaled data
+    if (!pls$model$scaled)# checking scaled data
         stop("REBUS only works with scaled='TRUE'")
     if (missing(hclus.res))
         stop("argument 'hclus.res' is missing")
@@ -27,6 +28,19 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
     if (mode(nk)!="numeric" || length(nk)!=1 || 
         nk<=1 || (nk%%1)!=0)
         stop("Invalid number of classes 'nk'. Must be an integer larger than 1")
+    if (!is.null(Y)) # if Y available
+    {
+        if (is.null(pls$data))
+        {
+            if (!is.matrix(Y) && !is.data.frame(Y))
+                stop("Invalid object 'Y'. Must be a numeric matrix or data frame.")
+            if (nrow(Y)!=nrow(pls$latents))
+                stop("Argument 'pls' and 'Y' are incompatible. Different number of rows.")
+        }
+    } else { # if no Y
+        if (is.null(pls$data)) 
+            stop("Argument 'Y' is missing. No dataset available.")
+    }
     if (mode(stop.crit)!="numeric" || length(stop.crit)!=1 || 
         stop.crit<0 || stop.crit>=1)
     {
@@ -49,18 +63,28 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
     plsr <- pls$model$plsr# pls-regression
     tol <- pls$model$tol# tolerance criterion
     iter <- pls$model$iter# max num iterations
+    outer <- pls$model$outer
     if (plsr) 
         warning("path coefficients will be calculated with OLS regression")
     plsr <- FALSE
-    DM <- pls$data# original data matrix
+    blocklist <- outer
+    for (k in 1:length(blocks))
+         blocklist[[k]] <- rep(k,blocks[k])
+    blocklist <- unlist(blocklist)
+    # data matrix DM
+    if (!is.null(pls$data)) {
+        DM <- pls$data
+    } else {         
+        # building data matrix 'DM'
+        DM <- matrix(NA, nrow(pls$latents), sum(blocks))
+        for (k in 1:nrow(IDM))
+            DM[,which(blocklist==k)] <- as.matrix(Y[,outer[[k]]])
+        dimnames(DM) <- list(rownames(pls$latents), names(pls$out.weights))
+    }
     lvs <- nrow(IDM)# number of LVs
     lvs.names <- rownames(IDM)# names of LVs
     mvs <- sum(blocks)# number of MVs
     mvs.names <- colnames(DM)
-    blocklist <- as.list(1:lvs)
-    for (j in 1:lvs)
-         blocklist[[j]] <- rep(j,blocks[j])
-    blocklist <- unlist(blocklist) 
     N <- nrow(DM)# number of observations
     endo <- rowSums(IDM)
     endo[endo!=0] <- 1  # indicator of endog LVs
@@ -218,7 +242,7 @@ function(pls, hclus.res, nk, stop.crit=0.005, iter.max=100)
         qual.rebus[(lvs+n.end+1):(lvs+2*n.end),k] <- R2.aux
         qual.rebus[(lvs+2*n.end+1),k] <- sqrt(mean(comu.aveg)*mean(R2.aux))
     }
-    gqi <- round(.pls.GQI(pls, new.clas), 4)
+    gqi <- round(.pls.GQI(pls, new.clas, DM), 4)
     dimnames(path.rebus) <- list(path.labs, reb.labs)
     dimnames(loads.rebus) <- list(mvs.names, reb.labs)
     v1 <- paste(rep("Com",lvs),lvs.names,sep=".")

@@ -12,13 +12,14 @@
   to take into account.
 }
 \usage{
-  it.reb(pls, hclus.res, nk, stop.crit = 0.005, iter.max = 100)
+  it.reb(pls, hclus.res, nk, Y = NULL, stop.crit = 0.005, iter.max = 100)
 }
 \arguments{
   \item{pls}{ Object of class \code{"plspm"} returned by \code{\link{plspm}}. }
   \item{hclus.res}{ Object of class \code{"hclust"} returned by \code{\link{res.clus}} }
   \item{nk}{ Number of classes to take into account. This value should be defined according to the dendrogram 
         obtained by performing \code{\link{res.clus}}.}
+  \item{Y}{ Optional dataset (matrix or data frame) used when argument \code{dataset=NULL} inside \code{pls}. }
   \item{stop.crit}{ Number indicating the stop criterion for the iterative algorithm. The author suggests using the threshold
        of less than 0.05\% of units changing class from one iteration to the other as stopping rule.}
   \item{iter.max}{ An integer indicating the maximum number of iterations. Default value = 100.}
@@ -31,7 +32,9 @@
   For more details refer to \code{\link{rebus.pls}}.
   
   \emph{For expert users: if you want to test REBUS-PLS on several number of classes you need to run this
-  function several times by changing} \code{nk}.
+  function several times by changing} \code{nk}. \cr
+
+  When the object \code{pls} does not contain a data matrix (i.e. \code{pls$data=NULL}), the user must provide the data matrix or data frame in \code{Y}.
 }
 \value{
   An object of class \code{"rebus"}, basically a list with the following elements:
@@ -61,12 +64,13 @@
   ## example of rebus analysis with simulated data
   data(sim.data)
   ## First compute GLOBAL model
-  sim.mat <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
-  dimnames(sim.mat) <- list(c("Price","Quality","Satisfaction"),
+  sim.inner <- matrix(c(0,0,0,0,0,0,1,1,0),3,3,byrow=TRUE)
+  dimnames(sim.inner) <- list(c("Price","Quality","Satisfaction"),
                             c("Price","Quality","Satisfaction"))
-  sim.sets <- list(c(1,2,3,4,5),c(6,7,8,9,10),c(11,12,13)) 
+  sim.outer <- list(c(1,2,3,4,5),c(6,7,8,9,10),c(11,12,13)) 
   sim.mod <- c("A","A","A")  ## reflective indicators
-  sim.global <- plspm(sim.data, sim.mat, sim.sets, sim.mod)
+  sim.global <- plspm(sim.data, inner=sim.inner, 
+                      outer=sim.outer, modes=sim.mod)
   sim.global
   ## Then compute cluster analysis on residuals of global model
   sim.res.clus <- res.clus(sim.global)
