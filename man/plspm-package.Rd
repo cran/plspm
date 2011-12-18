@@ -11,8 +11,8 @@
   \tabular{ll}{
   Package: \tab plspm\cr
   Type: \tab Package\cr
-  Version: \tab 0.1-11\cr
-  Date: \tab 2010-08-09\cr
+  Version: \tab 0.2-0\cr
+  Date: \tab 2011-12-18\cr
   Depends: \tab amap, diagram\cr
   Suggests: \tab FactoMineR\cr
   License: \tab GPL (>= 2)\cr
@@ -21,15 +21,15 @@
   The main functions are \code{\link{plspm}}, \code{\link{plspm.groups}}, \code{\link{rebus.pls}}, \code{\link{rebus.test}}, \code{\link{plsreg1}}, \code{\link{plsreg2}}, \code{\link{plsca}}, and \code{\link{nipals}}. 
 }
 \author{
-  Authors: Gaston Sanchez \email{plspmr@gmail.com}, and  Laura Trinchera \email{laura.trinchera@supelec.fr}
+  Author: Gaston Sanchez \email{plspmr@gmail.com}
 
   Maintainer: Gaston Sanchez \email{plspmr@gmail.com}
 }
 \references{
   \url{http://www.scribd.com/plspm}
 
-  \url{http://www.fedoa.unina.it/view/people/Trinchera,_Laura.html}
+  Tenenhaus, M. (1998) \emph{La Regression PLS. Theorie et Pratique}. Editions TECHNIP, Paris.
 
-  Esposito Vinzi, V., Chin, W.W., Henseler, J., Wang, H. (eds) (2010) \emph{Handbook of Partial Least Squares.} Springer-Verlag Berlin Heidelberg.
+  \emph{Handbook of Partial Least Squares} (2010). Editors: V. Esposito Vinzo, W.W. Chin, J. Henseler, H. Wang. Springer, Paris.
 }
 \keyword{ package }
