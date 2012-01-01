@@ -1,4 +1,4 @@
-d866da1056c75f0355968381210fc5fb *DESCRIPTION
+1150417e737aeabe119818e3bbc95691 *DESCRIPTION
 4f916cb5ad290d662660b77bd9224685 *R/it.reb.R
 d66729649e57f4cf992356437a5489c5 *R/local.models.R
 fe30fe7aa2738debce15d60d21b16c93 *R/nipals.R
@@ -55,7 +55,7 @@ ecc43aeb177abce8f974d72302e64483 *man/plot.plsreg1.Rd
 fe9f6e2bced4b6faebff444af00846c0 *man/plot.plsreg2.Rd
 d8cb03fb7abc960fa82556eaa331ac56 *man/plsca.Rd
 d024448d3fceb852e8d533182ef4f7e3 *man/plspm-internal.Rd
-f84fe19bca6a21f21cbf2942847a30a9 *man/plspm-package.Rd
+6b6627db76791bd15d58221a3576d95a *man/plspm-package.Rd
 7aafed73bc8ee5ba3c801219ed48c7dd *man/plspm.Rd
 c579b5261673878e5b95da42fb1095c2 *man/plspm.groups.Rd
 59a477f56df60a9dfe158a7f3cdcdf71 *man/plsreg1.Rd
@@ -74,7 +74,7 @@ f8ba95b916778746948833005e9408f4 *man/print.plsreg2.Rd
 6c81aeeb58eafda4c9492ddf59448e87 *man/rebus.test.Rd
 0001fb7727b8678eaba1db82bea95f6a *man/res.clus.Rd
 c31dff879cbf4d9c79f5c9294de157e9 *man/resclus.plot.Rd
-90ff1aed1052a1b8218c43d9bd783e4b *man/russett.Rd
+d231e38c9847892e6e409c02c18ebbb5 *man/russett.Rd
 283fde6c7ec309b0d868f2e44d33ead9 *man/satisfaction.Rd
 20100729f03eb28d8ba85db19b5c8721 *man/sim.data.Rd
 d30b21ac88db32c76eeb7a821c8dbdbf *man/spainfoot.Rd

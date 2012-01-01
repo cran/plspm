@@ -11,8 +11,8 @@
   \tabular{ll}{
   Package: \tab plspm\cr
   Type: \tab Package\cr
-  Version: \tab 0.2-0\cr
-  Date: \tab 2011-12-18\cr
+  Version: \tab 0.2-1\cr
+  Date: \tab 2012-01-01\cr
   Depends: \tab amap, diagram\cr
   Suggests: \tab FactoMineR\cr
   License: \tab GPL (>= 2)\cr
@@ -26,7 +26,7 @@
   Maintainer: Gaston Sanchez \email{plspmr@gmail.com}
 }
 \references{
-  \url{http://www.scribd.com/plspm}
+  \url{http://www.plsmodeling.com}
 
   Tenenhaus, M. (1998) \emph{La Regression PLS. Theorie et Pratique}. Editions TECHNIP, Paris.
 

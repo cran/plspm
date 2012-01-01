@@ -1,7 +1,7 @@
 \name{russett}
 \alias{russett}
 \docType{data}
-\title{Spanish football dataset}
+\title{Russett dataset}
 \description{
   Data set from Russett (1964) about agricultural inequality, industrial development and political instability.
 }
