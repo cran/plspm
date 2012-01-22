@@ -1,0 +1,32 @@
+export(it.reb,
+       local.models,
+       nipals,
+       plsca,
+       plspm,
+       plspm.fit,
+       plspm.groups,
+       plsreg1,
+       plsreg2,
+       rebus.pls,
+       rebus.test,
+       res.clus,
+       resclus.plot)
+
+S3method(plot, nipals)
+S3method(plot, plsca)
+S3method(plot, plspm)
+S3method(plot, plspm.groups)
+S3method(plot, plsreg1)
+S3method(plot, plsreg2)
+S3method(print, local.models)
+S3method(print, nipals)
+S3method(print, plsca)
+S3method(print, plspm)
+S3method(print, plspm.groups)
+S3method(print, plsreg1)
+S3method(print, plsreg2)
+S3method(print, rebus)
+S3method(print, rebus.test)
+S3method(print, summary.plspm)
+S3method(summary, plspm)
+

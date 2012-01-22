@@ -11,8 +11,8 @@
   \tabular{ll}{
   Package: \tab plspm\cr
   Type: \tab Package\cr
-  Version: \tab 0.2-1\cr
-  Date: \tab 2012-01-01\cr
+  Version: \tab 0.2-2\cr
+  Date: \tab 2012-01-22\cr
   Depends: \tab amap, diagram\cr
   Suggests: \tab FactoMineR\cr
   License: \tab GPL (>= 2)\cr
@@ -21,7 +21,7 @@
   The main functions are \code{\link{plspm}}, \code{\link{plspm.groups}}, \code{\link{rebus.pls}}, \code{\link{rebus.test}}, \code{\link{plsreg1}}, \code{\link{plsreg2}}, \code{\link{plsca}}, and \code{\link{nipals}}. 
 }
 \author{
-  Author: Gaston Sanchez \email{plspmr@gmail.com}
+  Author: Gaston Sanchez, Laura Trinchera
 
   Maintainer: Gaston Sanchez \email{plspmr@gmail.com}
 }

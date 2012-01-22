@@ -1,4 +1,5 @@
-1150417e737aeabe119818e3bbc95691 *DESCRIPTION
+aecb51fac291448cf81c84dd42045ab8 *DESCRIPTION
+8d1f498998b48be68356bc5a8c408072 *NAMESPACE
 4f916cb5ad290d662660b77bd9224685 *R/it.reb.R
 d66729649e57f4cf992356437a5489c5 *R/local.models.R
 fe30fe7aa2738debce15d60d21b16c93 *R/nipals.R
@@ -34,6 +35,7 @@ e3c61184e0c4a157cffbef4826de5e69 *R/resclus.plot.R
 fa200f49852ebf3fb1b7afaef0a7f9a7 *data/futbol.rda
 972f945070fc3bc813058d861a8dbb2d *data/mobile.rda
 23b11e3afd9e2c36df13384fabee4ccb *data/orange.rda
+5b93f7579658dd24b059d59a1dcc75b6 *data/ropes.rda
 a7c2c135f3d30c70819b01224b574154 *data/russett.rda
 f18614f6b736acb3ccfa403e79dc0293 *data/satisfaction.rda
 49c4fb4a7c46153d97d66947e19ca269 *data/sim.data.rda
@@ -55,7 +57,7 @@ ecc43aeb177abce8f974d72302e64483 *man/plot.plsreg1.Rd
 fe9f6e2bced4b6faebff444af00846c0 *man/plot.plsreg2.Rd
 d8cb03fb7abc960fa82556eaa331ac56 *man/plsca.Rd
 d024448d3fceb852e8d533182ef4f7e3 *man/plspm-internal.Rd
-6b6627db76791bd15d58221a3576d95a *man/plspm-package.Rd
+a2f9ea9d35b47fc7bc0fef4b3657f068 *man/plspm-package.Rd
 7aafed73bc8ee5ba3c801219ed48c7dd *man/plspm.Rd
 c579b5261673878e5b95da42fb1095c2 *man/plspm.groups.Rd
 59a477f56df60a9dfe158a7f3cdcdf71 *man/plsreg1.Rd
@@ -74,6 +76,7 @@ f8ba95b916778746948833005e9408f4 *man/print.plsreg2.Rd
 6c81aeeb58eafda4c9492ddf59448e87 *man/rebus.test.Rd
 0001fb7727b8678eaba1db82bea95f6a *man/res.clus.Rd
 c31dff879cbf4d9c79f5c9294de157e9 *man/resclus.plot.Rd
+386ab572eb41876849484eae1ff54d82 *man/ropes.Rd
 d231e38c9847892e6e409c02c18ebbb5 *man/russett.Rd
 283fde6c7ec309b0d868f2e44d33ead9 *man/satisfaction.Rd
 20100729f03eb28d8ba85db19b5c8721 *man/sim.data.Rd
