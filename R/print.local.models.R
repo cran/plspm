@@ -1,3 +1,4 @@
+#'@S3method print local.models
 print.local.models <-
 function(x, ...)
 {

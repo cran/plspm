@@ -1,11 +1,10 @@
-\name{plspm}
-\alias{plspm}
-\title{PLS-PM: Partial Least Squares Path Modeling}
+\name{plspm.fit}
+\alias{plspm.fit}
+\title{Basic results for Partial Least Squares Path Modeling}
 \usage{
-  plspm(Data, inner_matrix, outer_list, modes = NULL,
+  plspm.fit(Data, inner_matrix, outer_list, modes = NULL,
     scheme = "centroid", scaled = TRUE, tol = 1e-05,
-    iter = 100, boot.val = FALSE, br = NULL, plsr = FALSE,
-    dataset = TRUE)
+    iter = 100)
 }
 \arguments{
   \item{Data}{A numeric matrix or data frame containing the
@@ -46,24 +45,6 @@
   \item{iter}{An integer indicating the maximum number of
   iterations (\code{iter=100} by default). The minimum
   value of \code{iter} is 100.}
-
-  \item{boot.val}{A logical value indicating whether
-  bootstrap validation is performed (\code{FALSE} by
-  default).}
-
-  \item{br}{An integer indicating the number bootstrap
-  resamples. Used only when \code{boot.val=TRUE}. When
-  \code{boot.val=TRUE}, the default number of re-samples is
-  100, but it can be specified in a range from 100 to
-  1000.}
-
-  \item{plsr}{A logical value indicating whether pls
-  regression is applied to calculate path coefficients
-  (\code{FALSE} by default).}
-
-  \item{dataset}{A logical value indicating whether the
-  data matrix should be retrieved (\code{TRUE} by
-  default).}
 }
 \value{
   An object of class \code{"plspm"}.
@@ -96,41 +77,18 @@
   matrix has a similar form as \code{inner_matrix})}
 
   \item{r.sqr}{Vector of R-squared coefficients}
-
-  \item{outer.cor}{Correlations between the latent
-  variables and the manifest variables (also called
-  crossloadings)}
-
-  \item{inner.sum}{Summarized results by latent variable of
-  the inner model. Includes: type of LV, type of
-  measurement, number of indicators, R-squared, average
-  communality, average redundancy, and average variance
-  extracted}
-
-  \item{effects}{Path effects of the structural
-  relationships. Includes: direct, indirect, and total
-  effects}
-
-  \item{unidim}{Results for checking the unidimensionality
-  of blocks (These results are only meaningful for
-  reflective blocks)}
-
-  \item{gof}{Goodness-of-Fit index}
-
-  \item{data}{Data matrix containing the manifest variables
-  used in the model. Only when \code{dataset=TRUE}}
-
-  \item{boot}{List of bootstrapping results; only available
-  when argument \code{boot.val=TRUE}}
 }
 \description{
   Estimate path models with latent variables by partial
-  least squares approach
+  least squares approach without providing the full list of
+  results as \code{plspm}. This might be helpful when doing
+  simulations, intensive computations, or when you don't
+  want the whole enchilada.
 }
 \details{
-  The function \code{plspm} estimates a path model by
-  partial least squares approach providing the full set of
-  results. \cr
+  \code{plspm.fit} performs the basic PLS algorithm and
+  provides limited results (e.g. outer weights, LVs scores,
+  path coefficients, R2, and loadings). \cr
 
   The argument \code{inner_matrix} is a matrix of zeros and
   ones that indicates the structural relationships between
@@ -158,11 +116,11 @@
  # outer model list
  sat_outer = list(1:5, 6:10, 11:15, 16:19, 20:23, 24:27)
 
- # vector of modes (reflective indicators)
+ # vector of reflective modes
  sat_mod = rep("A", 6)
 
- # apply plspm
- satpls = plspm(satisfaction, sat_inner, sat_outer, sat_mod, scaled=FALSE, boot.val=TRUE)
+ # apply plspm.fit
+ satpls = plspm.fit(satisfaction, sat_inner, sat_outer, sat_mod, scaled=FALSE)
 
  # summary of results
  summary(satpls)
@@ -179,18 +137,6 @@
   C. (2005) PLS path modeling. \emph{Computational
   Statistics & Data Analysis}, \bold{48}, pp. 159-205.
 
-  Tenenhaus M., Pages J. (2001) Multiple factor analysis
-  combined with PLS path modelling. Application to the
-  analysis of relationships between physicochemical
-  variables, sensory profiles and hedonic judgements.
-  \emph{Chemometrics and Intelligent Laboratory Systems},
-  \bold{58}, pp. 261-273.
-
-  Tenenhaus M., Hanafi M. (2010) A bridge between PLS path
-  modeling and multi-block data analysis. \emph{Handbook on
-  Partial Least Squares (PLS): Concepts, methods, and
-  applications.} Springer.
-
   Lohmoller J.-B. (1989) \emph{Latent variables path
   modelin with partial least squares.} Heidelberg:
   Physica-Verlag.
@@ -204,8 +150,5 @@
   \emph{Systems under indirect observations: Causality,
   structure, prediction}, Part 2, pp. 1-54. Amsterdam:
   Holland.
-}
-\seealso{
-  \code{\link{plspm.fit}}, \code{\link{plot.plspm}}
 }
 

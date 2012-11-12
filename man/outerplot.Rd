@@ -1,18 +1,19 @@
-\name{plot.plspm}
-\alias{plot.plspm}
-\title{Plots for PLS Path Models}
+\name{outerplot}
+\alias{outerplot}
+\title{Plot outer model}
 \usage{
-  \method{plot}{plspm} (x, what = "inner",
-    colpos = "#6890c4BB", colneg = "#f9675dBB",
-    box.prop = 0.55, box.size = 0.08, box.cex = 1,
-    box.col = "gray95", lcol = "gray95",
-    txt.col = "gray40", arr.pos = 0.5, cex.txt = 0.9, ...)
+  outerplot(x, what = "loadings", colpos = "#6890c4BB",
+    colneg = "#f9675dBB", box.prop = 0.55, box.size = 0.08,
+    box.cex = 1, box.col = "gray95", lcol = "gray95",
+    box.lwd = 2, txt.col = "gray40", shadow.size = 0,
+    curve = 0, lwd = 2, arr.pos = 0.5, arr.width = 0.15,
+    cex.txt = 0.9, ...)
 }
 \arguments{
   \item{x}{An object of class \code{"plspm"}.}
 
-  \item{what}{What to plot: \code{"inner"},
-  \code{"loadings"}, \code{"weights"}.}
+  \item{what}{What to plot: \code{"loadings"} or
+  \code{"weights"}.}
 
   \item{colpos}{Color of arrows for positive path
   coefficients.}
@@ -32,10 +33,20 @@
 
   \item{lcol}{border color of ellipses and rectangles.}
 
+  \item{box.lwd}{line width of the box.}
+
   \item{txt.col}{color of text in ellipses and rectangles.}
+
+  \item{shadow.size}{Relative size of shadow of label box.}
+
+  \item{curve}{arrow curvature.}
+
+  \item{lwd}{line width of arrow.}
 
   \item{arr.pos}{Relative position of arrowheads on
   arrows.}
+
+  \item{arr.width}{arrow width.}
 
   \item{cex.txt}{Relative size of text on arrows.}
 
@@ -43,18 +54,12 @@
   \code{\link{plotmat}}.}
 }
 \description{
-  Plot method for objects of class \code{"plspm"}. This
-  function plots either the inner (i.e. structural) model
-  with the estimated path coefficients, or the outer (i.e.
-  measurement) model with loadings or weights.
-}
-\details{
-  \code{plot.plspm} is just a wraper of
-  \code{\link{innerplot}} and \code{\link{outerplot}}.
+  Plot either outer weights or loadings in the outer model
+  for objects of class \code{"plspm"}
 }
 \note{
-  Function \code{plot.plspm} is based on the function
-  \code{\link{plotmat}} of package \code{diagram}. \cr
+  \code{plot.plspm} uses the function \code{\link{plotmat}}
+  of package \code{diagram}. \cr
   \url{http://cran.r-project.org/web/packages/diagram/vignettes/diagram.pdf}
 }
 \examples{
@@ -83,18 +88,15 @@
  satpls = plspm(satisfaction, sat.inner, sat.outer, sat.mod, scheme="centroid",
                scaled=FALSE)
 
- # plot path coefficients
- plot(satpls, what="inner")
-
  # plot loadings
- plot(satpls, what="loadings")
+ outerplot(satpls, what="loadings")
 
  # plot outer weights
- plot(satpls, what="weights")
+ outerplot(satpls, what="weights")
  }
 }
 \seealso{
-  \code{\link{innerplot}}, \code{\link{outerplot}},
-  \code{\link{plspm}}
+  \code{\link{innerplot}}, \code{\link{plspm}},
+  \code{\link{plot.plspm}}
 }
 

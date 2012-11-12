@@ -1,3 +1,4 @@
+#'@S3method print rebus.test
 print.rebus.test <-
 function(x, ...)
 {

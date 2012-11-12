@@ -2,31 +2,30 @@
 \alias{plspm-package}
 \docType{package}
 \title{
-  Package of Partial Least Squares (PLS) data analysis methods.
+  Tools for Partial Least Squares Path Modeling
 }
 \description{
-  Contains functions of various Partial Least Squares methods such as the NIPALS algorithm, PLS Regression (PLSR1 and PLSR2), PLS Canonical Analysis, PLS Path Modeling, and REBUS-PLS.
+  plspm contains a set of functions for performing Partial Least Squares Path Modeling (PLS-PM) analysis, as well as group comparison, and REBUS-PLS. This is a new version that no longer supports other PLS methods such as nipals, regresison, and canonical analysis. For the later methods use the package plsdepot.
 }
 \details{
   \tabular{ll}{
   Package: \tab plspm\cr
   Type: \tab Package\cr
-  Version: \tab 0.2-2\cr
-  Date: \tab 2012-01-22\cr
-  Depends: \tab amap, diagram\cr
+  Version: \tab 0.3.1\cr
+  Date: \tab 2012-10-27\cr
+  Depends: \tab R (>=2.15.1) amap, diagram\cr
   Suggests: \tab FactoMineR\cr
-  License: \tab GPL (>= 2)\cr
+  License: \tab GPL-3\cr
   LazyLoad: \tab yes\cr
-  }
-  The main functions are \code{\link{plspm}}, \code{\link{plspm.groups}}, \code{\link{rebus.pls}}, \code{\link{rebus.test}}, \code{\link{plsreg1}}, \code{\link{plsreg2}}, \code{\link{plsca}}, and \code{\link{nipals}}. 
+  } 
 }
 \author{
   Author: Gaston Sanchez, Laura Trinchera
 
-  Maintainer: Gaston Sanchez \email{plspmr@gmail.com}
+  Maintainer: Gaston Sanchez \email{gaston.stat@gmail.com}
 }
 \references{
-  \url{http://www.plsmodeling.com}
+  \url{http://www.gastonsanchez.com/plspm}
 
   Tenenhaus, M. (1998) \emph{La Regression PLS. Theorie et Pratique}. Editions TECHNIP, Paris.
 

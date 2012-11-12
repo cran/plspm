@@ -8,26 +8,23 @@
 \usage{spainfoot}
 \format{
   A data frame with 20 observations on 14 variables. The variables may be used to construct four latent concepts: 1) \code{ATTACK}=Attack, 2) \code{DEFENSE}=Defense, 3) \code{SUCCESS}=Success, 4) \code{INDIS}=Indiscipline. 
-
-  \code{ATTACK}: Recommended variables GSH, GSA, SSH, SSA. \cr
-  \code{DEFENSE}: Recommended variables GCH, GCA, CSH, CSA. \cr
-  \code{SUCCESS}: Recommended variables WMH, WMA, LWR, LRWL. \cr
-  \code{INDIS}:  Recommended variables YC and RC. \cr
-  \describe{
-    \item{\code{GSH}}{Goals Scored Home: total number of goals scored at home}
-    \item{\code{GSA}}{Goals Scored Away: total number of goals scored away}
-    \item{\code{SSH}}{Success to Score Home: Percentage of matches with scores goals at home}
-    \item{\code{SSA}}{Success to Score Away: Percentage of matches with scores goals away}
-    \item{\code{GCH}}{Goals Conceded Home: total number of goals conceded at home}
-    \item{\code{GCA}}{Goals Conceded Away: total number of goals conceded away}
-    \item{\code{CSH}}{Clean Sheets Home: percentage of matches with no conceded goals at home}
-    \item{\code{CSA}}{Clean Sheets Away: percentage of matches with no conceded goals away}
-    \item{\code{WMH}}{Won Matches Home: total number of won matches at home }
-    \item{\code{WMA}}{Won matches Away: total number of won matches away}
-    \item{\code{LWR}}{Longest Winning Run: longest run of won matches}
-    \item{\code{LRWL}}{Longest Run Without Loss: longest run of matches without losing}
-    \item{\code{YC}}{Yellow Cards: total number of yellow cards}
-    \item{\code{RC}}{Red Cards: total number of red cards}
+  
+    \tabular{llll}{
+    \emph{Num} \tab \emph{Variable}  \tab \emph{Description}			\tab \emph{Concept}	\cr
+    1   \tab GSH 	 \tab Goals Scored Home: total number of goals scored at home	\tab \code{ATTACK} 	\cr
+    2   \tab GSA 	 \tab Goals Scored Away: total number of goals scored away	\tab \code{ATTACK} 	\cr
+    3   \tab SSH 	 \tab Success to Score Home: Percentage of matches with scores goals at home	\tab \code{ATTACK} 		\cr
+    4   \tab SSA 	 \tab Success to Score Away: Percentage of matches with scores goals away	\tab \code{ATTACK} 		\cr
+    5   \tab GCH 	 \tab Goals Conceded Home: total number of goals conceded at home	\tab \code{DEFENSE} 		\cr    
+    6   \tab GCA 	 \tab Goals Conceded Away: total number of goals conceded away	\tab \code{DEFENSE} 		\cr
+    7   \tab CSH 	 \tab Clean Sheets Home: percentage of matches with no conceded goals at home	\tab \code{DEFENSE} 		\cr
+    8   \tab CSA 	 \tab Clean Sheets Away: percentage of matches with no conceded goals away	\tab \code{DEFENSE} 		\cr    
+    9   \tab WMH   \tab Won Matches Home: total number of won matches at home	\tab \code{SUCCESS} 		\cr    
+    10  \tab WMA   \tab Won matches Away: total number of won matches away	\tab \code{SUCCESS} 		\cr    
+    11  \tab LWR   \tab Longest Winning Run: longest run of won matches	\tab \code{SUCCESS} 		\cr    
+    12  \tab LRWR  \tab Longest Run Without Loss: longest run of matches without losing	\tab \code{SUCCESS} 		\cr    
+    13  \tab YC    \tab Yellow Cards: total number of yellow cards	\tab \code{INDIS} 		\cr    
+    14  \tab RC    \tab Red Cards: total number of red cards	\tab \code{INDIS} 		\cr    
   }
 }
 \source{

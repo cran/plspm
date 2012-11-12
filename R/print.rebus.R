@@ -1,3 +1,4 @@
+#'@S3method print rebus
 print.rebus <-
 function(x, ...)
 {
@@ -11,13 +12,13 @@ function(x, ...)
     cat("IN PARTIAL LEAST SQUARES PATH MODELING", "\n")
     cat("----------------------------------------------", "\n\n")    
     cat("Parameters Specification", "\n")
-    cat("  Number of segments:", "\t", length(segs), "\n")
-    cat("  Stop criterion:", "\t", x$aux[[4]], "\n")
-    cat("  Max number of iter:", "\t", x$aux[[5]], "\n\n")
+    cat("  Number of segments:   ", length(segs), "\n")
+    cat("  Stop criterion:       ", x$aux[[4]], "\n")
+    cat("  Max number of iter:   ", x$aux[[5]], "\n\n")
     cat("REBUS solution (on standardized data)", "\n")
     cat("  Number of iterations: ", x$aux[[6]], "\n")
-    cat("  Rate of unit change:", "\t", x$aux[[3]], "\n")
-    cat("  Group Quality Index:", "\t", x$aux[[7]], "\n\n")
+    cat("  Rate of unit change:  ", x$aux[[3]], "\n")
+    cat("  Group Quality Index:  ", x$aux[[7]], "\n\n")
     cat("REBUS Segments", "\n")
     print(segmen, print.gap=3, digits=1)
     cat("\n")
