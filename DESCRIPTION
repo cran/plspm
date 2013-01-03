@@ -1,8 +1,8 @@
 Package: plspm
 Type: Package
 Title: Tools for Partial Least Squares Path Modeling
-Version: 0.3.1
-Date: 2012-11-12
+Version: 0.3.5
+Date: 2013-01-03
 Authors@R: c(person("Gaston", "Sanchez", role=c("aut", "cre"), email =
         "gaston.stat@gmail.com"), person("Laura", "Trinchera",
         role=c("aut")))
@@ -26,7 +26,7 @@ Collate: 'plspm.R' 'plspm.fit.R' 'get_boots.R' 'get_effects.R'
         'print.plspm.groups.R' 'outerplot.R' 'get_GQI.R'
         'get_locals_test.R' 'it.reb.R' 'local.models.R'
         'print.local.models.R' 'print.rebus.R' 'print.rebus.test.R'
-        'rebus.pls.R' 'rebus.test.R' 'res.clus.R'
-Packaged: 2012-11-12 19:39:03 UTC; gaston
+        'rebus.pls.R' 'rebus.test.R' 'res.clus.R' 'rescale.R'
+Packaged: 2013-01-04 03:20:17 UTC; gaston
 Repository: CRAN
-Date/Publication: 2012-11-13 07:03:21
+Date/Publication: 2013-01-04 09:14:23
