@@ -1,6 +1,6 @@
-f580eca4ebd16c8f72129cd149d1dcad *DESCRIPTION
+bd0076c4a75371c87b4000cd212c889c *DESCRIPTION
 47f4f56f3c571de5a675f2d2fd9deb14 *NAMESPACE
-6daea44d510c0cbdbe9e37201ff3343f *NEWS
+a27749830cf6edab4200c625f7a9d03a *NEWS
 63d67adfe3accb0adc6648564eead69e *R/get_GQI.R
 26ac463db4b3864f13df3d00423a5f54 *R/get_boots.R
 58ce56fbcf6105f515afa6c1952c63fd *R/get_effects.R
@@ -22,7 +22,7 @@ edf09a5e7bad288d69314e798b37da2e *R/plspm.R
 2b3ae45577b98ec11501c35385f7c8ae *R/plspm.fit.R
 d3a85b078d8ace8eb24303aaa170e816 *R/plspm.groups.R
 cdf8b636121f06d73aa49f9e155de0e2 *R/print.local.models.R
-028927b4c90ff51cf9cb5f20a07dee45 *R/print.plspm.R
+4eeef84ba49fe7ffd1d9a878ecd133b4 *R/print.plspm.R
 7b98314ca5efda8238e0204290dd136e *R/print.plspm.groups.R
 8ba00d73d3820c8032e29753a553ebcb *R/print.rebus.R
 1a675ece4fe6de0ce152951cd860b8fd *R/print.rebus.test.R
@@ -32,7 +32,7 @@ fd8e39455fecaf2933cfa27d12fc90e9 *R/rebus.test.R
 1f34b2fe5d504bd6084ac66e1dc6c855 *R/res.clus.R
 f625564ee1581bc8975efdef5dd1e261 *R/rescale.R
 4b6d0007d4eee7e94562cda751335ba6 *R/summary.plspm.R
-a63dddd39cda8928e446918153503e8f *README.md
+34a29bb73f9db97f3f05e10905197faa *README.md
 65c75a827addf6f62a32d4e193a4f844 *data/arizona.rda
 fd44e464562559f7d6e01675aebfba8d *data/cereals.rda
 5897977a5b94764e99eac6c24736a2b7 *data/college.rda
@@ -70,7 +70,7 @@ ded3818a5e5563a9a027471e8c030dd6 *man/get_weights.Rd
 459d80cd0aa33148e61c0ec2c2e769b5 *man/orange.Rd
 bd7da1e038e288a1e731d9c5bc4e9346 *man/outerplot.Rd
 b32c1480c5cd32c4818b55dba817f236 *man/plot.plspm.Rd
-2affc1887ec88d4f79064d35d3eada69 *man/plspm-package.Rd
+9748d45d8f13e92d5e7dfcbeee82b7d1 *man/plspm-package.Rd
 286fc1ce16dbe4b5d53f1bddc5f15fb1 *man/plspm.Rd
 d1dba17508240646a8eda9ee1354e02b *man/plspm.fit.Rd
 9e1d79830c308e271fd093c90ae01e6f *man/plspm.groups.Rd
