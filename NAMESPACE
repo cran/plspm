@@ -1,3 +1,4 @@
+import(amap,diagram,tester,turner)
 S3method(plot,plspm)
 S3method(print,plspm)
 S3method(print,plspm.groups)

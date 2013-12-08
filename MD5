@@ -1,5 +1,5 @@
-9eb4f0f5e1ffe40575833300fce37b9e *DESCRIPTION
-6988e5c39318af0906dad4df887f8ab5 *NAMESPACE
+cae268306be4087c1d01bb3097c516ce *DESCRIPTION
+6d5e0416b8deecf9c8e14431f35cac47 *NAMESPACE
 cdabced7fd1f895f89f4b001283bdca9 *NEWS
 3386a0d2235b354d9ab13dc160e8b9ef *R/auxiliar.r
 9f8e1db077664b32f614bc98dbd57ec3 *R/check_arguments.r
@@ -54,7 +54,7 @@ b2346cdd7c800ab1a32dce75e2d48012 *R/test_dataset.r
 8562413ee6ce5ce336554b7b64ad0847 *R/test_manifest_scaling.r
 684650404ffe3453f311f32b4f974884 *R/test_null_weights.r
 d27efd61afed4c15097108b711c6b386 *R/unidimensionality.r
-c47f4de379a0211efde934523bacf135 *build/vignette.rds
+5dcc9c651e74e0d2d488bed6323f0cef *build/vignette.rds
 65c75a827addf6f62a32d4e193a4f844 *data/arizona.rda
 fd44e464562559f7d6e01675aebfba8d *data/cereals.rda
 5897977a5b94764e99eac6c24736a2b7 *data/college.rda

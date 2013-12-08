@@ -1,7 +1,7 @@
 Package: plspm
 Type: Package
 Title: Tools for Partial Least Squares Path Modeling (PLS-PM)
-Version: 0.4.1
+Version: 0.4.2
 Date: 2013-12-08
 Authors@R: c(
     person("Gaston", "Sanchez",
@@ -33,11 +33,14 @@ Collate: 'plspm.r' 'auxiliar.r' 'check_arguments.r'
         'get_locals_test.r' 'get_scaled_data.r' 'it.reb.r'
         'local.models.r' 'print.rebus.r' 'rebus.pls.r' 'rebus.test.r'
         'res.clus.r' 'get_PLSR.r' 'get_PLSR_NA.r' 'quantiplot.r'
-Packaged: 2013-12-08 15:52:12 UTC; Gaston
+Packaged: 2015-02-19 13:51:36 UTC; ripley
 Author: Gaston Sanchez [aut, cre],
   Laura Trinchera [aut],
   Giorgio Russolillo [aut]
-Maintainer: Gaston Sanchez <gaston.stat@gmail.com>
+Maintainer: ORPHANED
 NeedsCompilation: no
 Repository: CRAN
-Date/Publication: 2013-12-08 17:28:05
+Date/Publication: 2015-02-20 06:11:54
+X-CRAN-Original-Maintainer: Gaston Sanchez <gaston.stat@gmail.com>
+X-CRAN-Comment: Orphaned on 2015-02-20 as missing imports (which
+        imported the wrong lengths() in R-devel) were not corrected.
