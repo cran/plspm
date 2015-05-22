@@ -1,5 +1,7 @@
+\docType{package}
 \name{plspm}
 \alias{plspm}
+\alias{plspm-package}
 \title{PLS-PM: Partial Least Squares Path Modeling}
 \usage{
   plspm(Data, path_matrix, blocks, modes = NULL,
@@ -20,12 +22,17 @@
   manifest variables forming each block (i.e. which
   manifest variables correspond to each block).}
 
-  \item{scaling}{optional list of string vectors indicating
-  the type of measurement scale for each manifest variable
-  specified in \code{blocks}. \code{scaling} must be
-  specified when working with non-metric variables.
-  Possible values: \code{"num"} (numeric), \code{"raw"},
-  \code{"nom"} (nominal), and \code{"ord"} (ordinal).}
+  \item{scaling}{optional argument for runing the
+  non-metric approach; it is a list of string vectors
+  indicating the type of measurement scale for each
+  manifest variable specified in \code{blocks}.
+  \code{scaling} must be specified when working with
+  non-metric variables. Possible values: \code{"num"}
+  (linear transformation, suitable for numerical
+  variables), \code{"raw"} (no transformation),
+  \code{"nom"} (non-monotonic transformation, suitable for
+  nominal variables), and \code{"ord"} (monotonic
+  transformation, suitable for ordinal variables).}
 
   \item{modes}{character vector indicating the type of
   measurement for each block. Possible values are:
@@ -61,8 +68,7 @@
 
   \item{br}{number bootstrap resamples. Used only when
   \code{boot.val=TRUE}. When \code{boot.val=TRUE}, the
-  default number of re-samples is 100, but it can be
-  specified in a range from 100 to 1000.}
+  default number of re-samples is 100.}
 
   \item{dataset}{whether the data matrix used in the
   computations should be retrieved (\code{TRUE} by
@@ -117,6 +123,10 @@
   Estimate path models with latent variables by partial
   least squares approach (for both metric and non-metric
   data)
+
+  Estimate path models with latent variables by partial
+  least squares approach (for both metric and non-metric
+  data)
 }
 \details{
   The function \code{plspm} estimates a path model by
@@ -128,6 +138,13 @@
   latent variables. \code{path_matrix} must be a lower
   triangular matrix; it contains a 1 when column \code{j}
   affects row \code{i}, 0 otherwise. \cr
+
+  \itemize{ \item \code{\link{plspm}}: Partial Least
+  Squares Path Modeling \item \code{\link{plspm.fit}}:
+  Simple version for PLS-PM \item
+  \code{\link{plspm.groups}}: Two Groups Comparison in
+  PLS-PM \item \code{\link{rebus.pls}}: Response Based Unit
+  Segmentation (REBUS) }
 }
 \examples{
 \dontrun{

@@ -19,11 +19,14 @@
 #' @param blocks list of vectors with column indices or column names
 #' from \code{Data} indicating the sets of manifest variables forming 
 #' each block (i.e. which manifest variables correspond to each block).
-#' @param scaling optional list of string vectors indicating the type of 
+#' @param scaling optional argument for runing the non-metric approach; 
+#' it is a list of string vectors indicating the type of 
 #' measurement scale for each manifest variable specified in \code{blocks}.
 #' \code{scaling} must be specified when working with non-metric variables.
-#' Possible values: \code{"num"} (numeric), \code{"raw"}, \code{"nom"} (nominal), 
-#' and \code{"ord"} (ordinal).
+#' Possible values: \code{"num"} (linear transformation, 
+#' suitable for numerical variables), \code{"raw"} (no transformation), 
+#' \code{"nom"} (non-monotonic transformation, suitable for nominal variables), 
+#' and \code{"ord"} (monotonic transformation, suitable for ordinal variables).
 #' @param modes character vector indicating the type of measurement for each
 #' block. Possible values are: \code{"A", "B", "newA", "PLScore", "PLScow"}. 
 #' The length of \code{modes} must be equal to the length of \code{blocks}.
@@ -45,7 +48,7 @@
 #' (\code{FALSE} by default). 
 #' @param br number bootstrap resamples. Used only
 #' when \code{boot.val=TRUE}. When \code{boot.val=TRUE}, the default number of 
-#' re-samples is 100, but it can be specified in a range from 100 to 1000.
+#' re-samples is 100.
 #' @param dataset whether the data matrix used in the computations should be
 #' retrieved (\code{TRUE} by default).
 #' @return An object of class \code{"plspm"}. 

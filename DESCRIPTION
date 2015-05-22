@@ -1,18 +1,20 @@
 Package: plspm
 Type: Package
 Title: Tools for Partial Least Squares Path Modeling (PLS-PM)
-Version: 0.4.2
-Date: 2013-12-08
+Version: 0.4.7
+Date: 2015-05-22
 Authors@R: c(
     person("Gaston", "Sanchez",
     email = "gaston.stat@gmail.com", role = c("aut", "cre")),
     person("Laura", "Trinchera", role = "aut"),
     person("Giorgio", "Russolillo", role = "aut"))
-Description: plspm contains a set of functions for performing Partial Least
-    Squares Path Modeling (PLS-PM) analysis for both metric and non-metric
-    data, as well as REBUS analysis.
-URL: http://www.gastonsanchez.com http://www.plsmodeling.com
-Depends: R (>= 3.0.1), amap, diagram, tester, turner
+Description: Partial Least Squares Path Modeling (PLS-PM)
+    analysis for both metric and
+    non-metric data, as well as REBUS analysis.
+URL: https://github.com/gastonstat/plspm
+BugReports: https://github.com/gastonstat/plspm/issues
+Depends: R (>= 3.0.1)
+Imports: tester, turner, diagram, shape, amap
 Suggests: plsdepot, FactoMineR, ggplot2, reshape, testthat, knitr
 VignetteBuilder: knitr
 License: GPL-3
@@ -33,14 +35,12 @@ Collate: 'plspm.r' 'auxiliar.r' 'check_arguments.r'
         'get_locals_test.r' 'get_scaled_data.r' 'it.reb.r'
         'local.models.r' 'print.rebus.r' 'rebus.pls.r' 'rebus.test.r'
         'res.clus.r' 'get_PLSR.r' 'get_PLSR_NA.r' 'quantiplot.r'
-Packaged: 2015-02-19 13:51:36 UTC; ripley
+        'plspm-package.r'
+NeedsCompilation: no
+Packaged: 2015-05-23 17:05:05 UTC; Gaston
 Author: Gaston Sanchez [aut, cre],
   Laura Trinchera [aut],
   Giorgio Russolillo [aut]
-Maintainer: ORPHANED
-NeedsCompilation: no
+Maintainer: Gaston Sanchez <gaston.stat@gmail.com>
 Repository: CRAN
-Date/Publication: 2015-02-20 06:11:54
-X-CRAN-Original-Maintainer: Gaston Sanchez <gaston.stat@gmail.com>
-X-CRAN-Comment: Orphaned on 2015-02-20 as missing imports (which
-        imported the wrong lengths() in R-devel) were not corrected.
+Date/Publication: 2015-05-25 10:27:43
