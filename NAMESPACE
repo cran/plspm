@@ -77,3 +77,8 @@ import(shape)
 import(tester)
 import(turner)
 importFrom(amap,hcluster)
+
+  importFrom("graphics", "lines", "par", "plot", "title")
+  importFrom("stats", "cor", "cov", "cutree", "lm", "na.omit",
+             "princomp", "pt", "quantile", "sd", "var")
+
