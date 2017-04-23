@@ -1,4 +1,4 @@
-23cbd7732776a7d6b1496cda8d12be37 *DESCRIPTION
+8310162bc53116780d010045c5b36259 *DESCRIPTION
 862214ef318260feb89bb22c5ff05ba0 *NAMESPACE
 6b7c2baecec00e419e8b3e27f7a22461 *NEWS
 3386a0d2235b354d9ab13dc160e8b9ef *R/auxiliar.r
@@ -73,15 +73,7 @@ f18614f6b736acb3ccfa403e79dc0293 *data/satisfaction.rda
 d2d348eb121d156714d179d7c4fd793a *data/wines.rda
 2dc2341307af49a023c24ae02d35062d *inst/doc/plspm_introduction.R
 34f285270f0d80352b4a423ce993788c *inst/doc/plspm_introduction.Rnw
-4ed241a1d5630cf016e05b4229454850 *inst/doc/plspm_introduction.pdf
-29bed824127627d9a64739856c55047a *inst/tests/test-check-blocks.r
-ccfbbd7014bf7218e115329707133bab *inst/tests/test-check-data.r
-9fbdaa621a664fb5dbbc8e3c30e8e392 *inst/tests/test-check-modes.r
-085281226214d41803f27be87af84683 *inst/tests/test-check-path.r
-8eed75cf678199a222216fb86953c76c *inst/tests/test-check-scheme.r
-d692f1a40d1bb65b59187a9a82baf912 *inst/tests/test-get-manifests.r
-f228e777c569df3c2f24f017fad6fcb5 *inst/tests/test-get-metric.r
-5ac5f25eccfcac67b178ae14dc155582 *inst/tests/test-manifest-scaling.r
+d9c010c02caf3e3370a919536895944c *inst/doc/plspm_introduction.pdf
 219bce3cc9efe0040a0dce41e5fb8671 *man/alpha.Rd
 cd9e342f83c93982f3adee6134a02d90 *man/arizona.Rd
 b822294375736bb3e8d88a6b8ac4e1f8 *man/cereals.Rd
@@ -165,4 +157,13 @@ bc260e80b08d89f701988a8625cadb50 *man/test_factors.Rd
 58c26418bf300f74ed489c5406cc9a96 *man/test_null_weights.Rd
 7ec42d51a2903683e8bf42efb339801d *man/unidim.Rd
 52a26f9380fdd6359c8efc36223b440d *man/wines.Rd
+4a848297335f9032ec0d59882fa67f70 *tests/testthat.R
+29bed824127627d9a64739856c55047a *tests/testthat/test-check-blocks.r
+ccfbbd7014bf7218e115329707133bab *tests/testthat/test-check-data.r
+9fbdaa621a664fb5dbbc8e3c30e8e392 *tests/testthat/test-check-modes.r
+085281226214d41803f27be87af84683 *tests/testthat/test-check-path.r
+8eed75cf678199a222216fb86953c76c *tests/testthat/test-check-scheme.r
+d692f1a40d1bb65b59187a9a82baf912 *tests/testthat/test-get-manifests.r
+f228e777c569df3c2f24f017fad6fcb5 *tests/testthat/test-get-metric.r
+5ac5f25eccfcac67b178ae14dc155582 *tests/testthat/test-manifest-scaling.r
 34f285270f0d80352b4a423ce993788c *vignettes/plspm_introduction.Rnw
