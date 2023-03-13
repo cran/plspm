@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage{upquote}
+%\usepackage{upquote}
 \usepackage{geometry}
 \geometry{verbose,tmargin=2.5cm,bmargin=2.5cm,lmargin=2.5cm,rmargin=2.5cm}
 \usepackage{color}
@@ -14,7 +14,7 @@
   urlcolor=linkcolor,
   linkcolor=linkcolor
 }
-\usepackage{parskip}
+%\usepackage{parskip}
 
 
 \setlength{\parindent}{0in}
@@ -39,7 +39,7 @@ options(width = 80)
 @
 
 \section{Introduction}
-\plspm{} is an \R{} package for performing \textbf{Partial Least Squares Path Modeling} (PLS-PM) analysis. Briefly, PLS-PM is a multivariate data analysis method for analyzing systems of relationships between multiple sets of variables. In this vignette we present a short introduction to \plspm{} without providing a full description of all the package's capabilities. An extended documentation can be found in the book \textbf{PLS Path Modeling with R} freely available at: \url{http://www.gastonsanchez.com/PLS_Path_Modeling_with_R.pdf}
+\plspm{} is an \R{} package for performing \textbf{Partial Least Squares Path Modeling} (PLS-PM) analysis. Briefly, PLS-PM is a multivariate data analysis method for analyzing systems of relationships between multiple sets of variables. In this vignette we present a short introduction to \plspm{} without providing a full description of all the package's capabilities. An extended documentation can be found in the book \textbf{PLS Path Modeling with R} freely available at: \url{https://www.gastonsanchez.com/PLS_Path_Modeling_with_R.pdf}
 
 
 \section{About PLS Path Modeling}
@@ -61,7 +61,7 @@ In other words: PLS-PM provides a framework for analyzing multiple relationships
 
 \section{Installation and Usage}
 \plspm{} is freely available from the Comprehensive \R{} Archive Network, better known as CRAN, at:
-\url{http://cran.r-project.org/web/packages/plspm/index.html}
+\url{https://cran.r-project.org/web/packages/plspm/index.html}
 
 Since version 0.4.0, \plspm{} contains a set of features for handling non-metric data (discrete, ordinal, categorical, qualitative, etc). More information related with non-metric PLS-PM will be available in a separated vignette (coming soon).
 

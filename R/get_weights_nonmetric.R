@@ -103,7 +103,7 @@ function(X, path_matrix, blocks, specs)
       # standardize inner estimates if PLScore mode
       # if (specs$modes[q] != "PLSCOW") {
       #### Giorgio's suggestion: do not standardize inner estimates:
-       #if (specs$modes[q] != "PLSCOW" & specs$modes[q] != "NEWA") {
+       #if (specs$modes[q] != "PLSCOW" & specs$modes[q] != "newA") {
        #  Z[,q] <- scale(Z[,q]) * correction
        #}
       # =============================================================
@@ -194,7 +194,7 @@ function(X, path_matrix, blocks, specs)
       }
       
       #  Mode New A (= "PLScow1comp") ================================
-      if (specs$modes[q] == "NEWA") {
+      if (specs$modes[q] == "newA") {
         if (missing_data[q]) {
           # compute w[[q]][l] as the regr. coeff. of QQ[[q]][,l] on Z[,q]
           # considering just the lines where QQ[[q]][i,l] exist

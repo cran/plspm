@@ -55,7 +55,7 @@
 \note{
   Function \code{plot.plspm} is based on the function
   \code{\link{plotmat}} of package \code{diagram}. \cr
-  \url{http://cran.r-project.org/web/packages/diagram/vignettes/diagram.pdf}
+  \url{https://cran.r-project.org/package=diagram/vignettes/diagram.pdf}
 }
 \examples{
 \dontrun{

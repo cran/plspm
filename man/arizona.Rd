@@ -5,7 +5,6 @@
 \description{
   This dataset gives the measurements of 16 vegetation communitites in the Santa Catalina Mountains, Arizona. The measurements were taken along different elevations from fir forest at high elevations, through pine forest, woodlands, and desert grassland.
 }
-\usage{arizona}
 \format{
   A data frame with 16 observations and 8 variables. The variables refer to three latent concepts: 1) \code{ENV}=environment, 2) \code{SOIL}=soil, and 3) \code{DIV}=diversity.
 

@@ -5,7 +5,6 @@
 \description{
   These data are the results of a chemical analysis of wines grown in the same region in Italy but derived from three different cultivars. The analysis determined the quantities of 13 constituents found in each of the three types of wines. 
 }
-\usage{wines}
 \format{
   A data frame with 178 observations and 14 variables. 
 
@@ -29,7 +28,7 @@
 }
 \source{
   Machine Learning Repository. 
-  \url{http://archive.ics.uci.edu/ml/datasets/Wine}
+  \url{https://archive.ics.uci.edu/ml/datasets/Wine}
 }
 \references{
   Forina, M. et al, PARVUS \emph{An Extendible Package for Data Exploration, Classification and Correlation.} Institute of Pharmaceutical and Food Analysis  and Technologies, Via Brigata Salerno, 16147 Genoa, Italy. 

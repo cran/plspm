@@ -43,7 +43,7 @@
 #' 
 #' Chin, W.W. (2000) Frequently Asked Questions, Partial Least Squares 
 #' PLS-Graph. Available from: 
-#' \url{http://disc-nt.cba.uh.edu/chin/plsfaq/multigroup.htm}
+#' \url{https://disc-nt.cba.uh.edu/chin/plsfaq/multigroup.htm}
 #' @seealso \code{\link{plspm}}
 #' @export
 #' @examples
@@ -86,7 +86,7 @@ function(pls, group, Y = NULL, method = "bootstrap", reps = NULL)
   # =======================================================
   # checking arguments
   # =======================================================
-  if (class(pls) != "plspm") 
+  if (!is(pls,"plspm")) 
     stop("\n'pls' must be an object of class 'plspm'")
   g = group
   if (!is.factor(g)) 

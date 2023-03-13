@@ -95,7 +95,7 @@
 #' 
 #' Russolillo, G. (2012) Non-Metric Partial Least Squares. \emph{Electronic 
 #' Journal of Statistics}, \bold{6}, pp. 1641-1669.
-#' \url{http://projecteuclid.org/euclid.ejs/1348665231}
+#' \url{https://projecteuclid.org/euclid.ejs/1348665231}
 #' @seealso \code{\link{innerplot}}, \code{\link{outerplot}}, 
 #' @export
 #' @examples

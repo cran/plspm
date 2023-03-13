@@ -5,7 +5,6 @@
 \description{
   This data set contains the results of the teams in the Spanish football league 2008-2009.
 }
-\usage{spainfoot}
 \format{
   A data frame with 20 observations on 14 variables. The variables may be used to construct four latent concepts: 1) \code{ATTACK}=Attack, 2) \code{DEFENSE}=Defense, 3) \code{SUCCESS}=Success, 4) \code{INDIS}=Indiscipline. 
   
@@ -28,10 +27,8 @@
   }
 }
 \source{
-  League Day. \url{http://www.leagueday.com} \cr
-  Statto. \url{http://www.statto.com} \cr
-  BDFutbol. \url{http://www.statto.com} \cr
-  Cero a cero. \url{http://www.ceroacero.es/} \cr
+  League Day. \url{https://www.leagueday.com} \cr
+  Cero a cero. \url{https://www.ceroacero.es/} \cr
 }
 \examples{
   data(spainfoot)

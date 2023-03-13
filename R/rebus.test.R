@@ -73,7 +73,7 @@ rebus.test <- function(pls, reb, Y = NULL)
   # =======================================================
   # checking arguments
   # =======================================================
-  if (class(pls) != "plspm") 
+  if (!is(pls,"plspm")) 
     stop("\n'pls' must be an object of class 'plspm'")
   # checking reflective modes
   if (any(pls$model$specs$modes != "A"))
@@ -81,7 +81,7 @@ rebus.test <- function(pls, reb, Y = NULL)
   # checking scaled data
   if (!pls$model$specs$scaled)
     stop("\nSorry, REBUS only works with scaled='TRUE'")
-  if (class(reb) != "rebus") 
+  if (!is(reb,"rebus")) 
     stop("\n'reb' must be an object of class 'rebus'")
   if (length(reb$segments) != nrow(pls$data))
     stop("\n'pls' and 'reb' are incompatible")

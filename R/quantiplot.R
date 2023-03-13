@@ -21,7 +21,7 @@
 quantiplot <- 
 function(pls, lv = NULL, mv = NULL, pch = 16, col = "darkblue", lty = 2, ...) 
 {
-  if (class(pls) != "plspm" && is.null(pls$model$specs$scaling))  
+  if (!is(pls,"plspm") && is.null(pls$model$specs$scaling))  
     stop("\n'quantiplot()' requires a non-metric plspm object")
   # verify lv and mv
   check_lv_mv(lv, mv, pls$model$gens$lvs_names, pls$model$gens$mvs_names) 

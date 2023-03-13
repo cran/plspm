@@ -63,7 +63,7 @@
 \note{
   \code{innerplot} uses the function \code{\link{plotmat}}
   in package \code{diagram}. \cr
-  \url{http://cran.r-project.org/web/packages/diagram/vignettes/diagram.pdf}
+  \url{https://cran.r-project.org/package=diagram/vignettes/diagram.pdf}
 }
 \seealso{
   \code{\link{plot.plspm}}, \code{\link{outerplot}}

@@ -27,10 +27,7 @@
   }
 }
 \source{
-  \url{http://lib.stat.cmu.edu/DASL/Datafiles/Cereals.html}
-}
-\references{
- \url{http://lib.stat.cmu.edu/DASL/Stories/HealthyBreakfast.html}
+  \url{https://dasl.datadescription.com/datafile/cereals/}
 }
 \examples{
 # load data

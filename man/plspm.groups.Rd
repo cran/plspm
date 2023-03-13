@@ -101,8 +101,7 @@
   International Symposium PLS03.} Decisia, pp. 33-43.
 
   Chin, W.W. (2000) Frequently Asked Questions, Partial
-  Least Squares PLS-Graph. Available from:
-  \url{http://disc-nt.cba.uh.edu/chin/plsfaq/multigroup.htm}
+  Least Squares PLS-Graph. 
 }
 \seealso{
   \code{\link{plspm}}

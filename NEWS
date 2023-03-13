@@ -1,3 +1,8 @@
+Version 0.5.0 (2023-03-09)
+------------------------------------------------------------
+
+* fixes to have the packages on the CRAN again
+
 Version 0.4.7 (2015-05-22)
 ------------------------------------------------------------
 
@@ -119,10 +124,7 @@ NEW FEATURES AND FUNCTIONS
 
 * PLSTROIKA has started (restructuring my pls packages)
 
-* Revamped version of the renowned plspm package that from now on will only
-contain functions related to Partial Least Squares Path Modeling. Other methods
-such as nipasl, pls regression, and canonical analysis, now happily live in the
-package "plsdepot"
+* Revamped version of the renowned plspm package that from now on will only contain functions related to Partial Least Squares Path Modeling. Other methods such as nipasl, pls regression, and canonical analysis, now happily live in the package "plsdepot"
 
 * `plspm` has updated documentation
 

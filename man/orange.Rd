@@ -5,7 +5,6 @@
 \description{
   This data set contains the physico-chemical, sensory and hedonic measurements of 6 orange juices.
 }
-\usage{orange}
 \format{
   A data frame with 6 observations and 112 variables. The variables refer to three latent concepts: 1) \code{PHYCHEM}=Physico-Chemical, 2) \code{SENSORY}=Sensory, and 3) \code{HEDONIC}=Hedonic.
 

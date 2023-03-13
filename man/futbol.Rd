@@ -26,8 +26,7 @@
   }
 }
 \source{
-  League Day. \url{http://www.leagueday.com} \cr
-  Statto. \url{http://www.statto.com} \cr  
+  League Day. \url{https://www.leagueday.com} 
 }
 \examples{
   data(futbol)

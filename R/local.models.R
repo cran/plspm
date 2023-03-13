@@ -78,11 +78,11 @@ local.models <- function(pls, y, Y = NULL)
   # =======================================================
   # checking arguments
   # =======================================================
-  if (class(pls) != "plspm") 
+  if (!is(pls,"plspm")) 
     stop("\n'local.models()' requires an object of class 'plspm'")
   if (!is.element(class(y), c("rebus","integer","factor")))   
     stop("\n'y' must be of class 'rebus', 'integer' or 'factor'")
-  if (class(y) == "rebus") {
+  if (is(y,"rebus")) {
     if (length(y$segments) != nrow(pls$scores))
       stop("\n'pls' and 'y' are incompatible")
   } else {
@@ -125,7 +125,7 @@ local.models <- function(pls, y, Y = NULL)
   new.sets <- as.list(1:lvs)
   for (j in 1:lvs)
     new.sets[[j]] <- ini.ind[j]:end.ind[j]
-  if (class(y) == "rebus") {
+  if (is(y,"rebus")) {
     segments <- as.factor(y$segments)
   } else {
     segments <- as.factor(y)

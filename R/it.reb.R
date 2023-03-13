@@ -40,7 +40,7 @@
 #' a new approach to latent class detection in PLS Path Modeling. 
 #' \emph{Ph.D. Thesis}, University of Naples "Federico II", Naples, Italy.
 #' 
-#' \url{http://www.fedoa.unina.it/2702/1/Trinchera_Statistica.pdf}
+#' \url{https://www.fedoa.unina.it/2702/1/Trinchera_Statistica.pdf}
 #' @seealso \code{\link{plspm}}, \code{\link{rebus.pls}}, 
 #' \code{\link{res.clus}}
 #' @export
@@ -81,7 +81,7 @@ function(pls, hclus.res, nk, Y = NULL, stop.crit = 0.005, iter.max = 100)
   # =======================================================
   # checking arguments
   # =======================================================
-  if (class(pls) != "plspm") 
+  if (!is(pls,"plspm")) 
     stop("\n'it.reb()' requires an object of class 'plspm'")
   if (any(pls$model$specs$modes != "A"))
     stop("\nREBUS only works for reflective modes")
@@ -89,7 +89,7 @@ function(pls, hclus.res, nk, Y = NULL, stop.crit = 0.005, iter.max = 100)
     stop("\nREBUS only works with scaled='TRUE'")
   if (missing(hclus.res))
     stop("\nargument 'hclus.res' is missing")
-  if (class(hclus.res) != "hclust")
+  if (!is(hclus.res,"hclust"))
     stop("\n'it.reb()' requires an object of class 'hclust'")
   if (missing(nk))
     stop("\nargument 'nk' (number of classes) is missing")

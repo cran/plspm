@@ -31,7 +31,7 @@
 #' a new approach to latent class detection in PLS Path Modeling. 
 #' \emph{Ph.D. Thesis}, University of Naples "Federico II", Naples, Italy.
 #' 
-#' \url{http://www.fedoa.unina.it/2702/1/Trinchera_Statistica.pdf}
+#' \url{https://www.fedoa.unina.it/2702/1/Trinchera_Statistica.pdf}
 #' @seealso \code{\link{plspm}}, \code{\link{res.clus}}, 
 #' \code{\link{it.reb}}, \code{\link{rebus.test}}, 
 #' \code{\link{local.models}}
@@ -69,7 +69,7 @@ function(pls, Y = NULL, stop.crit = 0.005, iter.max = 100)
   # =======================================================
   # checking arguments
   # =======================================================
-  if (class(pls) != "plspm") 
+  if (!is(pls,"plspm")) 
     stop("\n'rebus.pls()' requires an object of class 'plspm'")
   # checking reflective modes
   if (any(pls$model$specs$modes != "A"))

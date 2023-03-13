@@ -121,14 +121,14 @@ check_modes <- function(modes, blocks)
   
   # are there any unrecognized modes?
   modes = toupper(modes)
-  bad_modes <- !(modes %in% c("A", "B", "NEWA", "PLSCOW", "PLSCORE"))
+  bad_modes <- !(modes %in% c("A", "B", "newA", "PLSCOW", "PLSCORE"))
   if (any(bad_modes)) {
     bad = modes[bad_modes]
     stop(sprintf("\nSorry. Unrecognized mode: '%s'", bad))
   }
     
   # cannot mix modes "A" and "newA"
-  mixed_modes = intersect(modes, c("A", "NEWA"))
+  mixed_modes = intersect(modes, c("A", "newA"))
   if (length(mixed_modes) > 1) {
     stop("\nSorry. Can't work with both modes 'A' and 'newA'")
   }  
@@ -246,8 +246,8 @@ check_plscomp <- function(plscomp, scaling, modes)
           stop(sprintf("%s %d %s", "element", j, 
                        "in 'plscomp' exceeds number of variables"))          
         }
-        # make sure plscomp[j]=1 when mode "NEWA"
-        if (modes[j] == "NEWA") plscomp[j] = 1
+        # make sure plscomp[j]=1 when mode "newA"
+        if (modes[j] == "newA") plscomp[j] = 1
       }
     }
   }

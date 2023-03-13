@@ -54,7 +54,7 @@ res.clus <- function(pls, Y = NULL)
   # =======================================================
   # checking arguments
   # =======================================================
-  if (class(pls) != "plspm") 
+  if (!is(pls,"plspm")) 
     stop("\n'res.clus()' requires a 'plspm' object")
   # checking reflective modes
   if (any(pls$model$specs$modes != "A"))

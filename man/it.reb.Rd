@@ -104,8 +104,6 @@ summary(local_rebus$loc.model.1)
   class detection in PLS Path Modeling. \emph{Ph.D.
   Thesis}, University of Naples "Federico II", Naples,
   Italy.
-
-  \url{http://www.fedoa.unina.it/2702/1/Trinchera_Statistica.pdf}
 }
 \seealso{
   \code{\link{plspm}}, \code{\link{rebus.pls}},

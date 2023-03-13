@@ -31,7 +31,7 @@
   }
 }
 \source{
- \url{http://www.teamrankings.com/nfl/stats/}
+ \url{https://www.teamrankings.com/nfl/stats/}
 }
 \examples{
 # load data
