@@ -27,7 +27,7 @@
   }
 }
 \source{
-  League Day. \url{https://www.leagueday.com} \cr
+  League Day.  \cr
   Cero a cero. \url{https://www.ceroacero.es/} \cr
 }
 \examples{

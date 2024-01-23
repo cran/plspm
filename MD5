@@ -1,6 +1,6 @@
-c22f6de5ddd390379c437ea1dd3e1c5f *DESCRIPTION
+bb68eeec437df87887aec387cf9c266c *DESCRIPTION
 b9811a256bdf82b77b212996e89fc4cf *NAMESPACE
-f0f741be74cc1826c52a6f96931e2cc5 *NEWS
+cf71a46c9dd346f9434b170f7f9b9449 *NEWS
 3386a0d2235b354d9ab13dc160e8b9ef *R/auxiliar.R
 9f8e1db077664b32f614bc98dbd57ec3 *R/check_arguments.R
 eaacbd7f0cded6014850321a1305c55c *R/check_specifications.R
@@ -55,7 +55,7 @@ b2346cdd7c800ab1a32dce75e2d48012 *R/test_dataset.R
 8562413ee6ce5ce336554b7b64ad0847 *R/test_manifest_scaling.R
 684650404ffe3453f311f32b4f974884 *R/test_null_weights.R
 d27efd61afed4c15097108b711c6b386 *R/unidimensionality.R
-98cf5512143ff41f60bea320ba1cf715 *build/vignette.rds
+119a3b279891443d8368c588f45ffa9b *build/vignette.rds
 65c75a827addf6f62a32d4e193a4f844 *data/arizona.rda
 fd44e464562559f7d6e01675aebfba8d *data/cereals.rda
 5897977a5b94764e99eac6c24736a2b7 *data/college.rda
@@ -72,8 +72,8 @@ f18614f6b736acb3ccfa403e79dc0293 *data/satisfaction.rda
 6bf4ffb108039cf1f251f0bd23556605 *data/technology.rda
 d2d348eb121d156714d179d7c4fd793a *data/wines.rda
 2dc2341307af49a023c24ae02d35062d *inst/doc/plspm_introduction.R
-9cecf057476d71344347244ccc7e330b *inst/doc/plspm_introduction.Rnw
-2c5b3dd560e05489fe3493578e6156d7 *inst/doc/plspm_introduction.pdf
+af92686fed30e146866076cd43c3560b *inst/doc/plspm_introduction.Rnw
+7cabdd61a50ee9f71e2beaf86e56ba2d *inst/doc/plspm_introduction.pdf
 219bce3cc9efe0040a0dce41e5fb8671 *man/alpha.Rd
 b9ada43096d5e0378359a239a746f731 *man/arizona.Rd
 bf1858167f3bb6aab108e548ba4cf942 *man/cereals.Rd
@@ -92,7 +92,7 @@ da865616a372529af7d9a49ff9815d93 *man/check_data.Rd
 d3d4b74e38c5aa1166424a8c1b34ab0f *man/check_tol.Rd
 a7955cf92937f79e5d5ebb229b1d1f46 *man/college.Rd
 c17b3690c28b83693ab202bc95732f19 *man/dummy.G.Rd
-68b336a8a6528ff146ea7fc0449a425e *man/futbol.Rd
+e1e1f834f6422a6880b396fe817aed23 *man/futbol.Rd
 795b7da6aa841179a8c000f2a11e30dd *man/get_GQI.Rd
 6dc5a307d8953799204edf6a0214bc99 *man/get_PLSR.Rd
 88880ff7be991902918fa2bbc6585359 *man/get_PLSR_NA.Rd
@@ -149,7 +149,7 @@ bba0bfb14d2cf1d89c110c806e65d80a *man/russa.Rd
 e7690ef3dfb2dd39629e0143425f97ad *man/russett.Rd
 dc984641f79d22b5b02a3f4ddb44a6a3 *man/satisfaction.Rd
 a372349de9f64626106fb4ad3439de26 *man/simdata.Rd
-20724bf15ffea3a4c161f67f33e40663 *man/spainfoot.Rd
+d47d5963297fd3508b02bc47714c3967 *man/spainfoot.Rd
 a1efab87b8f64bc9ecc0aee14bf502de *man/technology.Rd
 417a9e66c38c7fa45fa4546bb5093dc0 *man/test_dataset.Rd
 bc260e80b08d89f701988a8625cadb50 *man/test_factors.Rd
@@ -166,4 +166,4 @@ ccfbbd7014bf7218e115329707133bab *tests/testthat/test-check-data.r
 d692f1a40d1bb65b59187a9a82baf912 *tests/testthat/test-get-manifests.r
 f228e777c569df3c2f24f017fad6fcb5 *tests/testthat/test-get-metric.r
 5ac5f25eccfcac67b178ae14dc155582 *tests/testthat/test-manifest-scaling.r
-9cecf057476d71344347244ccc7e330b *vignettes/plspm_introduction.Rnw
+af92686fed30e146866076cd43c3560b *vignettes/plspm_introduction.Rnw

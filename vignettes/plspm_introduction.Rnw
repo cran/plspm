@@ -1,3 +1,5 @@
+% \VignetteIndexEntry{Introduction to plspm}
+% \VignetteEngine{knitr::knitr}
 \documentclass[12pt]{article}
 %\usepackage{upquote}
 \usepackage{geometry}
@@ -22,10 +24,6 @@
 \newcommand{\plspm}{\texttt{plspm}}
 \newcommand{\fplspm}{\texttt{plspm()}}
 \newcommand{\code}[1]{\texttt{#1}}
-
-% \VignetteIndexEntry{Introduction to plspm}
-% \VignetteEngine{knitr}
-
 \begin{document}
 \title{Introduction to the \R{} package \texttt{plspm}}
 \author{\textcolor{darkgray}{Gaston Sanchez, Laura Trinchera, Giorgio Russolillo}}

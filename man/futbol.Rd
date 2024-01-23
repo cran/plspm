@@ -26,7 +26,7 @@
   }
 }
 \source{
-  League Day. \url{https://www.leagueday.com} 
+  League Day. 
 }
 \examples{
   data(futbol)
