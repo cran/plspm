@@ -3,22 +3,22 @@ library(plspm)
 options(width = 80)
 
 ## ----install_plpsm, eval=FALSE------------------------------------------------
-#  # installation
-#  install.packages("plspm")
+# # installation
+# install.packages("plspm")
 
 ## ----load_plspm, eval=FALSE---------------------------------------------------
-#  # load package 'plspm'
-#  library("plspm")
+# # load package 'plspm'
+# library("plspm")
 
 ## ----devel_plspm, eval=FALSE--------------------------------------------------
-#  # load devtools
-#  library(devtools)
-#  
-#  # then download 'plspm' using 'install_github'
-#  install_github("gastonstat/plspm")
-#  
-#  # finally, load it with library()
-#  library(plspm)
+# # load devtools
+# library(devtools)
+# 
+# # then download 'plspm' using 'install_github'
+# install_github("gastonstat/plspm")
+# 
+# # finally, load it with library()
+# library(plspm)
 
 ## ----load_russett-------------------------------------------------------------
 # laod data set
@@ -90,8 +90,8 @@ rus_pls$path_coefs
 rus_pls$inner_model
 
 ## ----apply_summary_ruspls, eval=FALSE-----------------------------------------
-#  # summarized results
-#  summary(rus_pls)
+# # summarized results
+# summary(rus_pls)
 
 ## ----rus_pls_innerplot, fig.width=4.5, fig.height=3, out.width='.7\\linewidth', out.height='.4\\linewidth', fig.align='center', fig.pos='h', echo=c(1,3), eval=TRUE----
 # plot the results (inner model)
@@ -112,24 +112,24 @@ plot(rus_pls, what = "weights", arr.width = 0.1)
 par(op)
 
 ## ----rus_pls_xloads_plot, eval=FALSE, tidy=FALSE------------------------------
-#  # load ggplot2 and reshape
-#  library(ggplot2)
-#  library(reshape)
-#  
-#  # reshape crossloadings data.frame for ggplot
-#  xloads = melt(rus_pls$crossloadings, id.vars = c("name", "block"),
-#                variable_name = "LV")
-#  
-#  # bar-charts of crossloadings by block
-#  ggplot(data = xloads,
-#         aes(x = name, y = value, fill = block)) +
-#    geom_hline(yintercept = 0, color = "gray75") +
-#    geom_hline(yintercept = c(-0.5, 0.5), color = "gray70", linetype = 2) +
-#    geom_bar(stat = 'identity', position = 'dodge') +
-#    facet_wrap(block ~ LV) +
-#    theme(axis.text.x = element_text(angle = 90),
-#          line = element_blank()) +
-#    ggtitle("Crossloadings")
+# # load ggplot2 and reshape
+# library(ggplot2)
+# library(reshape)
+# 
+# # reshape crossloadings data.frame for ggplot
+# xloads = melt(rus_pls$crossloadings, id.vars = c("name", "block"),
+#               variable_name = "LV")
+# 
+# # bar-charts of crossloadings by block
+# ggplot(data = xloads,
+#        aes(x = name, y = value, fill = block)) +
+#   geom_hline(yintercept = 0, color = "gray75") +
+#   geom_hline(yintercept = c(-0.5, 0.5), color = "gray70", linetype = 2) +
+#   geom_bar(stat = 'identity', position = 'dodge') +
+#   facet_wrap(block ~ LV) +
+#   theme(axis.text.x = element_text(angle = 90),
+#         line = element_blank()) +
+#   ggtitle("Crossloadings")
 
 ## ----rus_pls_xloads_ggplot, fig.width=8, fig.height=6, out.width='1\\linewidth', out.height='.75\\linewidth', fig.align='center', fig.pos='h', echo=FALSE, message=FALSE----
 # load ggplot2 and reshape

@@ -24,9 +24,9 @@
 #' (one value, or a matrix with same dimensions as \code{x}).
 #' @param cex.txt Relative size of text on arrows.
 #' @param show.values should values be shown when \code{x} is a matrix.
-#' @param \dots Further arguments passed on to \code{\link{plotmat}}.
+#' @param \dots Further arguments passed on to \code{\link[diagram]{plotmat}}.
 #' @note \code{innerplot} uses the function
-#' \code{\link{plotmat}} in package \code{diagram}. \cr
+#' \code{\link[diagram]{plotmat}} in package \code{diagram}. \cr
 #' \url{https://cran.r-project.org/package=diagram/vignettes/diagram.pdf}
 #' @seealso \code{\link{plot.plspm}}, \code{\link{outerplot}}
 #' @export 

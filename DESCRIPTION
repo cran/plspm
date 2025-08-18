@@ -1,8 +1,8 @@
 Package: plspm
 Type: Package
 Title: Partial Least Squares Path Modeling (PLS-PM)
-Version: 0.5.1
-Date: 2024-01-23
+Version: 0.5.2
+Date: 2025-08-18
 Authors@R: c(
    	person(given = "Frederic", family= "Bertrand", role = c("cre"), email = "frederic.bertrand@utt.fr", comment = c(ORCID = "0000-0002-0837-8281")),
     person("Gaston", "Sanchez", email = "gaston.stat@gmail.com", role = c("aut")),
@@ -36,12 +36,13 @@ Collate: 'plspm.R' 'auxiliar.R' 'check_arguments.R'
         'res.clus.R' 'get_PLSR.R' 'get_PLSR_NA.R' 'quantiplot.R'
         'plspm-package.R'
 NeedsCompilation: no
-Author: Frederic Bertrand [cre] (<https://orcid.org/0000-0002-0837-8281>),
+Author: Frederic Bertrand [cre] (ORCID:
+    <https://orcid.org/0000-0002-0837-8281>),
   Gaston Sanchez [aut],
   Laura Trinchera [aut],
   Giorgio Russolillo [aut]
 Maintainer: Frederic Bertrand <frederic.bertrand@utt.fr>
 Encoding: UTF-8
-Packaged: 2024-01-23 18:28:14 UTC; fbertran
+Packaged: 2025-08-17 22:33:06 UTC; bertran7
 Repository: CRAN
-Date/Publication: 2024-01-23 19:20:02 UTC
+Date/Publication: 2025-08-18 10:20:02 UTC

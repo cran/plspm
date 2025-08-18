@@ -20,9 +20,9 @@
 #' @param arr.pos Relative position of arrowheads on arrows.
 #' @param arr.width arrow width.
 #' @param cex.txt Relative size of text on arrows.
-#' @param \dots Further arguments passed on to \code{\link{plotmat}}.
+#' @param \dots Further arguments passed on to \code{\link[diagram]{plotmat}}.
 #' @note \code{outerplot} uses the function
-#' \code{\link{plotmat}} of package \code{diagram}. \cr
+#' \code{\link[diagram]{plotmat}} of package \code{diagram}. \cr
 #' \url{https://cran.r-project.org/package=diagram/vignettes/diagram.pdf}
 #' @seealso \code{\link{innerplot}}, \code{\link{plot.plspm}}, 
 #' \code{\link{plspm}}

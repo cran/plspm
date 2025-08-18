@@ -40,7 +40,7 @@
   \item{cex.txt}{Relative size of text on arrows.}
 
   \item{\dots}{Further arguments passed on to
-  \code{\link{plotmat}}.}
+  \code{\link[diagram]{plotmat}}.}
 }
 \description{
   Plot method for objects of class \code{"plspm"}. This
@@ -54,7 +54,7 @@
 }
 \note{
   Function \code{plot.plspm} is based on the function
-  \code{\link{plotmat}} of package \code{diagram}. \cr
+  \code{\link[diagram]{plotmat}} of package \code{diagram}. \cr
   \url{https://cran.r-project.org/package=diagram/vignettes/diagram.pdf}
 }
 \examples{

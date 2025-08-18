@@ -1,6 +1,6 @@
-bb68eeec437df87887aec387cf9c266c *DESCRIPTION
+97d347af7a63038724b708f8aee56aa1 *DESCRIPTION
 b9811a256bdf82b77b212996e89fc4cf *NAMESPACE
-cf71a46c9dd346f9434b170f7f9b9449 *NEWS
+c0262f8c354d9cfd7cde6e5bd42326d3 *NEWS
 3386a0d2235b354d9ab13dc160e8b9ef *R/auxiliar.R
 9f8e1db077664b32f614bc98dbd57ec3 *R/check_arguments.R
 eaacbd7f0cded6014850321a1305c55c *R/check_specifications.R
@@ -33,11 +33,11 @@ f20ac1e3f28978d744eff4bf70fe724d *R/get_treated_data.R
 9552baaa36888b515b28b052a2c69dc3 *R/get_unidim.R
 4d9bc6bcaffc0dc5ed004ee9719da657 *R/get_weights.R
 b54f4f85e0e488f39a2488073eb8a36c *R/get_weights_nonmetric.R
-c9301b6547be7fe3d79028e492f45177 *R/innerplot.R
+fea71e865d2ce28589defb058ab65633 *R/innerplot.R
 4f8cab059cf1d111a41244f64ef5fac2 *R/it.reb.R
 f219aa868c8df608be6c349f5c7fe2d8 *R/local.models.R
-0a9cd74a81fa046123e0f192577710d2 *R/outerplot.R
-dbed34b4055bc9ff10715152afdf9bf8 *R/plot.plspm.R
+ec770fd05bc4e11cfbae1a1ca69d45ac *R/outerplot.R
+0397824d250f64df14fa6141d0d22012 *R/plot.plspm.R
 e611a716089341f3cec374cf20e35cb5 *R/plspm-package.R
 5469d1eeae9eb1f057c224451bfab392 *R/plspm.R
 3e15a03b44abe53f1c520b11c3140eba *R/plspm.fit.R
@@ -55,7 +55,7 @@ b2346cdd7c800ab1a32dce75e2d48012 *R/test_dataset.R
 8562413ee6ce5ce336554b7b64ad0847 *R/test_manifest_scaling.R
 684650404ffe3453f311f32b4f974884 *R/test_null_weights.R
 d27efd61afed4c15097108b711c6b386 *R/unidimensionality.R
-119a3b279891443d8368c588f45ffa9b *build/vignette.rds
+610918f49301ad492e02803608dbe92e *build/vignette.rds
 65c75a827addf6f62a32d4e193a4f844 *data/arizona.rda
 fd44e464562559f7d6e01675aebfba8d *data/cereals.rda
 5897977a5b94764e99eac6c24736a2b7 *data/college.rda
@@ -71,9 +71,9 @@ f18614f6b736acb3ccfa403e79dc0293 *data/satisfaction.rda
 48b122f74ff60a5d28e4c7bdcc90f85f *data/spainfoot.rda
 6bf4ffb108039cf1f251f0bd23556605 *data/technology.rda
 d2d348eb121d156714d179d7c4fd793a *data/wines.rda
-2dc2341307af49a023c24ae02d35062d *inst/doc/plspm_introduction.R
+fdd12d6ba5291536da99001262d18299 *inst/doc/plspm_introduction.R
 af92686fed30e146866076cd43c3560b *inst/doc/plspm_introduction.Rnw
-7cabdd61a50ee9f71e2beaf86e56ba2d *inst/doc/plspm_introduction.pdf
+bd826cf1b7c9a5b37ae19b4df7adb844 *inst/doc/plspm_introduction.pdf
 219bce3cc9efe0040a0dce41e5fb8671 *man/alpha.Rd
 b9ada43096d5e0378359a239a746f731 *man/arizona.Rd
 bf1858167f3bb6aab108e548ba4cf942 *man/cereals.Rd
@@ -125,7 +125,7 @@ d7ceba3c09dfa04c9a1acd608eb0183b *man/get_rho.Rd
 a5424364c7699e19d31b014dffdfe142 *man/get_unidim.Rd
 9f5a4a31670ecf7695face3a40a8334b *man/get_weights.Rd
 acc0788ac54f70ccf8ac3adc394a7f98 *man/get_weights_nonmetric.Rd
-e08cc3be7ff3e0cde96a41b2eb48ff41 *man/innerplot.Rd
+42530a73bbca001eddeacb7c29830c33 *man/innerplot.Rd
 a621fb19732b4e264f2fbe507836e613 *man/is_missing.Rd
 01175447ed79b2d251c2724a34b54b99 *man/it.reb.Rd
 9fdaa9846682bba97e86fdcd8cb7738d *man/local.models.Rd
@@ -133,8 +133,8 @@ a621fb19732b4e264f2fbe507836e613 *man/is_missing.Rd
 a406c4d0d3fd64dfaeb149fd4abdfe64 *man/normalize.Rd
 05d7760e2b2e2964bcbd4902b590d724 *man/offense.Rd
 21e892914760b5b43e7363986b6b273d *man/orange.Rd
-826bcbd93c78d33418f35755a2110e1c *man/outerplot.Rd
-712b38a0b1d7974c7f2a98c5f27b46a8 *man/plot.plspm.Rd
+7f54de3cccc190efede2b8f3ae4c3bc0 *man/outerplot.Rd
+a5fd841b3ba05436198888a7da7c6b96 *man/plot.plspm.Rd
 17dfe39c3ef93e44bec57640aca0c850 *man/plspm.Rd
 8d4d0411f0ac54a0122238d5b9103693 *man/plspm.fit.Rd
 ae4bba298e6b0788c5bd13d20ef3c3c0 *man/plspm.groups.Rd

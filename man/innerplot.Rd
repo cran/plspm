@@ -54,14 +54,14 @@
   is a matrix.}
 
   \item{\dots}{Further arguments passed on to
-  \code{\link{plotmat}}.}
+  \code{\link[diagram]{plotmat}}.}
 }
 \description{
   Plot the inner (structural) model for objects of class
   \code{"plspm"}, as well as path matrices
 }
 \note{
-  \code{innerplot} uses the function \code{\link{plotmat}}
+  \code{innerplot} uses the function \code{\link[diagram]{plotmat}}
   in package \code{diagram}. \cr
   \url{https://cran.r-project.org/package=diagram/vignettes/diagram.pdf}
 }

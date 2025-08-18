@@ -21,9 +21,9 @@
 #' @param txt.col color of text in ellipses and rectangles.
 #' @param arr.pos Relative position of arrowheads on arrows.
 #' @param cex.txt Relative size of text on arrows.
-#' @param \dots Further arguments passed on to \code{\link{plotmat}}.
+#' @param \dots Further arguments passed on to \code{\link[diagram]{plotmat}}.
 #' @note Function \code{plot.plspm} is based on the function
-#' \code{\link{plotmat}} of package \code{diagram}. \cr
+#' \code{\link[diagram]{plotmat}} of package \code{diagram}. \cr
 #' \url{https://cran.r-project.org/package=diagram/vignettes/diagram.pdf}
 #' @seealso \code{\link{innerplot}}, \code{\link{outerplot}}, 
 #' \code{\link{plspm}}
