@@ -1,5 +1,3 @@
-context("Checking blocks")
-
 test_that("check_blocks works as expected", {
   num_block1 = list(1:2, 3:4)
   chr_block1 = list(c("A", "B"), c("C", "D"))
@@ -8,10 +6,10 @@ test_that("check_blocks works as expected", {
   data = matrix(1:24, 4, 6)
   colnames(data) = c("A", "B", "C", "D", "E", "F")
   
-  expect_that(check_blocks(num_block1, data), is_identical_to(num_block1))
-  expect_that(check_blocks(num_block2, data), is_identical_to(num_block2))
-  expect_that(check_blocks(chr_block1, data), is_identical_to(num_block1))
-  expect_that(check_blocks(chr_block2, data), is_equivalent_to(num_block2))
+  expect_identical(check_blocks(num_block1, data), num_block1)
+  expect_identical(check_blocks(num_block2, data), num_block2)
+  expect_identical(check_blocks(chr_block1, data), num_block1)
+  expect_equal(check_blocks(chr_block2, data), num_block2, ignore_attr = TRUE)
 })
 
 test_that("check_blocks detects bad blocks", {
@@ -26,12 +24,12 @@ test_that("check_blocks detects bad blocks", {
   expect_error(check_blocks(1:10), "'blocks' must be a list.")
   expect_error(check_blocks("string"), "'blocks' must be a list.")
   expect_error(check_blocks(dupli1), 
-               "Invalid 'blocks'. Duplicated variables within a block are not allowed")
+               "Wrong 'blocks'. Duplicated variables in a block are not allowed")
   expect_error(check_blocks(dupli2), 
-               "Invalid 'blocks'. Duplicated variables within a block are not allowed")
-  expect_error(check_blocks(mixed), "All elements in 'blocks' must be of same mode")
+               "Wrong 'blocks'. Duplicated variables in a block are not allowed")
+  expect_error(check_blocks(mixed), "All elements in 'blocks' must have the same mode")
   expect_error(check_blocks(bad1, data), 
-               "Invalid 'blocks'. Indices outside the number of columns in 'Data'")
+               "Indices in 'blocks' outside the number of columns in 'Data'")
   expect_error(check_blocks(bad2, data), 
                "Unrecognized name in 'blocks': 'E'")
 })

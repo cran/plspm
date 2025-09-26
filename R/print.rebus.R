@@ -1,4 +1,4 @@
-#'@S3method print rebus
+#' @exportS3Method base::print
 print.rebus <- function(x, ...)
 {
   lvs <- x$aux[[1]]

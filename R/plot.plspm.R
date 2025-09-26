@@ -27,8 +27,7 @@
 #' \url{https://cran.r-project.org/package=diagram/vignettes/diagram.pdf}
 #' @seealso \code{\link{innerplot}}, \code{\link{outerplot}}, 
 #' \code{\link{plspm}}
-#' @method plot plspm
-#' @S3method plot plspm
+#' @exportS3Method base::plot
 #' @examples
 #' 
 #'  \dontrun{

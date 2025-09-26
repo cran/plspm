@@ -1,7 +1,6 @@
 \docType{package}
 \name{plspm}
 \alias{plspm}
-\alias{plspm-package}
 \title{PLS-PM: Partial Least Squares Path Modeling}
 \usage{
   plspm(Data, path_matrix, blocks, modes = NULL,

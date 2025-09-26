@@ -1,17 +1,42 @@
+Version 0.6.0 (2025-09-25)
+------------------------------------------------------------
+
+* maintainer email update
+
+* fixed unit tests
+
+* added package doi
+
+* Added citation file
+
+* Added private github actions (rhub and R-CMD-check)
+
+* Roxygenized namespace
+
+
 Version 0.5.2 (2025-08-18)
 ------------------------------------------------------------
 
 * fixes requested by the CRAN
+
 
 Version 0.5.1 (2024-01-23)
 ------------------------------------------------------------
 
 * fixes requested by the CRAN
 
+
 Version 0.5.0 (2023-03-09)
 ------------------------------------------------------------
 
 * fixes to have the packages on the CRAN again
+
+
+Version 0.4.9 (2015-07-14)
+------------------------------------------------------------
+
+* Include non-metric plspm in Vignette
+
 
 Version 0.4.7 (2015-05-22)
 ------------------------------------------------------------
@@ -27,7 +52,8 @@ Version 0.4.7 (2015-05-22)
 Version 0.4.6 (2015-05-21)
 ------------------------------------------------------------
 
-* updated documentation in funciton `plspm` for non-metric argument scaling
+* updated documentation in function `plspm` for non-metric argument scaling
+
 * updated `install_github` call in README
 
 
@@ -47,6 +73,7 @@ Version 0.4.3 (2014-03-23)
 ------------------------------------------------------------
 
 * fixed factorial scheme bug in `get_weights_nonmetric`
+
 * get_dummy allows `x` to include zero
 
 

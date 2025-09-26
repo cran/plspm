@@ -21,7 +21,7 @@ options(width = 80)
 # library(plspm)
 
 ## ----load_russett-------------------------------------------------------------
-# laod data set
+# load data set
 data(russett)
 
 ## ----head_russett, size='small'-----------------------------------------------
@@ -78,7 +78,7 @@ rus_modes = rep("A", 3)
 # run plspm analysis
 rus_pls = plspm(russett, rus_path, rus_blocks, modes = rus_modes) 
 
-# what's in foot_pls?
+# what's in rus_pls?
 rus_pls
 
 ## ----path_coefs---------------------------------------------------------------
@@ -151,4 +151,50 @@ ggplot(data = xloads,
         line = element_blank(),
         plot.title = element_text(size=12)) +
   ggtitle("Crossloadings")
+
+## ----load_russb---------------------------------------------------------------
+# load data set
+data(russb)
+
+## ----head_russb, size='small'-------------------------------------------------
+# take a look at the data
+head(russb)
+
+## ----scaling_russb------------------------------------------------------------
+# defining the quantification constraints for each manifest variable  
+russb_scaling = list(c("num", "num", "ord"),
+                    c("ord", "ord"),
+                    c("ord", "ord", "ord", "nom"))
+
+# defining the blocks of manifest variables 
+russb_blocks = list(
+   c("gini", "farm", "rent"),
+   c("gnpr", "labo"),
+   c("inst", "ecks", "death", "demo"))
+
+## ----echo=FALSE, message=FALSE------------------------------------------------
+# path matrix (inner model realtionships)
+AGRIN = c(0, 0, 0)
+INDEV = c(0, 0, 0)
+POLINS = c(1, 1, 0)
+rus_path = rbind(AGRIN, INDEV, POLINS)
+# add optional column names
+colnames(rus_path) = rownames(rus_path)
+
+# all latent variables are measured in a reflective way
+rus_modes = rep("A", 3)
+
+## ----russb_nmpls--------------------------------------------------------------
+# running the model 
+russb_nmpls = plspm(russb, path = rus_path, blocks = russb_blocks,
+              scaling = russb_scaling, modes = rus_modes,
+              scheme = "CENTROID")
+
+## ----quantivar,  eval=TRUE----------------------------------------------------
+head(russb_nmpls$manifests)
+
+## ----quantiplot_agr, fig.width=6, fig.height=2.5, out.width='1\\linewidth', out.height='.45\\linewidth', fig.align='center', fig.pos='h'----
+par(mar = rep(0,4))
+quantiplot(russb_nmpls, lv = "AGRIN")
+par(op)
 

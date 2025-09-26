@@ -142,7 +142,7 @@ rebus.test <- function(pls, reb, Y = NULL)
 }
 
 
-#'@S3method print rebus.test
+#' @exportS3Method base::print
 print.rebus.test <- function(x, ...)
 {
   cat("Validation for REBUS-PLS by permutation tests", "\n")

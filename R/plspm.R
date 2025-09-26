@@ -285,7 +285,7 @@ function(Data, path_matrix, blocks, modes = NULL, scaling = NULL,
 }
 
 
-#'@S3method print plspm
+#' @exportS3Method base::print
 print.plspm <- function(x, ...)
 {
   cat("Partial Least Squares Path Modeling (PLS-PM)", "\n")

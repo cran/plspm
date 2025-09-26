@@ -1,33 +1,31 @@
-context("Checking blocks")
-
 test_that("check_scheme detects centroid", {
-  expect_that(check_scheme("centroid"), is_identical_to("centroid"))
-  expect_that(check_scheme("CENTROID"), is_identical_to("centroid"))
-  expect_that(check_scheme("cen"), is_identical_to("centroid"))
-  expect_that(check_scheme("CEN"), is_identical_to("centroid"))
-  expect_that(check_scheme("c"), is_identical_to("centroid"))
-  expect_that(check_scheme("C"), is_identical_to("centroid"))
+  expect_identical(check_scheme("centroid"), "centroid")
+  expect_identical(check_scheme("CENTROID"), "centroid")
+  expect_identical(check_scheme("cen"), "centroid")
+  expect_identical(check_scheme("CEN"), "centroid")
+  expect_identical(check_scheme("c"), "centroid")
+  expect_identical(check_scheme("C"), "centroid")
 })
 
 
 test_that("check_scheme detects factorial", {
-  expect_that(check_scheme("factorial"), is_identical_to("factorial"))
-  expect_that(check_scheme("FACTORIAL"), is_identical_to("factorial"))
-  expect_that(check_scheme("factor"), is_identical_to("factorial"))
-  expect_that(check_scheme("FACTOR"), is_identical_to("factorial"))
-  expect_that(check_scheme("f"), is_identical_to("factorial"))
-  expect_that(check_scheme("F"), is_identical_to("factorial"))
+  expect_identical(check_scheme("factorial"), "factorial")
+  expect_identical(check_scheme("FACTORIAL"), "factorial")
+  expect_identical(check_scheme("factor"), "factorial")
+  expect_identical(check_scheme("FACTOR"), "factorial")
+  expect_identical(check_scheme("f"), "factorial")
+  expect_identical(check_scheme("F"), "factorial")
 })
 
 test_that("check_scheme detects path", {
-  expect_that(check_scheme("path"), is_identical_to("path"))
-  expect_that(check_scheme("PATH"), is_identical_to("path"))
-  expect_that(check_scheme("p"), is_identical_to("path"))
-  expect_that(check_scheme("P"), is_identical_to("path"))
+  expect_identical(check_scheme("path"), "path")
+  expect_identical(check_scheme("PATH"), "path")
+  expect_identical(check_scheme("p"), "path")
+  expect_identical(check_scheme("P"), "path")
 })
 
 test_that("check_scheme detects bad schemes", {
-  expect_warning(check_scheme(1:10), 
+  expect_warning(check_scheme(1), 
                  "Invalid 'scheme'. Default 'scheme=centroid' is used.")
   expect_warning(check_scheme("inner"), 
                  "Invalid 'scheme'. Default 'scheme=centroid' is used.")

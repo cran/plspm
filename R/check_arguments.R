@@ -105,10 +105,10 @@ check_path <- function(path_matrix)
     stop("\n'path_matrix' must be a square matrix.")
   
   if (nrow(path_matrix) == 1)
-    stop("\n'path_matrix' must have more than one row")
+    stop("\n'path_matrix' must have more than one row.")
   
   if (!is_lower_triangular(path_matrix))
-    stop("\n'path_matrix' must be a lower triangular matrix")
+    stop("\n'path_matrix' must be a lower triangular matrix.")
   
   
   for (j in 1:ncol(path_matrix)) 
@@ -116,7 +116,7 @@ check_path <- function(path_matrix)
     for (i in 1:nrow(path_matrix)) 
     {
       if (length(intersect(path_matrix[i,j], c(1,0))) == 0)
-        stop("\nElements in 'path_matrix' must be '1' or '0'")
+        stop("\nElements in 'path_matrix' must be '1' or '0'.")
     }      
   }
   

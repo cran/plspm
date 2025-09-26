@@ -1,17 +1,28 @@
-#' \pkg{plspm} Tools for Partial Least Squares Path Modeling (PLS-PM)
-#'
-#' Estimate path models with latent variables by partial least squares 
-#' approach (for both metric and non-metric data)
-#'
-#' \itemize{
-#'   \item \code{\link{plspm}}: Partial Least Squares Path Modeling
-#'   \item \code{\link{plspm.fit}}: Simple version for PLS-PM
-#'   \item \code{\link{plspm.groups}}: Two Groups Comparison in PLS-PM
-#'   \item \code{\link{rebus.pls}}: Response Based Unit Segmentation (REBUS)
-#' }
-#'
-#' @name plspm
-#' @docType package
-#' @import tester turner diagram shape
+#' @keywords internal
+#' @aliases plspm-package
+#' @author This package was written by Gaston Sanchez. 
+#' Maintainer: Frederic Bertrand <frederic.bertrand@@lecnam.net>
+#' 
+"_PACKAGE"
+
+#' @import tester 
+#' @import turner 
+#' @import diagram 
+#' @import shape
 #' @importFrom amap hcluster
+#' @importFrom methods is
+#' @importFrom graphics lines
+#' @importFrom graphics par
+#' @importFrom graphics plot
+#' @importFrom graphics title
+#' @importFrom stats cor
+#' @importFrom stats cov
+#' @importFrom stats cutree
+#' @importFrom stats lm
+#' @importFrom stats na.omit
+#' @importFrom stats princomp
+#' @importFrom stats pt
+#' @importFrom stats quantile
+#' @importFrom stats sd
+#' @importFrom stats var
 NULL

@@ -1,11 +1,9 @@
-context("Checking path matrix")
-
 test_that("check_path works as expected with matrices", {
   some_path = matrix(c(0,0,0,0,0,0,1,1,0), 3, 3, byrow=TRUE)
   rownames(some_path) = c("LV1", "LV2", "LV3")
   colnames(some_path) = c("LV1", "LV2", "LV3")
   
-  expect_that(check_path(some_path), is_identical_to(some_path))
+  expect_identical(check_path(some_path), some_path)
 })
 
 test_that("check_path detects bad path matrices", {
@@ -16,8 +14,8 @@ test_that("check_path detects bad path matrices", {
   
   expect_error(check_path(1:10), "'path_matrix' must be a matrix.")
   expect_error(check_path("string"), "'path_matrix' must be a matrix.")
-  expect_error(check_path(bad1), "'path_matrix' must have more than one element.")
+  expect_error(check_path(bad1), "'path_matrix' must have more than one row.")
   expect_error(check_path(bad2), "'path_matrix' must be a square matrix.")
   expect_error(check_path(bad3), "'path_matrix' must be a lower triangular matrix.")
-  expect_error(check_path(bad4), "Elements in 'path_matrix' must be '1' or '0'")
+  expect_error(check_path(bad4), "Elements in 'path_matrix' must be '1' or '0'.")
 })
